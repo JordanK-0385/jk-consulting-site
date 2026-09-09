@@ -1,0 +1,41 @@
+/* ============================================================
+   RACCORDS DE FONDS (SPECS §4)
+   Règle : immersif = sombre, éditorial = clair. Chaque frontière entre
+   les deux registres reçoit une bande de dégradé, pour que la bascule
+   soit un fondu et non un trait.
+
+   Un seul composant, deux sens. Les sections ne fabriquent plus leur
+   propre bande : le proto n'en avait qu'à une frontière sur trois.
+   ============================================================ */
+
+.seam{
+  height: clamp(90px, 12vh, 140px);
+  /* Une bande décorative ne doit pas capter le pointeur ni s'intercaler
+     entre deux blocs de contenu pour un lecteur d'écran. */
+  pointer-events: none;
+}
+
+/* La teinte sombre est prise sur --seam-dark si la section en déclare une,
+   sinon sur le fond de page. En valeur de repli et non en déclaration sur
+   .seam : une déclaration sur l'élément lui-même l'emporterait sur la
+   valeur héritée de la section, et la surcharge serait sans effet. */
+
+/* Sombre au-dessus, clair en dessous. */
+.seam--to-light{
+  background: linear-gradient(180deg,
+    var(--seam-dark, var(--bg-deep))   0%,
+    var(--bg-high)  34%,
+    var(--paper)   100%);
+}
+
+/* Clair au-dessus, sombre en dessous. */
+.seam--to-dark{
+  background: linear-gradient(180deg,
+    var(--paper)     0%,
+    var(--bg-high)  68%,
+    var(--seam-dark, var(--bg-deep)) 100%);
+}
+
+/* Le raccord se place en bord de section : il ne doit pas hériter d'un
+   fond de section qui l'écraserait. */
+.section > .seam{ position: relative; z-index: 1; }

@@ -105,12 +105,10 @@
    « Prêt à passer à l'IA ? » — retour au SOMBRE avant le CTA
    ============================================================ */
 
-/* Raccord clair -> sombre (SPECS §4). Les autres frontières sont posées
-   à l'étape suivante. */
-.s-contact .topfade{
-  height: 120px;
-  background: linear-gradient(180deg, var(--paper) 0%, var(--bg-high) 70%, #070C18 100%);
-}
+/* Le bloc de conversion est sur un noir légèrement distinct du fond de
+   page : on le passe au composant de raccord plutôt que de le coder deux
+   fois (cf. transitions.css). */
+.s-contact{ --seam-dark: #070C18; }
 
 .s-contact .ready{
   position: relative;

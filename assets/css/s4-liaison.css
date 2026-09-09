@@ -32,7 +32,15 @@
   inset: 0;
   pointer-events: none;
   z-index: 11;
-  background: radial-gradient(120% 100% at 50% 48%, transparent 60%, rgba(2,5,14,.5) 100%);
+  background:
+    /* Voile de bord haut. Le halo bleu de cette scène est centré à 42% avec
+       une extension de 85% : il atteint le bord supérieur, que celui du
+       workflow (centré à 50%) n'atteint pas. Sans ce voile, la frontière
+       entre les deux sections sombres se voyait comme un trait —
+       #070F21 au-dessus contre #162743 en dessous. Il profite aussi au
+       titre central, posé juste sous ce bord. */
+    linear-gradient(180deg, rgba(6,11,24,.92) 0%, rgba(6,11,24,0) 16%),
+    radial-gradient(120% 100% at 50% 48%, transparent 60%, rgba(2,5,14,.5) 100%);
 }
 
 .s-liaison .hud{ position: absolute; inset: 22px; pointer-events: none; z-index: 15; }

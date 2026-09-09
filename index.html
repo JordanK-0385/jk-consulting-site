@@ -18,6 +18,7 @@
 
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/transitions.css">
 <link rel="stylesheet" href="assets/css/s1-landing.css">
 <link rel="stylesheet" href="assets/css/s2-method.css">
 <link rel="stylesheet" href="assets/css/s3-workflow.css">
@@ -85,6 +86,7 @@
 
   <!-- 2 · COMMENT ON FAIT — la méthode · CLAIR -->
   <section id="methode" class="section s-method on-light" aria-labelledby="methode-title">
+    <div class="seam seam--to-light" aria-hidden="true"></div>
     <div class="wrap">
 
       <div class="intro">
@@ -146,6 +148,7 @@
       </div>
 
     </div>
+    <div class="seam seam--to-dark" aria-hidden="true"></div>
   </section>
 
   <!-- 3 · LE WORKFLOW — la métamorphose · SOMBRE -->
@@ -243,6 +246,7 @@
        │ une citation attribuée mais inventée est le pire des cas.         │
        └──────────────────────────────────────────────────────────────────┘ -->
   <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
+    <div class="seam seam--to-light" aria-hidden="true"></div>
     <div class="wrap">
 
       <div class="head">
@@ -367,7 +371,7 @@
 
   <!-- « PRÊT À… » · retour au SOMBRE avant le CTA -->
   <section id="contact" class="section s-contact on-dark" aria-labelledby="contact-title">
-    <div class="topfade" aria-hidden="true"></div>
+    <div class="seam seam--to-dark" aria-hidden="true"></div>
     <div class="ready">
       <div class="ripples" aria-hidden="true">
         <div class="ripple" style="width:180px;height:180px;opacity:1.0;animation-delay:-0.0s"></div>

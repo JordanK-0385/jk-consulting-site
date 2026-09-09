@@ -8,7 +8,10 @@
    réservés — pas de faux nom, pas de fausse citation, pas de fausse photo.
    ============================================================ */
 
-.s-temoignages{ padding: clamp(70px, 12vh, 130px) 0 clamp(70px, 12vh, 130px); }
+/* Marges portées par .wrap et non par la section : le raccord en tête doit
+   toucher le bord, sinon le padding intercale du papier entre la section
+   sombre précédente et le dégradé. */
+.s-temoignages .wrap{ padding-block: clamp(70px, 12vh, 130px); }
 
 .s-temoignages .head{ max-width: 60ch; margin-bottom: clamp(28px, 4vh, 44px); }
 .s-temoignages .eyebrow{

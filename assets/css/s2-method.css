@@ -8,9 +8,10 @@
    (#1E9FD6 / #3B7BE0) est fourni par .on-light dans tokens.css.
    ============================================================ */
 
-.s-method{ padding-bottom: clamp(40px, 8vh, 90px); }
-
-.s-method .wrap{ max-width: 1100px; }
+/* La marge de bas de section vit dans .wrap, pas sur la section : le
+   raccord doit toucher le bord, sinon le padding réintroduit une bande de
+   papier entre le dégradé et la section sombre qui suit. */
+.s-method .wrap{ max-width: 1100px; padding-bottom: clamp(40px, 8vh, 90px); }
 
 /* ---- Chapô ---- */
 .s-method .intro{
