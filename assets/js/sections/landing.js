@@ -24,8 +24,25 @@ import { claim } from '../core/thread.js';
  * au cadrage responsive. Le fond, lui, n'est pas interpolé ici : le raccord
  * de couture vers la méthode s'en charge déjà.
  */
-const CONDENSE = [0.45, 0.92];   // le bureau se ramasse
-const ETINCELLE = [0.58, 0.90];  // le token prend sa place
+/*
+ * Séquentiel, jamais parallèle. Une première version faisait apparaître
+ * l'étincelle alors que le bureau était encore à 40% de sa taille : on
+ * lisait « une boule cachée derrière le bureau », pas « le bureau devient
+ * une boule ».
+ *
+ * 1. Le bureau se ramasse jusqu'à un point, l'étincelle strictement
+ *    invisible pendant toute la contraction.
+ * 2. Puis, dans les tout derniers instants, un fondu-enchaîné serré : le
+ *    point s'éteint pendant que la lueur s'allume, au même endroit et à la
+ *    même taille. Une continuité, pas une superposition.
+ */
+const CONDENSE = [0.40, 0.86];   // le bureau se ramasse jusqu'à un point
+const RELAIS   = [0.86, 0.95];   // le point devient lueur — fenêtre serrée
+
+/* Échelle finale du plateau : choisie pour que son empreinte à l'écran
+   corresponde au diamètre de l'étincelle, condition du fondu-enchaîné. */
+const ECHELLE_FINALE = 0.014;
+
 const NEON = [127, 227, 255];
 
 /* Maille isométrique du plateau 8×8 (valeurs du proto). */
@@ -291,13 +308,15 @@ export function initLanding(root){
        qui tremblerait encore trahirait le bureau disparu. */
     const ramasse = easeOut(seg(p, CONDENSE[0], CONDENSE[1]));
     const calme = 1 - ramasse;
-    const echelle = 1 - 0.97 * ramasse;
+    const echelle = 1 - (1 - ECHELLE_FINALE) * ramasse;
 
     const ax = (Math.sin(t * 0.0004) * 7 + mx * 34) * calme;
     const ay = (Math.cos(t * 0.0005) * 4 + my * 18) * calme - p * 60;
     sceneG.setAttribute('transform',
       `translate(${ax} ${ay}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${echelle}) translate(${-PIVOT_X} ${-PIVOT_Y})`);
-    sceneG.style.opacity = 1 - seg(p, 0.74, 0.93);
+    /* Le bureau ne s'efface QUE pendant le relais : tant qu'il reste
+       quelque chose à lire, il est à pleine opacité. */
+    sceneG.style.opacity = 1 - seg(p, RELAIS[0], RELAIS[1]);
 
     holosG.setAttribute('transform', `translate(${mx * -20} ${my * -12 - p * 30})`);
     holosG.style.opacity = 1 - seg(p, 0.42, 0.62);
@@ -308,7 +327,9 @@ export function initLanding(root){
        l'échelle mobile. */
     const ctm = sceneG.getScreenCTM();
     if (ctm){
-      const naissance = easeOut(seg(p, ETINCELLE[0], ETINCELLE[1]));
+      /* Linéaire et non adouci : sur une fenêtre aussi courte, un
+         adoucissement retarderait l'allumage et rouvrirait la superposition. */
+      const naissance = seg(p, RELAIS[0], RELAIS[1]);
       const mediane = window.innerHeight * 0.5;
 
       /* Une fois la section décollée, la scène remonte et sort de l'écran.
@@ -327,7 +348,9 @@ export function initLanding(root){
         x: ctm.a * PIVOT_X + ctm.c * PIVOT_Y + ctm.e,
         y: Math.max(y, mediane),
         weight: naissance * (1 - seg(sortie, 0.25, 0.85)),
-        radius: 5 + naissance * 4,
+        /* L'étincelle naît à l'empreinte du point qu'était le bureau, puis
+           se resserre : la taille aussi est une continuité. */
+        radius: 13 - naissance * 4,
         color: NEON,
         tail: naissance * 70,
       });
