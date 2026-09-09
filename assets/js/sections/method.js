@@ -74,6 +74,16 @@ export function initMethod(root){
     const surLeRail = rect.bottom > middle;
     const y = surLeRail ? rect.top + travelled : middle;
 
+    /* Pulsation d'accostage : le nœud sous le fil se marque une fois. */
+    let proximite = 0;
+    for (const node of nodes){
+      const n = node.getBoundingClientRect();
+      const proche = dockNearness((n.top + n.height / 2) - y, DOCK_RADIUS);
+      proximite = Math.max(proximite, proche);
+      node.style.setProperty('--dock', proche.toFixed(3));
+      node.classList.toggle('docked', proche > 0.35);
+    }
+
     /* Le poids retombe sur la fin de section : c'est cette décroissance qui,
        croisée avec la montée du workflow, fait traverser la couture au token
        sans qu'aucun code ne connaisse cette frontière. */
@@ -81,19 +91,21 @@ export function initMethod(root){
     const queue = reste > 0 ? clamp01((middle - rect.bottom) / reste) : 1;
     const poids = seg(progression, 0, 0.03) * (1 - seg(queue, 0.55, 1));
 
-    claim({ x: railX, y, weight: poids, radius: 7, color: TOKEN_LIGHT, tail: 90 });
+    /* Le fil se resserre en accostant. Le point se loge alors dans l'espace
+       entre les deux chiffres du nœud, qui restent lisibles — un point de
+       taille pleine en masquait le milieu. Il ne disparaît pas pour autant :
+       le rayon descend de 6 à 3.4px, jamais à zéro. */
+    claim({
+      x: railX, y, weight: poids,
+      radius: 6 - 2.6 * proximite,
+      color: TOKEN_LIGHT, tail: 90,
+    });
 
     for (const step of steps){
       const box = step.getBoundingClientRect();
       step.classList.toggle('act', box.top + box.height / 2 < middle + LEAD);
     }
 
-    /* Pulsation d'accostage : le nœud sous le fil se marque une fois. */
-    nodes.forEach(node => {
-      const n = node.getBoundingClientRect();
-      const proche = dockNearness((n.top + n.height / 2) - y, DOCK_RADIUS);
-      node.style.setProperty('--dock', proche.toFixed(3));
-      node.classList.toggle('docked', proche > 0.35);
-    });
+
   });
 }
