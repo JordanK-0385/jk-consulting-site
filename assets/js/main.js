@@ -11,10 +11,11 @@
  */
 
 import './core/motion.js'; // pose .reduced-motion sur <html> dès le chargement
+import { initLanding } from './sections/landing.js';
 
 /** @type {Array<[string, (root: Element) => void]>} */
 const sections = [
-  // ['#landing',      initLanding],   — étape 2
+  ['#landing', initLanding],
   // ['#methode',      initMethod],    — étape 3
   // ['#workflow',     initWorkflow],  — étape 4
   // ['#liaison',      initLiaison],   — étape 5
