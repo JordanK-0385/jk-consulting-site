@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="assets/css/s3-workflow.css">
 <link rel="stylesheet" href="assets/css/s4-liaison.css">
 <link rel="stylesheet" href="assets/css/s5-temoignages.css">
+<link rel="stylesheet" href="assets/css/s6-faq-contact.css">
 
 <script type="module" src="assets/js/main.js"></script>
 </head>
@@ -291,13 +292,103 @@
     </div>
   </section>
 
-  <!-- 6 · FAQ + PRÊT À… · CLAIR puis SOMBRE · rempli à l'étape 7 -->
+  <!-- 6 · FAQ · CLAIR
+       Les réponses reprennent celles du prototype. SPECS §6 : à ajuster à
+       la réalité de JK (délais, facturation exacte) avant mise en ligne. -->
   <section id="faq" class="section s-faq on-light" aria-labelledby="faq-title">
-    <h2 id="faq-title" class="visually-hidden">Questions fréquentes</h2>
+    <div class="wrap">
+      <div class="grid">
+
+        <div class="head">
+          <h2 id="faq-title">F.A<span class="dot">.</span>Q</h2>
+          <p>Des réponses claires, pour avancer en confiance.</p>
+        </div>
+
+        <div class="list">
+          <details class="faq-item" name="faq" open>
+            <summary>
+              <span class="num">01</span>
+              <span class="q">Est-ce que mes données sont en sécurité&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Oui. Moindre privilège sur chaque accès, secrets isolés, contenu externe traité comme donnée jamais comme instruction, journalisation et — pour la santé — hébergement conforme (HDS) ou maintien dans votre logiciel métier certifié. La sécurité est intégrée dès la conception.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">02</span>
+              <span class="q">Faut-il que je code ou que je comprenne la technique&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Non. Vous décrivez votre besoin, je construis. Vous validez un plan clair avant qu'une seule ligne n'existe, et je forme vos équipes pour que vous pilotiez sans dépendre de moi.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">03</span>
+              <span class="q">Combien de temps avant de voir un résultat&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">On commence petit, là où ça coince, pour un premier agent utile rapidement. Puis on itère et on déploie service par service, à votre rythme.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">04</span>
+              <span class="q">Que se passe-t-il si un agent se trompe&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Rien d'irréversible : validation humaine sur les actions sensibles, garde-fous, retry et rollback. On surveille en continu (logs, alertes) et on corrige. Vous gardez la main.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">05</span>
+              <span class="q">Est-ce adapté à mon secteur réglementé&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">C'est justement là que la différence se joue : conformité RGPD, secret professionnel, données de santé. On cadre le périmètre, on signale ce qui relève de votre responsabilité, et on oriente vers l'expert (avocat, DPO) quand il le faut.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">06</span>
+              <span class="q">Comment se passe la facturation&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Un cadrage payant d'abord (le plan vous reste), puis un forfait de construction, puis un accompagnement mensuel selon vos besoins. Transparent, sans surprise.</p>
+          </details>
+        </div>
+
+        <div class="aside">
+          <p>Une question qui n'est pas là&nbsp;? On en parle directement.</p>
+          <!-- DESTINATION À FOURNIR (SPECS §6) : mail, formulaire ou Calendly. -->
+          <a href="#contact" data-cta-destination="à fournir">ÉCRIRE À JK</a>
+        </div>
+
+      </div>
+    </div>
   </section>
 
+  <!-- « PRÊT À… » · retour au SOMBRE avant le CTA -->
   <section id="contact" class="section s-contact on-dark" aria-labelledby="contact-title">
-    <h2 id="contact-title" class="visually-hidden">Prêt à passer à l'IA ?</h2>
+    <div class="topfade" aria-hidden="true"></div>
+    <div class="ready">
+      <div class="ripples" aria-hidden="true">
+        <div class="ripple" style="width:180px;height:180px;opacity:1.0;animation-delay:-0.0s"></div>
+        <div class="ripple" style="width:330px;height:330px;opacity:0.857;animation-delay:-1.4s"></div>
+        <div class="ripple" style="width:480px;height:480px;opacity:0.714;animation-delay:-2.8s"></div>
+        <div class="ripple" style="width:630px;height:630px;opacity:0.571;animation-delay:-4.2s"></div>
+        <div class="ripple" style="width:780px;height:780px;opacity:0.429;animation-delay:-5.6s"></div>
+        <div class="ripple" style="width:930px;height:930px;opacity:0.286;animation-delay:-7.0s"></div>
+      </div>
+      <div class="inner">
+        <p class="kicker">PRÊT À FRANCHIR LE PAS&nbsp;?</p>
+        <h2 id="contact-title">Prêt à passer <span class="grad">à l'IA&nbsp;?</span></h2>
+        <p class="lede">On part de votre quotidien, pas d'une techno. Un échange, un premier agent, et le bureau qui commence à tourner pour vous.</p>
+        <!-- DESTINATIONS À FOURNIR (SPECS §6) : les deux CTA pointent encore
+             sur l'ancre de cette section, faute de destination réelle. -->
+        <div class="cta-row">
+          <a class="cta-solid" href="#contact" data-cta-destination="à fournir">Parler du projet</a>
+          <a class="cta-ghost" href="#contact" data-cta-destination="à fournir">Écrire un message</a>
+        </div>
+      </div>
+    </div>
   </section>
 
 </main>

@@ -7,7 +7,7 @@
  * relevées à l'audit (#scroll, #svg, #scene, #cue étaient partagés par
  * trois protos différents).
  *
- * Les sections sont ajoutées ici au fur et à mesure des étapes 2 à 7.
+ * Les sections animées sont ajoutées ici au fur et à mesure.
  */
 
 import './core/motion.js'; // pose .reduced-motion sur <html> dès le chargement
@@ -24,7 +24,8 @@ const sections = [
   ['#workflow', initWorkflow],
   ['#liaison', initLiaison],
   ['#temoignages', initTemoignages],
-  // ['#faq',          initFaq],       — étape 7
+  /* La FAQ n'a pas de module : <details name> gère l'exclusivité
+     nativement, sans JavaScript (arbitrage B). */
 ];
 
 for (const [selector, init] of sections){
