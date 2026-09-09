@@ -58,29 +58,20 @@ const ANCHOR_Y = 380;      // le process reste ancré ici
 const PATH_LARGE = [[600, 60], [600, 360], [2700, 360], [2700, 1160]];
 
 /*
- * REPLI MOBILE — deux variantes, à trancher sur appareil réel.
- * AMELIORATIONS : « proposer un repli mobile et le montrer avant de figer ».
- * Choix temporaire par ?fil=a ou ?fil=b, à retirer une fois la décision prise.
+ * REPLI MOBILE — variante retenue après essai sur appareil réel.
  *
- * Le chiffre qui commande : un nœud du parcours large fait 190 unités, soit
- * 92px à 390px de large, avec un titre à 7.8px — illisible. Les deux
- * variantes raccourcissent donc le parcours (les nœuds se rapprochent) ET
- * relèvent l'échelle, pour ramener le titre à 13px.
+ * Le chiffre qui commandait : un nœud du parcours large fait 190 unités,
+ * soit 92px à 390px de large, avec un titre rendu à 7.8px — illisible. Le
+ * repli raccourcit donc le parcours, ce qui rapproche les nœuds, et relève
+ * l'échelle : le titre remonte à 17px.
+ *
+ * Le virage horizontal reste réservé au grand écran. Sur mobile le fil reste
+ * vertical mais serpente — décrochés latéraux de ±160 unités — ce qui garde
+ * le geste sans exiger de lire un canvas sur 390px de large. Les tronçons
+ * verticaux font 500 unités : plus courts, tout le parcours tenait à
+ * l'écran, on le contemplait au lieu de le traverser.
  */
-
-/* A — le virage tenu, mais court. Tronçon horizontal ramené de 2100 à 1000
-   unités, soit 56% du parcours et quatre jalons dessus. Deux nœuds visibles
-   à la fois : le canvas se lit encore, en plus resserré. */
-const PATH_MOBILE_A = [[600, 120], [600, 360], [1600, 360], [1600, 920]];
-
-/* B — le virage seulement suggéré. Le fil reste vertical mais serpente :
-   décrochés latéraux de ±160 unités, aucun tronçon horizontal. Plus sûr,
-   moins de signature.
-   Tronçons verticaux longs (500 unités) : une première version plus courte
-   faisait tenir tout le parcours à l'écran, si bien qu'on le contemplait au
-   lieu de le traverser, et que les nœuds d'extrémité percutaient la
-   narration. */
-const PATH_MOBILE_B = [
+const PATH_MOBILE = [
   [600,  80], [600,  580], [760,  670], [760, 1170],
   [440, 1260], [440, 1760], [600, 1850], [600, 2350],
 ];
@@ -88,16 +79,15 @@ const PATH_MOBILE_B = [
 const CORNER_R = 56;
 const MOBILE_MAX = 560;
 
+/* Marge autour des blocs de narration : un nœud commence à s'effacer avant
+   de les toucher, pas au moment du contact. */
+const MARGE_NARRATION = 18;
+
 /* Gabarit des nœuds : plus étroit et proportionnellement plus typé sur
    mobile, faute de quoi le texte tombe sous le seuil de lisibilité. */
 const NODE_LARGE  = { w: 190, h: 50, tag: 10, title: 16 };
 const NODE_MOBILE = { w: 200, h: 56, tag: 14, title: 20 };
 
-/** Variante de repli demandée par l'URL, le temps de l'arbitrage. */
-function mobileVariant(){
-  const asked = new URLSearchParams(location.search).get('fil');
-  return asked === 'b' ? 'b' : 'a';
-}
 
 /** Chemin polygonal à coins arrondis. */
 function roundedPolyline(points, radius){
@@ -186,15 +176,14 @@ export function initWorkflow(root){
 
   function buildWorld(){
     const mobile = stage.clientWidth <= MOBILE_MAX;
-    const variant = mobileVariant();
-    const key = mobile ? `mobile-${variant}` : 'large';
+    const key = mobile ? 'mobile' : 'large';
     if (key === builtFor) return;
     builtFor = key;
 
     world.replaceChildren();
     packets.replaceChildren();
 
-    const points = mobile ? (variant === 'b' ? PATH_MOBILE_B : PATH_MOBILE_A) : PATH_LARGE;
+    const points = mobile ? PATH_MOBILE : PATH_LARGE;
     const NODE = mobile ? NODE_MOBILE : NODE_LARGE;
     const trace = roundedPolyline(points, CORNER_R);
 
@@ -225,7 +214,9 @@ export function initWorkflow(root){
       const left = pt.x - NODE.w / 2, top = pt.y - NODE.h / 2;
 
       /* Les branches du traitement s'ouvrent perpendiculairement au
-         parcours : verticalement sur un tronçon horizontal, et inversement. */
+         parcours : verticalement sur un tronçon horizontal, et inversement.
+         Elles vivent DANS le groupe du jalon, et non à côté : elles héritent
+         ainsi de son opacité et s'effacent avec lui près de la narration. */
       if (i === 2){
         const before = measure.getPointAtLength(Math.max(0, atLength(i) - 30));
         const after  = measure.getPointAtLength(Math.min(PATH_LEN, atLength(i) + 30));
@@ -240,7 +231,7 @@ export function initWorkflow(root){
             branches.appendChild(mk('circle', { cx: offset, cy: 0, r: 3.5, fill: rgba(step.color, .9) }));
           }
         }
-        world.appendChild(branches);
+        g.appendChild(branches);
       }
 
       /* Nœud façon canvas n8n : c'est ce qui rend le tronçon horizontal
@@ -472,14 +463,39 @@ export function initWorkflow(root){
     /* Jalon actif. */
     const index = Math.max(0, Math.min(N - 1, Math.round(p * (N - 1))));
     const curseur = p * (N - 1);
+
+    /* Un nœud s'efface avant d'entrer dans la narration. Les panneaux sont
+       posés à l'écran, les nœuds défilent : sans cela, un jalon en sortie de
+       champ passe sous le titre de section et deux textes se superposent une
+       fraction de seconde. On mesure le recouvrement réel plutôt que de
+       coder des zones en dur, pour que la règle tienne quels que soient le
+       format, le parcours et la position des panneaux. */
+    const zones = [milestone, governance]
+      .map(el => el.getBoundingClientRect())
+      .filter(z => z.width > 0 && z.height > 0);
+
     nodes.forEach((node, i) => {
       /* Pulsation d'accostage, proportionnelle à la proximité : le jalon
          s'intensifie à mesure que le parcours s'immobilise sur lui. */
       const proche = dockNearness(i - curseur, 0.6);
+
+      const box = node.getBoundingClientRect();
+      let recouvrement = 0;
+      if (box.width && box.height){
+        for (const z of zones){
+          const dx = Math.min(box.right, z.right + MARGE_NARRATION) - Math.max(box.left, z.left - MARGE_NARRATION);
+          const dy = Math.min(box.bottom, z.bottom + MARGE_NARRATION) - Math.max(box.top, z.top - MARGE_NARRATION);
+          if (dx > 0 && dy > 0){
+            recouvrement = Math.max(recouvrement, (dx * dy) / (box.width * box.height));
+          }
+        }
+      }
+      const clarte = clamp01(1 - recouvrement * 1.6);
+
       node.style.filter = proche > 0
         ? `drop-shadow(0 0 ${8 + proche * 12}px ${rgba(STEPS[i].color, 0.45 + proche * 0.45)})`
         : 'none';
-      node.style.opacity = Math.abs(i - curseur) < 1.6 ? 1 : .5;
+      node.style.opacity = (Math.abs(i - curseur) < 1.6 ? 1 : .5) * clarte;
     });
 
     pctEl.textContent = `${Math.round(p * 100)}%`;
