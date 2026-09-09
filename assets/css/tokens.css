@@ -101,16 +101,23 @@
   --fg-muted:  var(--ink-muted);
   --hairline:  var(--rule);
 
-  --accent-cyan:  var(--deep-cyan);
-  --accent-blue:  var(--deep-blue);
-  --accent-green: var(--deep-green);
+  /* Les valeurs « assombries » de SPECS §2 ne passent pas WCAG AA sur papier :
+     face à #F5F7FA, #1E9FD6 donne 2.8:1 et #1FB574 donne 2.47:1, pour un
+     seuil de 4.5:1 en texte courant (3.0:1 pour un composant graphique).
+     Le blanc sur pastille #1E9FD6 tombait à 3.01:1.
+     Le contexte clair utilise donc des variantes assombries au strict
+     minimum nécessaire. Les teintes SPECS restent disponibles en --deep-*
+     pour les aplats décoratifs, où le contraste n'est pas en jeu. */
+  --accent-cyan:  #1779A3;  /* 4.55:1 — SPECS : #1E9FD6 */
+  --accent-blue:  #3670CC;  /* 4.50:1 — SPECS : #3B7BE0 */
+  --accent-green: #168152;  /* 4.55:1 — SPECS : #1FB574 */
   /* indigo/teal n'ont pas de variante claire (SPECS §2) : on retombe
-     sur le bleu assombri plutôt que d'inventer une couleur. */
-  --accent-indigo: var(--deep-blue);
-  --accent-teal:   var(--deep-cyan);
+     sur le bleu/cyan plutôt que d'inventer une couleur. */
+  --accent-indigo: var(--accent-blue);
+  --accent-teal:   var(--accent-cyan);
 
-  --cta-bg: var(--deep-cyan);
-  --cta-fg: #FFFFFF;
+  --cta-bg: var(--accent-cyan);
+  --cta-fg: #FFFFFF;          /* 4.88:1 sur --accent-cyan */
 
   color: var(--fg);
   background-color: var(--surface);

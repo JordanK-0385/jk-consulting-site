@@ -1,0 +1,188 @@
+/* ============================================================
+   SECTION 2 — COMMENT ON FAIT · la méthode · fond CLAIR
+   Port de prototypes/2-comment.html, CONVERTI du sombre au clair.
+
+   SPECS §4 : immersif = sombre, éditorial = clair. Le proto était encore
+   en sombre ; c'est la seule section dont l'assemblage change le fond.
+   Toutes les couleurs passent par --accent-* : le jeu clair assombri
+   (#1E9FD6 / #3B7BE0) est fourni par .on-light dans tokens.css.
+   ============================================================ */
+
+.s-method{ padding-bottom: clamp(40px, 8vh, 90px); }
+
+.s-method .wrap{ max-width: 1100px; }
+
+/* ---- Chapô ---- */
+.s-method .intro{
+  min-height: 64vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(70px, 12vh, 110px) 0 40px;
+}
+.s-method .eyebrow{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .16em;
+  color: var(--accent-cyan);
+  margin-bottom: 18px;
+}
+.s-method .intro h2{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(36px, 7vw, 80px);
+  line-height: .96;
+  letter-spacing: -.03em;
+  margin-bottom: 20px;
+  max-width: 16ch;
+}
+.s-method .intro h2 .grad{
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.s-method .intro .lede{
+  max-width: 52ch;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+
+/* ---- Timeline ---- */
+.s-method .timeline{ position: relative; padding: 30px 0 90px; }
+
+/* Rail et étapes sont chacun dans leur conteneur. Dans le proto, .line/.fill/
+   .token étaient frères des étapes : nth-child comptait donc trois rangs de
+   décalage, et l'alternance gauche/droite tenait à cet accident. Ici
+   .step:nth-child(n) désigne bien la n-ième étape. */
+.s-method .rail{ position: absolute; inset: 0; pointer-events: none; }
+.s-method .line,
+.s-method .fill,
+.s-method .token{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  border-radius: 2px;
+}
+.s-method .line{ top: 0; bottom: 0; background: var(--rule); }
+.s-method .fill{
+  top: 0; height: 0;
+  background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
+}
+.s-method .token{
+  top: 0;
+  width: 15px; height: 15px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  /* Sur papier, la lueur néon du proto disparaissait : on la remplace par
+     un halo net, plus un liseré blanc qui détache le jeton du rail. */
+  box-shadow: 0 0 0 4px rgba(30,159,214,.16), 0 0 0 7px rgba(30,159,214,.07),
+              0 2px 10px rgba(12,20,32,.18);
+  border: 2px solid #fff;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.s-method .token.on{ opacity: 1; }
+
+/* ---- Étapes ---- */
+.s-method .step{
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 96px 1fr;
+  align-items: center;
+  min-height: 220px;
+}
+.s-method .node{
+  grid-column: 2;
+  justify-self: center;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--fg-muted);
+  background: #fff;
+  border: 1.5px solid var(--rule);
+  transition: .5s;
+  z-index: 2;
+}
+.s-method .step.act .node{
+  color: #fff;
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 6px rgba(30,159,214,.13);
+}
+
+.s-method .card{
+  max-width: 38ch;
+  opacity: .38;
+  transform: translateY(10px);
+  transition: opacity .55s, transform .55s;
+}
+.s-method .step.act .card{ opacity: 1; transform: translateY(0); }
+
+/* Étapes impaires à droite, paires à gauche — l'alternance visuelle du proto. */
+.s-method .step:nth-child(odd)  .card{ grid-column: 3; }
+.s-method .step:nth-child(even) .card{ grid-column: 1; text-align: right; justify-self: end; }
+
+.s-method .card h3{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(22px, 3vw, 32px);
+  letter-spacing: -.01em;
+  margin-bottom: 10px;
+  transition: color .5s;
+}
+.s-method .step.act .card h3{ color: var(--accent-cyan); }
+.s-method .card p{ color: var(--fg-muted); line-height: 1.55; font-size: 15.5px; }
+
+/* ---- Bascule vers le workflow ---- */
+.s-method .outro{ text-align: center; padding: 20px 0 0; }
+.s-method .outro .cap{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .14em;
+  color: var(--accent-green);
+  margin-bottom: 14px;
+}
+.s-method .outro h3{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(26px, 4.5vw, 44px);
+  letter-spacing: -.02em;
+}
+.s-method .outro .arrow{
+  display: block;
+  color: var(--accent-cyan);
+  font-size: 22px;
+  margin-top: 16px;
+  animation: method-bob 1.8s ease-in-out infinite;
+}
+@keyframes method-bob{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(6px) } }
+
+/* ---- Replis mobiles ---- */
+@media (max-width: 720px){
+  .s-method .line,
+  .s-method .fill,
+  .s-method .token{ left: 26px; }
+
+  .s-method .step{
+    grid-template-columns: 52px 1fr;
+    gap: 18px;
+    min-height: 150px;
+  }
+  .s-method .node{ grid-column: 1; width: 44px; height: 44px; font-size: 15px; }
+  .s-method .step:nth-child(odd)  .card,
+  .s-method .step:nth-child(even) .card{
+    grid-column: 2;
+    text-align: left;
+    justify-self: start;
+    max-width: none;
+  }
+  .s-method .intro{ min-height: 0; }
+}
