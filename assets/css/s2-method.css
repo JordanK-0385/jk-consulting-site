@@ -112,6 +112,16 @@
   box-shadow: 0 0 0 6px rgba(30,159,214,.13);
 }
 
+/* Accostage : le nœud se marque au passage du fil. --dock va de 0 à 1 selon
+   la proximité, ce qui rend la pulsation continue plutôt que binaire. */
+.s-method .node{ --dock: 0; }
+.s-method .step.act .node.docked{
+  transform: scale(calc(1 + var(--dock) * 0.14));
+  box-shadow:
+    0 0 0 calc(6px + var(--dock) * 7px) rgba(30,159,214,.16),
+    0 0 calc(var(--dock) * 18px) rgba(30,159,214,.5);
+}
+
 .s-method .card{
   max-width: 38ch;
   opacity: .38;

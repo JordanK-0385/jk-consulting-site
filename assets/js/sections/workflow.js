@@ -12,6 +12,7 @@ import { rgba, lerp, seg } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { claim } from '../core/thread.js';
+import { makeDock, dockNearness } from '../core/dock.js';
 import { clamp01 } from '../core/color.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
 
@@ -79,6 +80,11 @@ export function initWorkflow(root){
   if (!STEPS.length) return;
   const N = STEPS.length;
   const tintAt = makeTint(STEPS);
+  /* Les jalons sont régulièrement répartis sur le parcours : le docking les
+     prend comme points d'accostage. Ici le « monde » est un groupe SVG que
+     l'on translate soi-même — on ralentit donc le décor, et le fil reste
+     posé sur l'ancre. Mécanisme inverse de la méthode, geste identique. */
+  const dock = makeDock(STEPS.map((_, i) => i / (N - 1)));
 
   const stage   = root.querySelector('.stage');
   const fitG    = root.querySelector('.scene-fit');
@@ -212,7 +218,7 @@ export function initWorkflow(root){
   let lastGlow = '';
 
   register(root, now => {
-    const p = stickyProgress(root);
+    const p = dock(stickyProgress(root));
     const t = ambientTime(now);
 
     /* Approche : 0 quand la section entre par le bas, 1 quand elle occupe le
@@ -306,9 +312,15 @@ export function initWorkflow(root){
 
     /* Jalon actif. */
     const index = Math.max(0, Math.min(N - 1, Math.round(p * (N - 1))));
+    const curseur = p * (N - 1);
     nodes.forEach((node, i) => {
-      node.style.filter = i === index ? `drop-shadow(0 0 10px ${rgba(STEPS[i].color, .7)})` : 'none';
-      node.style.opacity = Math.abs(i - p * (N - 1)) < 1.6 ? 1 : .5;
+      /* Pulsation d'accostage, proportionnelle à la proximité : le jalon
+         s'intensifie à mesure que le parcours s'immobilise sur lui. */
+      const proche = dockNearness(i - curseur, 0.6);
+      node.style.filter = proche > 0
+        ? `drop-shadow(0 0 ${8 + proche * 12}px ${rgba(STEPS[i].color, 0.45 + proche * 0.45)})`
+        : 'none';
+      node.style.opacity = Math.abs(i - curseur) < 1.6 ? 1 : .5;
     });
 
     pctEl.textContent = `${Math.round(p * 100)}%`;

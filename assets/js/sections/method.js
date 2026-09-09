@@ -12,6 +12,7 @@ import { register } from '../core/raf.js';
 import { midlineProgress } from '../core/scroll.js';
 import { claim } from '../core/thread.js';
 import { clamp01, seg } from '../core/color.js';
+import { makeDock, dockNearness } from '../core/dock.js';
 
 /* Cyan assombri du contexte clair : sur papier, le néon disparaît. */
 const TOKEN_LIGHT = [23, 121, 163];
@@ -20,17 +21,41 @@ const TOKEN_LIGHT = [23, 121, 163];
    se déclenche pile sous le regard, ce qui se voit. (Valeur du proto.) */
 const LEAD = 40;
 
+/* Rayon, en pixels, dans lequel un nœud se considère accosté. */
+const DOCK_RADIUS = 54;
+
 export function initMethod(root){
   const timeline = root.querySelector('.timeline');
   const fill  = root.querySelector('.fill');
   const line  = root.querySelector('.line');
   const steps = [...root.querySelectorAll('.step')];
+  const nodes = steps.map(s => s.querySelector('.node'));
+
+  /* Positions des nœuds, en fractions de la hauteur du rail. Relevées dans
+     le DOM plutôt que codées en dur : elles suivent la mise en page, y
+     compris le repli mobile. */
+  let dock = p => p;
+  function measureStops(){
+    const rail = timeline.getBoundingClientRect();
+    if (!rail.height) return;
+    const stops = nodes.map(n => {
+      const r = n.getBoundingClientRect();
+      return (r.top + r.height / 2 - rail.top) / rail.height;
+    });
+    dock = makeDock(stops);
+  }
+  measureStops();
+  addEventListener('resize', measureStops, { passive: true });
 
   register(root, () => {
     const rect = timeline.getBoundingClientRect();
     const middle = window.innerHeight * 0.5;
     const progression = midlineProgress(timeline);
-    const travelled = progression * rect.height;
+    /* Docking : le fil ralentit en arrivant sur un nœud. Ici le « monde »
+       est le document lui-même, qui défile à vitesse constante — le token
+       s'attache donc au nœud et remonte un instant avec lui, avant de se
+       détacher et de rattraper. C'est le geste d'accostage. */
+    const travelled = dock(progression) * rect.height;
 
     fill.style.height = `${travelled}px`;
 
@@ -62,5 +87,13 @@ export function initMethod(root){
       const box = step.getBoundingClientRect();
       step.classList.toggle('act', box.top + box.height / 2 < middle + LEAD);
     }
+
+    /* Pulsation d'accostage : le nœud sous le fil se marque une fois. */
+    nodes.forEach(node => {
+      const n = node.getBoundingClientRect();
+      const proche = dockNearness((n.top + n.height / 2) - y, DOCK_RADIUS);
+      node.style.setProperty('--dock', proche.toFixed(3));
+      node.classList.toggle('docked', proche > 0.35);
+    });
   });
 }
