@@ -53,14 +53,15 @@
 /* ---- Timeline ---- */
 .s-method .timeline{ position: relative; padding: 30px 0 90px; }
 
-/* Rail et étapes sont chacun dans leur conteneur. Dans le proto, .line/.fill/
-   .token étaient frères des étapes : nth-child comptait donc trois rangs de
-   décalage, et l'alternance gauche/droite tenait à cet accident. Ici
-   .step:nth-child(n) désigne bien la n-ième étape. */
+/* Rail et étapes sont chacun dans leur conteneur. Dans le proto, les trois
+   éléments du rail étaient frères des étapes : nth-child comptait donc trois
+   rangs de décalage, et l'alternance gauche/droite tenait à cet accident. Ici
+   .step:nth-child(n) désigne bien la n-ième étape.
+   Le point lumineux, lui, n'est plus dans la section : c'est le fil conducteur
+   partagé (core/thread.js) que la section revendique. */
 .s-method .rail{ position: absolute; inset: 0; pointer-events: none; }
 .s-method .line,
-.s-method .fill,
-.s-method .token{
+.s-method .fill{
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -72,21 +73,6 @@
   top: 0; height: 0;
   background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
 }
-.s-method .token{
-  top: 0;
-  width: 15px; height: 15px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: var(--accent-cyan);
-  /* Sur papier, la lueur néon du proto disparaissait : on la remplace par
-     un halo net, plus un liseré blanc qui détache le jeton du rail. */
-  box-shadow: 0 0 0 4px rgba(30,159,214,.16), 0 0 0 7px rgba(30,159,214,.07),
-              0 2px 10px rgba(12,20,32,.18);
-  border: 2px solid #fff;
-  opacity: 0;
-  transition: opacity .3s;
-}
-.s-method .token.on{ opacity: 1; }
 
 /* ---- Étapes ---- */
 .s-method .step{
@@ -178,8 +164,7 @@
 /* ---- Replis mobiles ---- */
 @media (max-width: 720px){
   .s-method .line,
-  .s-method .fill,
-  .s-method .token{ left: 26px; }
+  .s-method .fill{ left: 26px; }
 
   .s-method .step{
     grid-template-columns: 52px 1fr;

@@ -10,6 +10,11 @@
 
 import { register } from '../core/raf.js';
 import { midlineProgress } from '../core/scroll.js';
+import { claim } from '../core/thread.js';
+import { clamp01, seg } from '../core/color.js';
+
+/* Cyan assombri du contexte clair : sur papier, le néon disparaît. */
+const TOKEN_LIGHT = [23, 121, 163];
 
 /* Une étape s'allume un peu avant d'atteindre la ligne médiane : sinon elle
    se déclenche pile sous le regard, ce qui se voit. (Valeur du proto.) */
@@ -18,17 +23,40 @@ const LEAD = 40;
 export function initMethod(root){
   const timeline = root.querySelector('.timeline');
   const fill  = root.querySelector('.fill');
-  const token = root.querySelector('.token');
+  const line  = root.querySelector('.line');
   const steps = [...root.querySelectorAll('.step')];
 
   register(root, () => {
     const rect = timeline.getBoundingClientRect();
     const middle = window.innerHeight * 0.5;
-    const travelled = midlineProgress(timeline) * rect.height;
+    const progression = midlineProgress(timeline);
+    const travelled = progression * rect.height;
 
     fill.style.height = `${travelled}px`;
-    token.style.top = `${travelled}px`;
-    token.classList.toggle('on', rect.top < middle && rect.bottom > 0);
+
+    /* ---------- revendication du fil conducteur ----------
+       Le token n'appartient plus à la section : elle décrit seulement où il
+       devrait être à l'écran, et avec quel poids elle le possède.
+
+       Tant que le rail défile, `travelled` place le token sur la ligne
+       médiane du viewport : c'est déjà le motif « le token reste, le monde
+       le traverse » du prototype 6. Une fois le rail passé, le token s'y
+       maintient et attend que le workflow le reprenne. */
+    const rail = line.getBoundingClientRect();
+    const railX = rail.left + rail.width / 2;
+    const section = root.getBoundingClientRect();
+
+    const surLeRail = rect.bottom > middle;
+    const y = surLeRail ? rect.top + travelled : middle;
+
+    /* Le poids retombe sur la fin de section : c'est cette décroissance qui,
+       croisée avec la montée du workflow, fait traverser la couture au token
+       sans qu'aucun code ne connaisse cette frontière. */
+    const reste = section.bottom - rect.bottom;
+    const queue = reste > 0 ? clamp01((middle - rect.bottom) / reste) : 1;
+    const poids = seg(progression, 0, 0.03) * (1 - seg(queue, 0.55, 1));
+
+    claim({ x: railX, y, weight: poids, radius: 7, color: TOKEN_LIGHT, tail: 90 });
 
     for (const step of steps){
       const box = step.getBoundingClientRect();

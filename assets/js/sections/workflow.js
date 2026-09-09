@@ -11,6 +11,8 @@ import { mk } from '../core/svg.js';
 import { rgba, lerp, seg } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
+import { claim } from '../core/thread.js';
+import { clamp01 } from '../core/color.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
 
 const BLUE   = [ 79, 168, 240];
@@ -212,6 +214,34 @@ export function initWorkflow(root){
   register(root, now => {
     const p = stickyProgress(root);
     const t = ambientTime(now);
+
+    /* ---------- revendication du fil conducteur ----------
+       Le token arrive du rail de la méthode et se pose exactement sur
+       l'ancre du process, où le blob prend le relais. getScreenCTM() rend
+       la position écran de l'ancre quels que soient le viewBox et
+       l'échelle mobile : c'est le seul pont fiable entre les repères. */
+    const ctm = morph.getScreenCTM();
+    if (ctm){
+      /* Approche : 0 quand la section entre par le bas, 1 quand elle
+         occupe le viewport. Sert de montée en poids — stickyProgress reste
+         à 0 pendant toute l'approche et ne peut donc pas la piloter. */
+      const arrivee = clamp01(1 - root.getBoundingClientRect().top / window.innerHeight);
+      /* Puis le poids retombe : le blob est déjà là, le token se fond en lui
+         plutôt que de le doubler. */
+      const releve = 1 - seg(p, 0.02, 0.10);
+
+      /* Pendant l'approche, l'ancre est encore basse dans l'écran. Le token
+         l'ATTEND sur la médiane au lieu de plonger à sa rencontre — sans
+         quoi la couture montre un saut de plusieurs centaines de pixels.
+         Une fois la scène collée, les deux coïncident, et à la sortie le
+         token suit l'ancre qui remonte. */
+      const mediane = window.innerHeight * 0.5;
+      claim({
+        x: ctm.e, y: Math.min(ctm.f, mediane),
+        weight: seg(arrivee, 0.10, 0.55) * releve,
+        radius: 9, color: CYAN, tail: 70,
+      });
+    }
 
     world.setAttribute('transform', `translate(0 ${ANCHOR_Y - p * (N - 1) * SPACING})`);
 
