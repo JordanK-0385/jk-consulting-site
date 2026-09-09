@@ -98,6 +98,13 @@
 }
 .s-method .node{
   grid-column: 2;
+  /* Ligne explicite. Sans elle, le placement automatique de la grille — qui
+     progresse ligne par ligne — enfermait les étapes paires dans DEUX lignes :
+     le nœud prenait la ligne 1 en colonne 2, puis la carte, réclamant la
+     colonne 1 déjà dépassée, créait une ligne 2. Le nœud se retrouvait centré
+     à 41px du haut du pas au lieu de 110, d'où des écarts alternés de
+     151 et 289px entre nœuds pour des pas tous hauts de 220px. */
+  grid-row: 1;
   justify-self: center;
   width: 52px; height: 52px;
   border-radius: 50%;
@@ -127,7 +134,9 @@
 }
 .s-method .step.act .card{ opacity: 1; transform: translateY(0); }
 
-/* Étapes impaires à droite, paires à gauche — l'alternance visuelle du proto. */
+/* Étapes impaires à droite, paires à gauche — l'alternance visuelle du proto.
+   La carte partage la ligne du nœud : c'est ce qui garde le rail régulier. */
+.s-method .card{ grid-row: 1; }
 .s-method .step:nth-child(odd)  .card{ grid-column: 3; }
 .s-method .step:nth-child(even) .card{ grid-column: 1; text-align: right; justify-self: end; }
 
