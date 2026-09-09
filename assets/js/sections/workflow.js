@@ -215,6 +215,12 @@ export function initWorkflow(root){
     const p = stickyProgress(root);
     const t = ambientTime(now);
 
+    /* Approche : 0 quand la section entre par le bas, 1 quand elle occupe le
+       viewport. stickyProgress reste à 0 pendant toute l'approche et ne peut
+       donc pas la mesurer. Sert à la fois de montée en poids du fil et
+       d'éveil du process. */
+    const arrivee = clamp01(1 - root.getBoundingClientRect().top / window.innerHeight);
+
     /* ---------- revendication du fil conducteur ----------
        Le token arrive du rail de la méthode et se pose exactement sur
        l'ancre du process, où le blob prend le relais. getScreenCTM() rend
@@ -222,10 +228,6 @@ export function initWorkflow(root){
        l'échelle mobile : c'est le seul pont fiable entre les repères. */
     const ctm = morph.getScreenCTM();
     if (ctm){
-      /* Approche : 0 quand la section entre par le bas, 1 quand elle
-         occupe le viewport. Sert de montée en poids — stickyProgress reste
-         à 0 pendant toute l'approche et ne peut donc pas la piloter. */
-      const arrivee = clamp01(1 - root.getBoundingClientRect().top / window.innerHeight);
       /* Puis le poids retombe : le blob est déjà là, le token se fond en lui
          plutôt que de le doubler. */
       const releve = 1 - seg(p, 0.02, 0.10);
@@ -250,15 +252,21 @@ export function initWorkflow(root){
     const asShape = 1 - asRobot;
     const breathe = 1 + Math.sin(t * 0.003) * 0.04;
 
+    /* Le process reste en veille tant que le fil ne l'a pas atteint, puis
+       s'allume à son arrivée. Cause puis effet : on ne montre jamais deux
+       points également brillants en même temps, ce qui lèverait toute
+       ambiguïté sur lequel des deux mène le récit. */
+    const eveil = 0.32 + 0.68 * seg(arrivee, 0.5, 0.97);
+
     /* Forme brute -> lissée : le nettoyage lisse littéralement le process. */
     const roughness = Math.max(0, 1 - p / 0.13);
     blob.setAttribute('d', blobPath(22 * breathe, roughness));
-    blob.setAttribute('fill', rgba(tint, 0.4 * asShape));
-    blob.setAttribute('stroke', rgba(tint, 0.95 * asShape));
+    blob.setAttribute('fill', rgba(tint, 0.4 * asShape * eveil));
+    blob.setAttribute('stroke', rgba(tint, 0.95 * asShape * eveil));
     blob.setAttribute('stroke-width', '1.6');
 
     halo.setAttribute('r', 34 + Math.sin(t * 0.003) * 3);
-    halo.setAttribute('fill', rgba(tint, 0.16 * asShape + 0.05 * asRobot));
+    halo.setAttribute('fill', rgba(tint, (0.16 * asShape + 0.05 * asRobot) * eveil));
 
     /* Structure interne — traitement. */
     segG.style.opacity = seg(p, 0.28, 0.42) * asShape;
@@ -293,7 +301,7 @@ export function initWorkflow(root){
     }
 
     /* Le filtre est coûteux à recalculer : on n'écrit que s'il change. */
-    const glow = `drop-shadow(0 0 ${11 + asRobot * 4}px ${rgba(tint, 0.8)})`;
+    const glow = `drop-shadow(0 0 ${11 + asRobot * 4}px ${rgba(tint, 0.8 * eveil)})`;
     if (glow !== lastGlow){ morph.style.filter = glow; lastGlow = glow; }
 
     /* Jalon actif. */
