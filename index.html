@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="assets/css/s2-method.css">
 <link rel="stylesheet" href="assets/css/s3-workflow.css">
 <link rel="stylesheet" href="assets/css/s4-liaison.css">
+<link rel="stylesheet" href="assets/css/s5-temoignages.css">
 
 <script type="module" src="assets/js/main.js"></script>
 </head>
@@ -224,11 +225,70 @@
     </div>
   </section>
 
-  <!-- 5 · TÉMOIGNAGES · CLAIR · construit à l'étape 6
-       Contenu réel non fourni à ce jour : la section portera un bandeau
-       « CONTENU FICTIF » visible tant que les vrais témoignages manquent. -->
+  <!-- 5 · TÉMOIGNAGES · CLAIR
+       ┌──────────────────────────────────────────────────────────────────┐
+       │ CONTENU NON FOURNI. SPECS §3.5 et §6 : témoignages réels          │
+       │ uniquement, jamais inventés.                                      │
+       │                                                                   │
+       │ Pour mettre en ligne :                                            │
+       │   1. remplacer chaque <figure> par un témoignage réel             │
+       │      (nom, fonction, société, citation validée par la personne) ; │
+       │   2. retirer l'attribut data-placeholder de chaque carte ;        │
+       │   3. supprimer le bandeau .placeholder-flag ci-dessous ;          │
+       │   4. supprimer le bloc .placeholder-flag de s5-temoignages.css.   │
+       │                                                                   │
+       │ Ne PAS pré-remplir avec des noms réels (John Dalia, 26 Academy…)  │
+       │ tant que leurs propos exacts ne sont pas fournis et validés :     │
+       │ une citation attribuée mais inventée est le pire des cas.         │
+       └──────────────────────────────────────────────────────────────────┘ -->
   <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
-    <h2 id="temoignages-title" class="visually-hidden">Ils nous ont fait confiance.</h2>
+    <div class="wrap">
+
+      <div class="head">
+        <p class="eyebrow">LA PREUVE</p>
+        <h2 id="temoignages-title">Ils nous ont fait confiance.</h2>
+        <p class="lede">Des entreprises qui ont installé leurs premiers agents et qui les font tourner tous les jours.</p>
+      </div>
+
+      <p class="placeholder-flag" role="note">
+        <strong>CONTENU FICTIF</strong>
+        <span>Emplacements réservés, en attente des témoignages réels. À ne pas mettre en ligne tel quel.</span>
+      </p>
+
+      <div class="quotes">
+        <figure class="quote" data-placeholder="true">
+          <blockquote><p>Citation à venir. Ce bloc réserve la place d'un témoignage réel : deux à trois phrases, fournies et validées par la personne citée.</p></blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">—</span>
+            <span>
+              <cite class="who">Emplacement réservé</cite>
+              <span class="role">Fonction — Société</span>
+            </span>
+          </figcaption>
+        </figure>
+        <figure class="quote" data-placeholder="true">
+          <blockquote><p>Citation à venir. Aucun nom, aucune société et aucun propos ne doivent être inventés ici — y compris à titre d'exemple.</p></blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">—</span>
+            <span>
+              <cite class="who">Emplacement réservé</cite>
+              <span class="role">Fonction — Société</span>
+            </span>
+          </figcaption>
+        </figure>
+        <figure class="quote" data-placeholder="true">
+          <blockquote><p>Citation à venir. Ce bloc et le bandeau d'alerte au-dessus se retirent ensemble, une fois les témoignages réels en place.</p></blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">—</span>
+            <span>
+              <cite class="who">Emplacement réservé</cite>
+              <span class="role">Fonction — Société</span>
+            </span>
+          </figcaption>
+        </figure>
+      </div>
+
+    </div>
   </section>
 
   <!-- 6 · FAQ + PRÊT À… · CLAIR puis SOMBRE · rempli à l'étape 7 -->

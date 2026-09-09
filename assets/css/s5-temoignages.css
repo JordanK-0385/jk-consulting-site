@@ -1,0 +1,147 @@
+/* ============================================================
+   SECTION 5 — TÉMOIGNAGES · preuve sociale · fond CLAIR
+   Seule section sans prototype : construite pour l'assemblage.
+
+   SPECS §3.5 et §6 : contenu réel uniquement, jamais inventé. Tant que les
+   vrais témoignages ne sont pas fournis, la section porte un bandeau
+   d'alerte visible et les cartes sont explicitement des emplacements
+   réservés — pas de faux nom, pas de fausse citation, pas de fausse photo.
+   ============================================================ */
+
+.s-temoignages{ padding: clamp(70px, 12vh, 130px) 0 clamp(70px, 12vh, 130px); }
+
+.s-temoignages .head{ max-width: 60ch; margin-bottom: clamp(28px, 4vh, 44px); }
+.s-temoignages .eyebrow{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .16em;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+}
+.s-temoignages h2{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 5.5vw, 64px);
+  line-height: .98;
+  letter-spacing: -.03em;
+  max-width: 18ch;          /* posé sur le titre : `ch` suit sa propre police */
+  margin-bottom: 16px;
+}
+.s-temoignages .head .lede{
+  color: var(--fg-muted);
+  font-size: clamp(15px, 1.7vw, 17px);
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+/* ---- Bandeau d'alerte ----
+   À SUPPRIMER en même temps que les emplacements réservés, une fois les
+   vrais témoignages en place. */
+.s-temoignages .placeholder-flag{
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: clamp(24px, 4vh, 40px);
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #8A3E00;          /* blanc sur ce fond : 7.58:1 */
+  color: #FFFFFF;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.s-temoignages .placeholder-flag strong{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.16);
+  white-space: nowrap;
+}
+
+/* ---- Grille de témoignages ---- */
+.s-temoignages .quotes{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2vw, 26px);
+}
+
+.s-temoignages .quote{
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: clamp(22px, 2.4vw, 30px);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: #FFFFFF;
+  /* Volontairement visible par défaut : si le module ne se charge pas, les
+     témoignages restent lus. C'est lui qui pose l'état masqué au démarrage,
+     juste avant de piloter la révélation. */
+}
+
+/* Un emplacement réservé se signale aussi hors du bandeau : si celui-ci
+   saute, la carte reste identifiable comme non réelle. */
+.s-temoignages .quote[data-placeholder]{
+  border-style: dashed;
+  border-color: rgba(138,62,0,.38);
+  background: #FFFDFA;
+}
+
+.s-temoignages blockquote{ margin: 0; }
+.s-temoignages blockquote p{
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(16px, 1.7vw, 18.5px);
+  line-height: 1.5;
+  color: var(--fg);
+}
+.s-temoignages .quote[data-placeholder] blockquote p{
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.s-temoignages figcaption{
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.s-temoignages .avatar{
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #EDF1F6;
+  border: 1px solid var(--hairline);
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+.s-temoignages .who{
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--fg);
+  font-style: normal;
+}
+.s-temoignages .role{
+  display: block;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+/* ---- Replis ---- */
+@media (max-width: 900px){
+  .s-temoignages .quotes{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 620px){
+  .s-temoignages .quotes{ grid-template-columns: 1fr; }
+  .s-temoignages .placeholder-flag{ font-size: 13px; }
+}

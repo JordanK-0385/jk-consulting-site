@@ -15,6 +15,7 @@ import { initLanding } from './sections/landing.js';
 import { initMethod } from './sections/method.js';
 import { initWorkflow } from './sections/workflow.js';
 import { initLiaison } from './sections/liaison.js';
+import { initTemoignages } from './sections/temoignages.js';
 
 /** @type {Array<[string, (root: Element) => void]>} */
 const sections = [
@@ -22,6 +23,7 @@ const sections = [
   ['#methode', initMethod],
   ['#workflow', initWorkflow],
   ['#liaison', initLiaison],
+  ['#temoignages', initTemoignages],
   // ['#faq',          initFaq],       — étape 7
 ];
 
