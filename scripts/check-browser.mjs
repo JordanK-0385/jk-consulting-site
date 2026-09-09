@@ -26,7 +26,11 @@ const URL_BASE = `http://127.0.0.1:${serveur.address().port}/`;
 const echecs = [], ok = [];
 const verifier = (t, c, d = '') => c ? ok.push(t) : echecs.push(`${t}${d ? ` — ${d}` : ''}`);
 
-const navigateur = await chromium.launch();
+/* En CI, Playwright installe le navigateur qu'il attend. En local, on peut
+   pointer un Chromium déjà présent via PLAYWRIGHT_CHROMIUM_PATH — utile pour
+   contrôler la suite avec la version exacte du lockfile sans retélécharger. */
+const navigateur = await chromium.launch(
+  process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {});
 
 /* --- 1. parcours complet : aucune erreur, aucune requête en échec --- */
 for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]){
@@ -68,12 +72,39 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]){
   const ctx = await navigateur.newContext({ viewport: { width: 1440, height: 900 } });
   const p = await ctx.newPage();
   await p.goto(URL_BASE, { waitUntil: 'networkidle' });
-  const source = await p.evaluate(() =>
-    [...document.querySelectorAll('#workflow .steps-source > li h3')].map(h => h.textContent));
-  const arbre = JSON.stringify(await p.accessibility.snapshot());
-  const absents = source.filter(t => !arbre.includes(t));
-  verifier(`${source.length} jalons exposés dans l'arbre d'accessibilité`,
-    source.length === 7 && !absents.length, absents.join(', '));
+  /* On vérifie le mécanisme lui-même plutôt qu'une capture d'arbre : les
+     sept jalons sont dans le DOM, aucun ancêtre ne les masque aux
+     technologies d'assistance, et l'écho visuel est bien marqué
+     aria-hidden pour ne pas doubler l'annonce. Aucune API spécifique à une
+     version de Playwright n'intervient. */
+  const a11y = await p.evaluate(() => {
+    const masque = el => {
+      for (let e = el; e; e = e.parentElement){
+        const cs = getComputedStyle(e);
+        if (e.getAttribute?.('aria-hidden') === 'true') return 'aria-hidden';
+        if (cs.display === 'none') return 'display:none';
+        if (cs.visibility === 'hidden') return 'visibility:hidden';
+        if (e.hasAttribute?.('hidden')) return 'hidden';
+      }
+      return null;
+    };
+    const items = [...document.querySelectorAll('#workflow .steps-source > li')];
+    return {
+      total: items.length,
+      masques: items.map(li => masque(li)).filter(Boolean),
+      complets: items.filter(li =>
+        li.querySelector('h3')?.textContent.trim() &&
+        li.querySelector('.lead')?.textContent.trim() &&
+        li.querySelector('.detail')?.textContent.trim()).length,
+      echoMasque: document.querySelector('#workflow .milestone')?.getAttribute('aria-hidden') === 'true'
+               && document.querySelector('#workflow .governance')?.getAttribute('aria-hidden') === 'true',
+    };
+  });
+  verifier(`${a11y.total} jalons exposés aux technologies d'assistance`,
+    a11y.total === 7 && !a11y.masques.length && a11y.complets === 7,
+    a11y.masques.length ? `masqués par ${[...new Set(a11y.masques)].join(', ')}`
+                        : `${a11y.complets}/7 complets`);
+  verifier('écho visuel du workflow marqué aria-hidden', a11y.echoMasque);
 
   /* hiérarchie des titres, sans saut de niveau */
   const sauts = await p.evaluate(() => {
