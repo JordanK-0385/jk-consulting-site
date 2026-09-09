@@ -40,9 +40,41 @@ function readSteps(root){
   }));
 }
 
-const SPACING = 300;       // écart vertical entre jalons, en unités viewBox
-const AXIS_X = 600;        // le workflow défile sur cet axe
+const AXIS_X = 600;        // abscisse de l'ancre, dans le repère du viewBox
 const ANCHOR_Y = 380;      // le process reste ancré ici
+
+/*
+ * Le parcours coudé (AMELIORATIONS §3). Le fil descend, prend un virage à
+ * 90°, court à l'horizontale — c'est le tronçon dominant, celui où l'on lit
+ * le workflow comme un canvas — puis retourne et redescend.
+ *
+ * Les sept jalons sont posés à intervalles de longueur ÉGALE le long du
+ * chemin, si bien qu'un jalon tombe toujours à i/(N-1) de la progression :
+ * le docking et l'indice du jalon actif restent inchangés.
+ *
+ * Longueurs : 300 vertical, 2100 horizontal, 800 vertical — soit 66% du
+ * parcours à l'horizontale, et quatre jalons sur sept.
+ */
+const PATH_LARGE = [[600, 60], [600, 360], [2700, 360], [2700, 1160]];
+const CORNER_R = 56;
+
+/** Chemin polygonal à coins arrondis. */
+function roundedPolyline(points, radius){
+  const towards = (from, to, d) => {
+    const dx = to[0] - from[0], dy = to[1] - from[1];
+    const len = Math.hypot(dx, dy) || 1;
+    return [from[0] + dx / len * d, from[1] + dy / len * d];
+  };
+  let d = `M ${points[0][0]} ${points[0][1]}`;
+  for (let i = 1; i < points.length - 1; i++){
+    const cur = points[i];
+    const a = towards(cur, points[i - 1], radius);
+    const b = towards(cur, points[i + 1], radius);
+    d += ` L ${a[0]} ${a[1]} Q ${cur[0]} ${cur[1]} ${b[0]} ${b[1]}`;
+  }
+  const last = points[points.length - 1];
+  return d + ` L ${last[0]} ${last[1]}`;
+}
 const SWAP_MS = 180;       // temps de fondu avant d'échanger le texte
 
 /* Teinte interpolée le long du parcours : la métamorphose est continue,
@@ -103,49 +135,99 @@ export function initWorkflow(root){
   const bodyEl   = root.querySelector('.governance .detail');
   const pctEl    = root.querySelector('.readout b');
 
-  /* ---------- le workflow qui défile ---------- */
+  /* ---------- le workflow qui défile, le long du parcours coudé ---------- */
 
-  world.appendChild(mk('line', {
-    x1: AXIS_X, y1: -40, x2: AXIS_X, y2: (N - 1) * SPACING + 40,
-    stroke: rgba(CYAN, .35), 'stroke-width': '2.5',
-    'stroke-dasharray': '2 10', 'stroke-linecap': 'round',
+  const trace = roundedPolyline(PATH_LARGE, CORNER_R);
+
+  /* Lueur diffuse sous le rail : donne de la matière au tracé. */
+  const railGlow = mk('path', {
+    d: trace, fill: 'none', stroke: rgba(CYAN, .18), 'stroke-width': '14',
+    'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+  });
+  railGlow.style.filter = 'blur(7px)';
+  world.appendChild(railGlow);
+
+  world.appendChild(mk('path', {
+    d: trace, fill: 'none', stroke: rgba(CYAN, .35), 'stroke-width': '2.5',
+    'stroke-dasharray': '2 10', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
   }));
 
-  const nodes = STEPS.map((step, i) => {
-    const y = i * SPACING;
-    const g = mk('g', {});
-    g.appendChild(mk('rect', {
-      x: AXIS_X - 22, y: y - 22, width: 44, height: 44, rx: 13,
-      fill: 'rgba(12,26,46,.95)', stroke: rgba(step.color, .65), 'stroke-width': '1.8',
-    }));
-    g.appendChild(mk('circle', {
-      cx: AXIS_X, cy: y, r: 5, fill: rgba(step.color, 1),
-      filter: `drop-shadow(0 0 4px ${rgba(step.color, .9)})`,
-    }));
-    world.appendChild(g);
+  /* Chemin de mesure : sert à placer les jalons et à piloter la caméra.
+     Invisible, mais bien dans le document — getPointAtLength l'exige. */
+  const measure = mk('path', { id: 'jk-workflow-path', d: trace, fill: 'none', stroke: 'none' });
+  world.appendChild(measure);
+  const PATH_LEN = measure.getTotalLength();
 
-    /* Le traitement se ramifie : branches parallèles, routage conditionnel. */
+  /** Position d'un jalon sur le parcours, en fraction de sa longueur. */
+  const atStep = i => measure.getPointAtLength(PATH_LEN * (i / (N - 1)));
+
+  const NODE_W = 190, NODE_H = 50;
+
+  const nodes = STEPS.map((step, i) => {
+    const pt = atStep(i);
+    const g = mk('g', {});
+    const left = pt.x - NODE_W / 2, top = pt.y - NODE_H / 2;
+
+    /* Les branches du traitement s'ouvrent perpendiculairement au parcours :
+       verticalement sur un tronçon horizontal, et inversement. */
     if (i === 2){
-      for (const offset of [-70, 0, 70]){
-        world.appendChild(mk('path', {
-          d: `M ${AXIS_X} ${y - 70} C ${AXIS_X + offset} ${y - 40}, ${AXIS_X + offset} ${y + 40}, ${AXIS_X} ${y + 70}`,
-          fill: 'none', stroke: rgba(step.color, .5), 'stroke-width': '1.5',
+      const before = measure.getPointAtLength(Math.max(0, PATH_LEN * (i / (N - 1)) - 30));
+      const after  = measure.getPointAtLength(Math.min(PATH_LEN, PATH_LEN * (i / (N - 1)) + 30));
+      const angle = Math.atan2(after.y - before.y, after.x - before.x) * 180 / Math.PI;
+      const branches = mk('g', { transform: `translate(${pt.x} ${pt.y}) rotate(${angle})` });
+      for (const offset of [-72, 0, 72]){
+        branches.appendChild(mk('path', {
+          d: `M 0 -96 C ${offset} -52, ${offset} 52, 0 96`,
+          fill: 'none', stroke: rgba(step.color, .45), 'stroke-width': '1.5',
         }));
         if (offset){
-          world.appendChild(mk('circle', { cx: AXIS_X + offset, cy: y, r: 3.5, fill: rgba(step.color, .9) }));
+          branches.appendChild(mk('circle', { cx: offset, cy: 0, r: 3.5, fill: rgba(step.color, .9) }));
         }
       }
+      world.appendChild(branches);
     }
+
+    /* Nœud façon canvas n8n : c'est ce qui rend le tronçon horizontal
+       lisible — trois ou quatre nœuds côte à côte doivent se nommer. */
+    g.appendChild(mk('rect', {
+      x: left, y: top, width: NODE_W, height: NODE_H, rx: 14,
+      fill: 'rgba(12,26,46,.96)', stroke: rgba(step.color, .6), 'stroke-width': '1.6',
+    }));
+    g.appendChild(mk('rect', { x: left, y: top, width: 6, height: NODE_H, rx: 3, fill: rgba(step.color, 1) }));
+    g.appendChild(mk('circle', { cx: left + 22, cy: pt.y, r: 5, fill: rgba(step.color, 1) }));
+
+    const tag = mk('text', {
+      x: left + 40, y: pt.y - 4, fill: '#8fa6c4',
+      'font-family': 'JetBrains Mono, monospace', 'font-size': '10',
+    });
+    tag.textContent = step.tag;
+    g.appendChild(tag);
+
+    const title = mk('text', {
+      x: left + 40, y: pt.y + 14, fill: '#EAF1FB',
+      'font-family': 'Space Grotesk, sans-serif', 'font-size': '16', 'font-weight': '600',
+    });
+    title.textContent = step.title;
+    g.appendChild(title);
+
+    world.appendChild(g);
     return g;
   });
 
-  /* Paquets SMIL entre jalons — masqués par CSS en mouvement réduit. */
+  /* Paquets SMIL entre jalons — masqués par CSS en mouvement réduit.
+     Ils suivent le rail lui-même via mpath, bornés au tronçon voulu par
+     keyPoints : sur un parcours coudé, une droite ne convient plus. */
   for (let i = 0; i < N - 1; i++){
     const dot = mk('circle', { r: 3, fill: '#7FE3FF', filter: 'drop-shadow(0 0 4px #7FE3FF)' });
-    dot.appendChild(mk('animateMotion', {
-      dur: '1.4s', repeatCount: 'indefinite',
-      path: `M ${AXIS_X} ${i * SPACING} L ${AXIS_X} ${(i + 1) * SPACING}`,
-    }));
+    const motion = mk('animateMotion', {
+      dur: '1.4s', repeatCount: 'indefinite', calcMode: 'linear',
+      keyPoints: `${i / (N - 1)};${(i + 1) / (N - 1)}`, keyTimes: '0;1',
+    });
+    const mpath = mk('mpath', {});
+    mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#jk-workflow-path');
+    mpath.setAttribute('href', '#jk-workflow-path');
+    motion.appendChild(mpath);
+    dot.appendChild(motion);
     packets.appendChild(dot);
   }
 
@@ -251,7 +333,21 @@ export function initWorkflow(root){
       });
     }
 
-    world.setAttribute('transform', `translate(0 ${ANCHOR_Y - p * (N - 1) * SPACING})`);
+    /* Caméra : on centre le point courant du parcours sur l'ancre. Sur le
+       tronçon horizontal, le même scroll vertical fait donc défiler l'image
+       latéralement — c'est tout le geste. */
+    const head = measure.getPointAtLength(PATH_LEN * p);
+    world.setAttribute('transform', `translate(${AXIS_X - head.x} ${ANCHOR_Y - head.y})`);
+
+    /* Horizontalité du parcours au point courant, lue sur la tangente.
+       Elle déplace la narration hors du couloir que les nœuds occupent
+       désormais — voir s3-workflow.css. */
+    const avant = measure.getPointAtLength(Math.max(0, PATH_LEN * p - 24));
+    const apres = measure.getPointAtLength(Math.min(PATH_LEN, PATH_LEN * p + 24));
+    const dx = apres.x - avant.x, dy = apres.y - avant.y;
+    const horiz = Math.abs(dx) / (Math.abs(dx) + Math.abs(dy) || 1);
+    stage.style.setProperty('--horiz', horiz.toFixed(3));
+    stage.classList.toggle('is-horizontal', horiz > 0.5);
 
     const tint = tintAt(p);
     const asRobot = seg(p, 0.88, 1);

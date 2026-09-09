@@ -52,16 +52,39 @@
 .s-workflow .readout b{ color: var(--accent-cyan); font-weight: 500; }
 
 /* ---- Jalon (gauche) et gouvernance (droite) ---- */
+/* --horiz vaut 0 sur les tronçons verticaux et 1 sur l'horizontal ; le
+   module l'écrit à chaque frame depuis la tangente du parcours.
+
+   Sur un parcours vertical, les panneaux encadrent un couloir vide. Dès que
+   le fil part à l'horizontale, ce couloir se remplit de nœuds : la narration
+   doit alors passer au-dessus et au-dessous du rail, sans quoi deux textes
+   se superposent. La bascule est continue, pas commutée. */
+.s-workflow .stage{ --horiz: 0; }
+
 .s-workflow .milestone,
 .s-workflow .governance{
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
   z-index: 16;
   transition: opacity .35s;
 }
-.s-workflow .milestone{ left: var(--gutter); max-width: min(34vw, 360px); }
-.s-workflow .governance{ right: var(--gutter); max-width: min(34vw, 340px); }
+.s-workflow .milestone{
+  left: var(--gutter);
+  max-width: min(34vw, 360px);
+  transform:
+    translateX(calc(var(--horiz) * (50vw - var(--gutter) - 50%)))
+    translateY(calc(-50% - var(--horiz) * 24vh));
+}
+.s-workflow .governance{
+  right: var(--gutter);
+  max-width: min(34vw, 340px);
+  transform:
+    translateX(calc(var(--horiz) * (var(--gutter) + 50% - 50vw)))
+    translateY(calc(-50% + var(--horiz) * 22vh));
+}
+/* Au-delà de la moitié du virage, un bloc centré se lit mieux centré. */
+.s-workflow .stage.is-horizontal .milestone,
+.s-workflow .stage.is-horizontal .governance{ text-align: center; }
 .s-workflow .swapping{ opacity: 0; }
 
 .s-workflow .milestone .step-no{
