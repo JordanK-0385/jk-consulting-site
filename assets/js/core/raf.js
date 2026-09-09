@@ -22,8 +22,19 @@ import { prefersReducedMotion, onMotionPreferenceChange } from './motion.js';
 /** @type {Map<Element, { tick: (now:number, el:Element) => void, visible: boolean }>} */
 const sections = new Map();
 
+/* Passes exécutées APRÈS toutes les sections, dans le même cadre d'animation.
+   C'est ce qui permet à un élément partagé — le fil conducteur — de lire ce
+   que les sections viennent de déclarer avant de se rendre. L'ordre des
+   sections entre elles reste l'ordre d'enregistrement ; ce qui est garanti
+   ici, c'est seulement que ces passes viennent en dernier. */
+const afterTicks = new Set();
+
 let visibleCount = 0;
 let pending = false;
+/* Une dernière frame quand plus rien n'est visible : sans elle, les passes
+   post-sections resteraient figées sur leur dernier état alors que le fil
+   doit s'éteindre en quittant la dernière scène. */
+let needsSettle = false;
 
 /** Marge de pré-chauffe : la scène est prête avant d'entrer dans le champ. */
 const observer = new IntersectionObserver(entries => {
@@ -33,6 +44,7 @@ const observer = new IntersectionObserver(entries => {
     record.visible = entry.isIntersecting;
     visibleCount += entry.isIntersecting ? 1 : -1;
   }
+  if (visibleCount === 0) needsSettle = true;
   schedule();
 }, { rootMargin: '25% 0px 25% 0px' });
 
@@ -42,16 +54,19 @@ function isContinuous(){
 }
 
 function schedule(){
-  if (pending || visibleCount === 0) return;
+  if (pending) return;
+  if (visibleCount === 0 && !needsSettle) return;
   pending = true;
   requestAnimationFrame(run);
 }
 
 function run(now){
   pending = false;
+  needsSettle = false;
   for (const [el, record] of sections){
     if (record.visible) record.tick(now, el);
   }
+  for (const tick of afterTicks) tick(now);
   if (isContinuous()) schedule();
 }
 
@@ -64,7 +79,12 @@ function run(now){
  */
 export function register(el, tick){
   if (!el) return () => {};
-  sections.set(el, { tick, visible: false });
+  /* Réenregistrer un élément déjà suivi remplace son tick. Il faut alors
+     conserver son état de visibilité : `observe()` sur une cible déjà
+     observée ne rejoue pas le callback de l'observer, et la nouvelle entrée
+     resterait invisible — donc muette — pour toujours. */
+  const connu = sections.get(el);
+  sections.set(el, { tick, visible: connu?.visible ?? false });
   observer.observe(el);
   return () => {
     observer.unobserve(el);
@@ -72,6 +92,19 @@ export function register(el, tick){
     if (record?.visible) visibleCount--;
     sections.delete(el);
   };
+}
+
+/**
+ * Enregistre une passe exécutée après toutes les sections, à chaque frame.
+ * Réservé aux éléments partagés par plusieurs sections.
+ *
+ * @param {(now:number) => void} tick
+ * @returns {() => void} désenregistrement
+ */
+export function registerAfter(tick){
+  afterTicks.add(tick);
+  schedule();
+  return () => afterTicks.delete(tick);
 }
 
 /* Le scroll et le redimensionnement réveillent la boucle : c'est ce qui rend

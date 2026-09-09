@@ -11,6 +11,10 @@
  */
 
 import './core/motion.js'; // pose .reduced-motion sur <html> dès le chargement
+/* Le fil conducteur est un élément de page, pas de section : il s'initialise
+   ici et attend qu'une section le revendique. Tant qu'aucune ne le fait, il
+   reste masqué. */
+import './core/thread.js';
 import { initLanding } from './sections/landing.js';
 import { initMethod } from './sections/method.js';
 import { initWorkflow } from './sections/workflow.js';
