@@ -71,8 +71,15 @@ export function initMethod(root){
     const railX = rail.left + rail.width / 2;
     const section = root.getBoundingClientRect();
 
+    /* Trois régimes, tous ancrés sur la médiane pour que le fil ne plonge
+       jamais à la rencontre du rail : il l'attend, et le rail vient à lui.
+       Au moment où la progression démarre, `rect.top + travelled` vaut
+       exactement la médiane — le passage d'un régime à l'autre est donc
+       continu, y compris avec l'oscillation d'accostage. */
     const surLeRail = rect.bottom > middle;
-    const y = surLeRail ? rect.top + travelled : middle;
+    const y = !surLeRail        ? middle          // rail passé : on attend le workflow
+            : progression <= 0  ? middle          // rail pas encore engagé : on l'attend
+            : rect.top + travelled;               // sur le rail, accostage compris
 
     /* Pulsation d'accostage : le nœud sous le fil se marque une fois. */
     let proximite = 0;
@@ -89,7 +96,15 @@ export function initMethod(root){
        sans qu'aucun code ne connaisse cette frontière. */
     const reste = section.bottom - rect.bottom;
     const queue = reste > 0 ? clamp01((middle - rect.bottom) / reste) : 1;
-    const poids = seg(progression, 0, 0.03) * (1 - seg(queue, 0.55, 1));
+
+    /* La montée, elle, commence dès l'APPROCHE de la section et non à
+       l'entrée du rail. Sans cela, le fil restait éteint sur toute la
+       hauteur du chapô — mesuré à 2280px sans fil entre le haut de la page
+       et le premier point revendiqué. L'étincelle née du bureau descend
+       ainsi jusqu'au rail sans se rallumer. */
+    const arrivee = clamp01(1 - section.top / window.innerHeight);
+    const montee = Math.max(seg(arrivee, 0.15, 0.65), seg(progression, 0, 0.03));
+    const poids = montee * (1 - seg(queue, 0.55, 1));
 
     /* Le fil se resserre en accostant. Le point se loge alors dans l'espace
        entre les deux chiffres du nœud, qui restent lisibles — un point de

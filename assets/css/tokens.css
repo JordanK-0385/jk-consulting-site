@@ -53,7 +53,11 @@
   --radius-pill: 999px;
 
   /* ---- Hauteurs de scroll (arbitrage A : desktop = protos à l'identique) ---- */
-  --h-landing:  220vh;
+  /* La landing dépasse les 220vh du proto : la condensation du bureau en
+     étincelle a besoin de place pour respirer. À 220vh, le héros s'effaçant
+     à 55% du parcours, il ne restait que ~430px de course pour ramasser tout
+     le bureau en un point. */
+  --h-landing:  280vh;
   --h-workflow: 700vh;
   --h-liaison:  340vh;
 }

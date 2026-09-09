@@ -7,10 +7,26 @@
  */
 
 import { mk, poly, roundPath, points, makeIso } from '../core/svg.js';
-import { rgb, rgba, shade } from '../core/color.js';
+import { rgb, rgba, shade, seg, easeOut, clamp01 } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
+import { claim } from '../core/thread.js';
+
+/*
+ * L'ORIGINE DU FIL (COMMIT-7.md, ouverture).
+ *
+ * Le bureau — le résultat — se ramasse en une seule étincelle, et cette
+ * étincelle EST le token qui traversera tout le site. On comprend d'où vient
+ * la boule de lumière : c'est le résultat rembobiné jusqu'à son origine.
+ *
+ * Le point de convergence est le centre du plateau, qui sert déjà de pivot
+ * au cadrage responsive. Le fond, lui, n'est pas interpolé ici : le raccord
+ * de couture vers la méthode s'en charge déjà.
+ */
+const CONDENSE = [0.45, 0.92];   // le bureau se ramasse
+const ETINCELLE = [0.58, 0.90];  // le token prend sa place
+const NEON = [127, 227, 255];
 
 /* Maille isométrique du plateau 8×8 (valeurs du proto). */
 const iso = makeIso({ cx: 600, cy: 110 });
@@ -270,8 +286,52 @@ export function initLanding(root){
     const mx = still ? 0 : px;
     const my = still ? 0 : py;
 
-    sceneG.setAttribute('transform', `translate(${Math.sin(t * 0.0004) * 7 + mx * 34} ${Math.cos(t * 0.0005) * 4 + my * 18 - p * 60})`);
+    /* Condensation : une échelle autour du centre du plateau, jusqu'à un
+       point. L'oscillation ambiante s'apaise en même temps — une étincelle
+       qui tremblerait encore trahirait le bureau disparu. */
+    const ramasse = easeOut(seg(p, CONDENSE[0], CONDENSE[1]));
+    const calme = 1 - ramasse;
+    const echelle = 1 - 0.97 * ramasse;
+
+    const ax = (Math.sin(t * 0.0004) * 7 + mx * 34) * calme;
+    const ay = (Math.cos(t * 0.0005) * 4 + my * 18) * calme - p * 60;
+    sceneG.setAttribute('transform',
+      `translate(${ax} ${ay}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${echelle}) translate(${-PIVOT_X} ${-PIVOT_Y})`);
+    sceneG.style.opacity = 1 - seg(p, 0.74, 0.93);
+
     holosG.setAttribute('transform', `translate(${mx * -20} ${my * -12 - p * 30})`);
+    holosG.style.opacity = 1 - seg(p, 0.42, 0.62);
+
+    /* ---------- naissance du fil conducteur ----------
+       Le point est pris sur la matrice écran de la scène : il suit donc
+       exactement là où le bureau converge, quels que soient le cadrage et
+       l'échelle mobile. */
+    const ctm = sceneG.getScreenCTM();
+    if (ctm){
+      const naissance = easeOut(seg(p, ETINCELLE[0], ETINCELLE[1]));
+      const mediane = window.innerHeight * 0.5;
+
+      /* Une fois la section décollée, la scène remonte et sort de l'écran.
+         Le fil ne la suit pas : il se tient sur la médiane et attend que la
+         méthode le reprenne. Sans cette retenue, il partait à y=-101 puis
+         revenait d'un bond de 554px. */
+      const y = ctm.b * PIVOT_X + ctm.d * PIVOT_Y + ctm.f;
+
+      /* Et son poids retombe à mesure que la section sort, exactement dans
+         la fenêtre où celui de la méthode monte : c'est le même passage de
+         relais que sur la couture méthode -> workflow. */
+      const bas = root.getBoundingClientRect().bottom;
+      const sortie = clamp01(1 - bas / window.innerHeight);
+
+      claim({
+        x: ctm.a * PIVOT_X + ctm.c * PIVOT_Y + ctm.e,
+        y: Math.max(y, mediane),
+        weight: naissance * (1 - seg(sortie, 0.25, 0.85)),
+        radius: 5 + naissance * 4,
+        color: NEON,
+        tail: naissance * 70,
+      });
+    }
 
     hero.style.opacity = Math.max(0, 1 - p / 0.55);
     hero.style.transform = `translateY(${-p * 70}px)`;
