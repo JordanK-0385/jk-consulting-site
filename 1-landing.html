@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK Consulting — le résultat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#060B18;color:#EAF1FB;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.scroll{height:220vh;position:relative}
+.stage{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;
+  background:radial-gradient(90% 70% at 50% -6%,rgba(79,168,240,.22),transparent 55%),radial-gradient(120% 120% at 50% 20%,#0C1A34 0%,#08122456 40%,#060B18 100%)}
+.svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vig{position:absolute;inset:0;pointer-events:none;z-index:11;background:radial-gradient(130% 110% at 50% 42%,transparent 58%,rgba(2,5,14,.6) 100%)}
+
+.top{position:absolute;top:26px;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:0 clamp(20px,4vw,52px)}
+.brand{font-family:'Space Grotesk';font-weight:700;font-size:18px;letter-spacing:.02em}
+.brand i{color:#4FD0F0;font-style:normal}
+.wus{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.06em;color:#061020;background:#4FD0F0;padding:11px 20px;border-radius:999px;text-decoration:none}
+
+.hero{position:absolute;left:clamp(20px,5vw,60px);bottom:clamp(40px,9vh,96px);z-index:20;max-width:min(58ch,90vw);will-change:transform,opacity}
+.eyebrow{font-family:'JetBrains Mono';font-size:12.5px;letter-spacing:.16em;color:#7FE3FF;margin-bottom:16px}
+.hero h1{font-family:'Space Grotesk';font-weight:700;font-size:clamp(40px,8.5vw,104px);line-height:.94;letter-spacing:-.03em;margin:0}
+.hero h1 .g{background:linear-gradient(90deg,#7FE3FF,#6E8BF2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{margin:20px 0 24px;max-width:46ch;font-size:clamp(15px,1.7vw,17px);line-height:1.5;color:#a9bcd6}
+.ctas{display:flex;gap:13px;flex-wrap:wrap}
+.ctas a{font-family:'Space Grotesk';font-weight:600;font-size:15px;text-decoration:none;padding:14px 26px;border-radius:999px;transition:transform .2s}
+.ctas .solid{background:#4FD0F0;color:#061020}.ctas .ghost{border:1px solid rgba(127,227,255,.4);color:#EAF1FB}
+.ctas a:hover{transform:translateY(-2px)}
+.cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:20;font-family:'JetBrains Mono';font-size:12px;letter-spacing:.1em;color:#8fa6c4;display:flex;flex-direction:column;align-items:center;gap:6px}
+.cue .a{color:#4FD0F0;animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+/* robots + holo (CSS animations = vie ambiante sans scroll) */
+.rb{animation:float 3.4s ease-in-out infinite}
+.rb2{animation:float 3.8s ease-in-out infinite .5s}
+.rb3{animation:float 3.1s ease-in-out infinite 1s}
+.rb4{animation:float 4.1s ease-in-out infinite .3s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.eye{animation:blink 4.6s ease-in-out infinite}
+@keyframes blink{0%,92%,100%{opacity:1}95%{opacity:.15}}
+.holo{animation:hfloat 5s ease-in-out infinite}
+@keyframes hfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.pulse{animation:pl 3s ease-in-out infinite}
+@keyframes pl{0%,100%{opacity:.5}50%{opacity:1}}
+@media(max-width:720px){.hero{left:20px;right:20px}}
+@media (prefers-reduced-motion:reduce){.rb,.rb2,.rb3,.rb4,.eye,.holo,.pulse{animation:none}}
+</style>
+</head>
+<body>
+<div class="scroll" id="scroll">
+  <div class="stage">
+    <svg class="svg" id="svg" viewBox="0 0 1200 760" aria-hidden="true">
+      <defs>
+        <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+        <radialGradient id="rbg"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfe0f2"/></radialGradient>
+      </defs>
+      <g id="scene"></g>
+      <g id="holos"></g>
+      <g id="motes"></g>
+    </svg>
+    <div class="vig"></div>
+    <div class="top"><div class="brand">JK<i>·</i>CONSULTING</div><a class="wus" href="#contact">TRAVAILLER AVEC MOI</a></div>
+    <div class="hero" id="hero">
+      <div class="eyebrow">LE BUREAU AUGMENTÉ PAR L'IA</div>
+      <h1>Chaque service a<br><span class="g">son agent.</span></h1>
+      <p class="sub">Des agents IA dans chaque pôle, connectés entre eux, qui traitent l'information en continu. Voilà le résultat — découvrez comment on l'installe chez vous.</p>
+      <div class="ctas"><a class="solid" href="#contact">Parler du projet</a><a class="ghost" href="#how">Comment on fait</a></div>
+    </div>
+    <div class="cue" id="cue"><span>comment on fait</span><span class="a">↓</span></div>
+  </div>
+</div>
+
+<script>
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const NS='http://www.w3.org/2000/svg';
+const CX=600,CY=110,TW=150,TH=75,HU=50;
+const iso=(gx,gy,gz=0)=>[CX+(gx-gy)*TW/2, CY+(gx+gy)*TH/2-gz*HU];
+const Pp=(...p)=>p.map(q=>q.join(',')).join(' ');
+const cl=v=>Math.max(0,Math.min(255,v|0));
+const shade=(c,f)=>`rgb(${cl(c[0]*f)},${cl(c[1]*f)},${cl(c[2]*f)})`;
+const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const poly=(p,fill,pts,ex)=>{const e=mk('polygon',{points:pts,fill,...(ex||{})});p.appendChild(e);return e;};
+function roundPath(p,pts,r,fill,ex){const n=pts.length;let d='';const at=(a,b,r)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);return[a[0]+dx/L*r,a[1]+dy/L*r];};
+  for(let i=0;i<n;i++){const c=pts[i],pr=pts[(i-1+n)%n],nx=pts[(i+1)%n],a=at(c,pr,r),b=at(c,nx,r);
+    d+=(i===0?`M ${a[0]} ${a[1]}`:` L ${a[0]} ${a[1]}`)+` Q ${c[0]} ${c[1]} ${b[0]} ${b[1]}`;}d+=' Z';
+  const e=mk('path',{d,fill,...(ex||{})});p.appendChild(e);return e;}
+
+// palette bleu néon (famille bleue, pas d'arc-en-ciel)
+const FLOORTOP=[16,32,58], FLOORSIDE=[10,22,42];
+const WHITE=[220,232,246], DARK=[24,40,66], SCREEN=[111,224,255];
+const ZONES=[
+  {name:'Direction',   c:[110,123,242], gx:0,gy:0},
+  {name:'Sales',       c:[79,168,240],  gx:4,gy:0},
+  {name:'Back-office', c:[63,214,200],  gx:0,gy:4},
+  {name:'Front-office',c:[79,208,240],  gx:4,gy:4},
+];
+const scene=document.getElementById('scene');
+
+// plateau
+const Nc=iso(0,0),Ec=iso(8,0),Sc=iso(8,8),Wc=iso(0,8),slab=20;
+poly(scene, `rgb(${FLOORSIDE})`.replace(/\[|\]/g,''), Pp(Ec,Sc,[Sc[0],Sc[1]+slab],[Ec[0],Ec[1]+slab]));
+poly(scene, shade(FLOORSIDE,.85), Pp(Sc,Wc,[Wc[0],Wc[1]+slab],[Sc[0],Sc[1]+slab]));
+roundPath(scene,[Nc,Ec,Sc,Wc],28, `rgb(${FLOORTOP[0]},${FLOORTOP[1]},${FLOORTOP[2]})`);
+// rugs + bordures néon
+ZONES.forEach(z=>{
+  const rug=[iso(z.gx+.3,z.gy+.3),iso(z.gx+3.7,z.gy+.3),iso(z.gx+3.7,z.gy+3.7),iso(z.gx+.3,z.gy+3.7)];
+  roundPath(scene,rug,20,rgba(z.c,.12));
+  const bc=[iso(z.gx,z.gy),iso(z.gx+4,z.gy),iso(z.gx+4,z.gy+4),iso(z.gx,z.gy+4)];
+  const b=roundPath(scene,bc,24,'none',{stroke:rgba(z.c,.95),'stroke-width':'2.5'});
+  b.style.filter=`drop-shadow(0 0 7px ${rgba(z.c,.9)})`; b.setAttribute('class','pulse');
+});
+
+function box(gx,gy,w,d,h,body){
+  poly(scene,shade(body,.8),Pp(iso(gx,gy+d,h),iso(gx+w,gy+d,h),iso(gx+w,gy+d,0),iso(gx,gy+d,0)));
+  poly(scene,shade(body,.56),Pp(iso(gx+w,gy,h),iso(gx+w,gy+d,h),iso(gx+w,gy+d,0),iso(gx+w,gy,0)));
+  poly(scene,shade(body,1.14),Pp(iso(gx,gy,h),iso(gx+w,gy,h),iso(gx+w,gy+d,h),iso(gx,gy+d,h)));
+}
+function shadow(gx,gy,w,d){const[x,y]=iso(gx+w/2,gy+d/2,0);scene.appendChild(mk('ellipse',{cx:x,cy:y,rx:24*w,ry:12*d,fill:'rgba(0,0,0,.28)',filter:'url(#soft)'}));}
+function screen(gx,gy){box(gx,gy,0.14,0.34,0.34,DARK);const[x,y]=iso(gx+0.07,gy+0.17,0.34);
+  scene.appendChild(mk('rect',{x:x-11,y:y-16,width:22,height:14,rx:3,fill:rgba(SCREEN,.9),transform:'skewY(26)',filter:`drop-shadow(0 0 4px ${rgba(SCREEN,.9)})`}));}
+function desk(gx,gy,w=1,d=0.6){shadow(gx,gy,w,d);box(gx,gy,w,d,0.3,WHITE);}
+function chair(gx,gy){box(gx,gy,0.34,0.34,0.24,[70,86,120]);box(gx,gy,0.34,0.1,0.5,[60,74,104]);}
+function plant(gx,gy){box(gx+0.1,gy+0.1,0.2,0.2,0.24,[40,60,90]);const[x,y]=iso(gx+0.2,gy+0.2,0.5);
+  scene.appendChild(mk('ellipse',{cx:x,cy:y,rx:14,ry:12,fill:'#3FD6C8',opacity:.85,filter:`drop-shadow(0 0 4px rgba(63,214,200,.7))`}));}
+function partition(gx,gy,w,d){poly(scene,'rgba(110,140,220,.14)',Pp(iso(gx,gy+d,1.4),iso(gx+w,gy+d,1.4),iso(gx+w,gy+d,0),iso(gx,gy+d,0)),{stroke:rgba([120,180,240],.5),'stroke-width':'1'});}
+function server(gx,gy){shadow(gx,gy,0.5,0.5);box(gx,gy,0.5,0.5,1.5,[26,44,72]);
+  for(let k=0;k<3;k++){const[x,y]=iso(gx+0.15+k*0.12,gy+0.15,1.35-k*0.06);const c=mk('circle',{cx:x,cy:y,r:2.4,fill:'#6FE0FF'});c.setAttribute('class','pulse');scene.appendChild(c);}}
+function sofa(gx,gy,w){shadow(gx,gy,w,0.6);box(gx,gy,w,0.6,0.28,[54,80,130]);box(gx,gy,w,0.16,0.5,[44,68,116]);}
+
+// meubles (bureau déjà installé = le résultat)
+partition(0.2,3.6,3.4,0.12);partition(3.6,0.2,0.12,3.4);
+desk(1.4,1.2,1.3,0.7);chair(1.9,2.0);screen(1.7,1.35);box(0.4,0.4,0.4,1.2,1.1,WHITE);plant(3.0,0.5);plant(0.5,3.0);
+for(let r=0;r<2;r++)for(let c=0;c<2;c++){const gx=4.5+c*1.7,gy=0.7+r*1.7;desk(gx,gy,1.1,0.6);screen(gx+0.35,gy+0.15);chair(gx+0.4,gy+0.75);}
+server(0.5,4.5);server(1.2,4.5);server(0.5,5.2);desk(2.3,6.3,1,0.6);screen(2.6,6.45);chair(2.65,7.0);
+box(4.6,4.6,1.6,0.6,0.45,WHITE);screen(5.2,4.72);sofa(6.2,6.4,1.4);plant(4.5,7.2);plant(7.3,4.5);
+
+// ---- petits robots-agents (discrets, 1 par service) ----
+function robot(gx,gy,c,cls){
+  const [x,y]=iso(gx,gy,0);
+  const g=mk('g',{transform:`translate(${x} ${y-4}) scale(.92)`});
+  g.appendChild(mk('ellipse',{cx:0,cy:2,rx:15,ry:6,fill:'rgba(0,0,0,.3)',filter:'url(#soft)'}));
+  const f=mk('g',{class:cls});  // flotte
+  f.appendChild(mk('ellipse',{cx:0,cy:-16,rx:20,ry:20,fill:rgba(c,.18),filter:'url(#soft)'})); // lueur
+  f.appendChild(mk('rect',{x:-11,y:-16,width:22,height:20,rx:9,fill:'url(#rbg)',stroke:rgba(c,.85),'stroke-width':'1.3'})); // corps
+  f.appendChild(mk('circle',{cx:0,cy:-1,r:3.2,fill:rgba(c,.9),filter:`drop-shadow(0 0 3px ${rgba(c,.9)})`})); // badge IA
+  f.appendChild(mk('rect',{x:-13,y:-40,width:26,height:22,rx:11,fill:'url(#rbg)',stroke:rgba(c,.85),'stroke-width':'1.3'})); // tête
+  f.appendChild(mk('rect',{x:-10,y:-37,width:20,height:15,rx:7,fill:'#0C1A2E'})); // visage-écran
+  const eyes=mk('g',{class:'eye'});
+  eyes.appendChild(mk('ellipse',{cx:-4.5,cy:-29.5,rx:2.4,ry:3.2,fill:'#7FE7FF',filter:`drop-shadow(0 0 3px #7FE7FF)`}));
+  eyes.appendChild(mk('ellipse',{cx:4.5,cy:-29.5,rx:2.4,ry:3.2,fill:'#7FE7FF',filter:`drop-shadow(0 0 3px #7FE7FF)`}));
+  f.appendChild(eyes);
+  f.appendChild(mk('line',{x1:0,y1:-40,x2:0,y2:-47,stroke:rgba(c,.8),'stroke-width':'1.4'}));
+  f.appendChild(mk('circle',{cx:0,cy:-48,r:2,fill:rgba(c,1),filter:`drop-shadow(0 0 3px ${rgba(c,1)})`}));
+  g.appendChild(f); scene.appendChild(g);
+}
+robot(2.3,1.9, ZONES[0].c,'rb');
+robot(5.2,1.4, ZONES[1].c,'rb2');
+robot(2.9,6.5, ZONES[2].c,'rb3');
+robot(5.6,5.0, ZONES[3].c,'rb4');
+
+// liens entre services (déjà connectés)
+const CEN=ZONES.map(z=>iso(z.gx+2,z.gy+2,0.9));
+[[0,1],[1,3],[3,2],[2,0],[0,3]].forEach(pr=>{const A=CEN[pr[0]],B=CEN[pr[1]],mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2-48;
+  const p=mk('path',{d:`M ${A[0]} ${A[1]} Q ${mx} ${my} ${B[0]} ${B[1]}`,fill:'none',stroke:rgba(SCREEN,.55),'stroke-width':'1.4'});
+  p.style.filter=`drop-shadow(0 0 4px ${rgba(SCREEN,.7)})`;p.setAttribute('class','pulse');scene.appendChild(p);});
+
+// panneaux holographiques flottants (futuriste)
+const gH=document.getElementById('holos');
+function holo(x,y,w,h,cls){const g=mk('g',{transform:`translate(${x} ${y})`,class:cls});
+  g.appendChild(mk('rect',{x:0,y:0,width:w,height:h,rx:8,fill:'rgba(79,168,240,.10)',stroke:'rgba(127,227,255,.5)','stroke-width':'1'}));
+  for(let i=0;i<4;i++)g.appendChild(mk('rect',{x:12,y:14+i*13,width:(w-24)*(0.4+Math.random()*0.55),height:4,rx:2,fill:'rgba(127,227,255,.55)'}));
+  gH.appendChild(g);}
+holo(120,120,150,88,'holo');holo(940,150,160,96,'holo');holo(980,430,140,80,'holo');
+
+// motes bleues + parallaxe scroll léger
+const gM=document.getElementById('motes'),motes=[];
+for(let i=0;i<24;i++){const m=mk('circle',{r:Math.random()*1.3+.4,fill:'rgba(127,227,255,.5)'});gM.appendChild(m);
+  motes.push({el:m,x:Math.random()*1200,y:Math.random()*760,vy:-(0.06+Math.random()*0.1),ph:Math.random()*6.28});}
+const hero=document.getElementById('hero'),cue=document.getElementById('cue');
+let mmx=0,mmy=0;addEventListener('pointermove',e=>{mmx=e.clientX/innerWidth-0.5;mmy=e.clientY/innerHeight-0.5;},{passive:true});
+function loop(now){
+  const sc=document.getElementById('scroll'),rect=sc.getBoundingClientRect();
+  let p=Math.max(0,Math.min(1,(-rect.top)/(sc.offsetHeight-innerHeight)));
+  document.getElementById('scene').setAttribute('transform',`translate(${Math.sin(now*0.0004)*7+mmx*34} ${Math.cos(now*0.0005)*4+mmy*18-p*60})`);
+  document.getElementById('holos').setAttribute('transform',`translate(${mmx*-20} ${mmy*-12-p*30})`);
+  hero.style.opacity=Math.max(0,1-p/0.55);hero.style.transform=`translateY(${-p*70}px)`;
+  cue.style.opacity=Math.max(0,1-p/0.3);
+  motes.forEach(m=>{m.y+=m.vy;if(m.y<-6){m.y=766;m.x=Math.random()*1200;}m.el.setAttribute('cx',m.x+Math.sin(now*0.001+m.ph)*6);m.el.setAttribute('cy',m.y);});
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

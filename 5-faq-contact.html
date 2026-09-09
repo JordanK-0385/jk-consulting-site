@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK Consulting — FAQ (version claire)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0C1420;         /* encre */
+  --sub:#5B6b7d;         /* texte secondaire */
+  --line:#E2E7EE;
+  --cyan:#1E9FD6;        /* cyan assombri pour contraste sur clair */
+  --blue:#3B7BE0;
+  --green:#1FB574;
+  --paper:#F5F7FA;       /* blanc cassé */
+}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,5vw,52px)}
+
+/* bandeau de transition : dégradé bleu nuit -> clair (raccord avec la section sombre du dessus) */
+.fade{height:120px;background:linear-gradient(180deg,#060B18 0%,#0B1830 30%,var(--paper) 100%)}
+
+.faq{padding:clamp(60px,10vh,120px) 0 70px;display:grid;grid-template-columns:minmax(200px,1fr) minmax(0,2.2fr) minmax(160px,1fr);gap:clamp(24px,4vw,60px)}
+.faq .head h2{font-family:'Space Grotesk';font-weight:700;font-size:clamp(40px,6vw,78px);letter-spacing:-.03em;margin:0 0 16px;line-height:.9}
+.faq .head h2 .d{color:var(--cyan)}
+.faq .head p{margin:0;color:var(--sub);font-size:15px;line-height:1.55;max-width:26ch}
+.list{border-top:1px solid var(--line)}
+.item{border-bottom:1px solid var(--line)}
+.q{display:flex;align-items:center;gap:22px;width:100%;background:none;border:none;color:var(--ink);cursor:pointer;
+  text-align:left;padding:22px 4px;font-family:'Space Grotesk';font-weight:500;font-size:clamp(15px,1.7vw,19px)}
+.q .n{font-family:'JetBrains Mono';font-size:12px;color:var(--sub);min-width:22px}
+.q .t{flex:1}
+.q .ic{width:11px;height:11px;border-radius:50%;background:var(--cyan);flex:none;transition:transform .3s}
+.item.open .q .ic{transform:scale(1.4);box-shadow:0 0 0 4px rgba(30,159,214,.14)}
+.a{max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .3s;opacity:0}
+.item.open .a{max-height:220px;opacity:1}
+.a p{margin:0 0 22px 44px;color:#3f4d5e;line-height:1.6;font-size:14.5px;max-width:60ch}
+.aside .h{color:var(--ink);font-size:15px;line-height:1.5;margin-bottom:18px}
+.aside a{font-family:'JetBrains Mono';font-size:12.5px;letter-spacing:.08em;color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(30,159,214,.5);padding-bottom:3px}
+
+/* Ready — reste SOMBRE : la bascule clair->sombre relance l'œil avant le CTA */
+.ready{position:relative;min-height:90vh;display:grid;place-items:center;text-align:center;padding:80px 22px;overflow:hidden;
+  background:radial-gradient(70% 60% at 50% 55%,rgba(79,168,240,.16),transparent 60%),#070C18;color:#EAF1FB}
+.topfade{height:120px;background:linear-gradient(180deg,var(--paper) 0%,#0B1830 70%,#070C18 100%)}
+.ripple{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(127,227,255,.10)}
+.ready .inner{position:relative;z-index:2;max-width:20ch}
+.ready .k{font-family:'JetBrains Mono';font-size:12.5px;letter-spacing:.16em;color:#7FE3FF;margin-bottom:20px}
+.ready h2{font-family:'Space Grotesk';font-weight:700;font-size:clamp(44px,9vw,120px);line-height:.9;letter-spacing:-.03em;margin:0 0 24px}
+.ready h2 .g{background:linear-gradient(90deg,#7FE3FF,#6EDC96);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ready p{margin:0 auto 34px;max-width:44ch;color:#9AB0CC;font-size:clamp(15px,1.8vw,17px);line-height:1.55}
+.ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.ctas a{font-family:'Space Grotesk';font-weight:600;font-size:15px;text-decoration:none;padding:15px 30px;border-radius:999px;transition:transform .2s}
+.ctas .solid{background:#7FE3FF;color:#061020}.ctas .ghost{border:1px solid rgba(127,227,255,.4);color:#EAF1FB}
+.ctas a:hover{transform:translateY(-2px)}
+@media(max-width:820px){.faq{grid-template-columns:1fr}.aside{order:3}}
+@media (prefers-reduced-motion:reduce){.ripple{display:none}}
+</style>
+</head>
+<body>
+<div class="fade"></div>
+<div class="wrap">
+  <section class="faq">
+    <div class="head">
+      <h2>F.A<span class="d">.</span>Q</h2>
+      <p>Des réponses claires, pour avancer en confiance.</p>
+    </div>
+    <div class="list" id="list">
+      <div class="item open">
+        <button class="q"><span class="n">01</span><span class="t">Est-ce que mes données sont en sécurité ?</span><span class="ic"></span></button>
+        <div class="a"><p>Oui. Moindre privilège sur chaque accès, secrets isolés, contenu externe traité comme donnée jamais comme instruction, journalisation et — pour la santé — hébergement conforme (HDS) ou maintien dans votre logiciel métier certifié. La sécurité est intégrée dès la conception.</p></div>
+      </div>
+      <div class="item">
+        <button class="q"><span class="n">02</span><span class="t">Faut-il que je code ou que je comprenne la technique ?</span><span class="ic"></span></button>
+        <div class="a"><p>Non. Vous décrivez votre besoin, je construis. Vous validez un plan clair avant qu'une seule ligne n'existe, et je forme vos équipes pour que vous pilotiez sans dépendre de moi.</p></div>
+      </div>
+      <div class="item">
+        <button class="q"><span class="n">03</span><span class="t">Combien de temps avant de voir un résultat ?</span><span class="ic"></span></button>
+        <div class="a"><p>On commence petit, là où ça coince, pour un premier agent utile rapidement. Puis on itère et on déploie service par service, à votre rythme.</p></div>
+      </div>
+      <div class="item">
+        <button class="q"><span class="n">04</span><span class="t">Que se passe-t-il si un agent se trompe ?</span><span class="ic"></span></button>
+        <div class="a"><p>Rien d'irréversible : validation humaine sur les actions sensibles, garde-fous, retry et rollback. On surveille en continu (logs, alertes) et on corrige. Vous gardez la main.</p></div>
+      </div>
+      <div class="item">
+        <button class="q"><span class="n">05</span><span class="t">Est-ce adapté à mon secteur réglementé ?</span><span class="ic"></span></button>
+        <div class="a"><p>C'est justement là que la différence se joue : conformité RGPD, secret professionnel, données de santé. On cadre le périmètre, on signale ce qui relève de votre responsabilité, et on oriente vers l'expert (avocat, DPO) quand il le faut.</p></div>
+      </div>
+      <div class="item">
+        <button class="q"><span class="n">06</span><span class="t">Comment se passe la facturation ?</span><span class="ic"></span></button>
+        <div class="a"><p>Un cadrage payant d'abord (le plan vous reste), puis un forfait de construction, puis un accompagnement mensuel selon vos besoins. Transparent, sans surprise.</p></div>
+      </div>
+    </div>
+    <div class="aside">
+      <div class="h">Une question qui n'est pas là&nbsp;? On en parle directement.</div>
+      <a href="#contact">ÉCRIRE À JK</a>
+    </div>
+  </section>
+</div>
+
+<div class="topfade"></div>
+<section class="ready" id="contact">
+  <div class="inner">
+    <div class="k">PRÊT À FRANCHIR LE PAS&nbsp;?</div>
+    <h2>Prêt à passer <span class="g">à l'IA&nbsp;?</span></h2>
+    <p>On part de votre quotidien, pas d'une techno. Un échange, un premier agent, et le bureau qui commence à tourner pour vous.</p>
+    <div class="ctas">
+      <a class="solid" href="#contact">Parler du projet</a>
+      <a class="ghost" href="#contact">Écrire un message</a>
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('#list .q').forEach(q=>q.addEventListener('click',()=>{
+  const it=q.parentElement, wasOpen=it.classList.contains('open');
+  document.querySelectorAll('#list .item').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen)it.classList.add('open');
+}));
+const ready=document.querySelector('.ready');
+for(let i=1;i<=6;i++){const r=document.createElement('div');r.className='ripple';const s=180+i*150;
+  r.style.width=s+'px';r.style.height=s+'px';r.style.opacity=(1-i/7);ready.appendChild(r);}
+</script>
+</body>
+</html>

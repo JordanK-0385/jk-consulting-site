@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK Consulting — la métamorphose du process</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0}
+body{background:#060B18;color:#EAF1FB;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.scroll{height:700vh;position:relative}
+.viewport{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;
+  background:radial-gradient(80% 60% at 50% 50%,rgba(79,168,240,.12),transparent 60%),radial-gradient(120% 120% at 50% 32%,#0B1830 0%,#081124 46%,#060B18 100%),
+  radial-gradient(circle at 1px 1px,rgba(127,227,255,.04) 1px,transparent 0);background-size:auto,auto,34px 34px}
+.svg{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:5}
+.vig{position:absolute;inset:0;pointer-events:none;z-index:11;background:radial-gradient(120% 100% at 50% 50%,transparent 62%,rgba(2,5,14,.5) 100%)}
+.hud-fr{position:absolute;inset:22px;pointer-events:none;z-index:15}
+.hud-fr sp{position:absolute;width:20px;height:20px;border:1.5px solid rgba(127,227,255,.3)}
+.hud-fr .tl{top:0;left:0;border-right:0;border-bottom:0}.hud-fr .tr{top:0;right:0;border-left:0;border-bottom:0}
+.hud-fr .bl{bottom:0;left:0;border-right:0;border-top:0}.hud-fr .br{bottom:0;right:0;border-left:0;border-top:0}
+.read{position:absolute;top:28px;left:30px;font-family:'JetBrains Mono';font-size:11.5px;color:#8fa6c4;z-index:16}.read b{color:#7FE3FF;font-weight:500}
+.titleL{position:absolute;left:clamp(20px,5vw,58px);top:50%;transform:translateY(-50%);z-index:16;max-width:min(34vw,360px)}
+.titleL .k{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.14em;color:#7FE3FF;margin-bottom:12px}
+.titleL h2{font-family:'Space Grotesk';font-weight:700;font-size:clamp(30px,4.6vw,60px);line-height:.94;letter-spacing:-.02em;margin:0}
+.descR{position:absolute;right:clamp(20px,5vw,58px);top:50%;transform:translateY(-50%);z-index:16;max-width:min(34vw,340px)}
+.descR .h{font-family:'Space Grotesk';font-weight:600;font-size:clamp(15px,1.7vw,19px);margin-bottom:12px;color:#EAF1FB}
+.descR p{margin:0;color:#a9bcd6;font-size:14.5px;line-height:1.6}
+.titleL,.descR{transition:opacity .35s}.swap{opacity:0}
+.cue{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:16;font-family:'JetBrains Mono';font-size:11px;letter-spacing:.1em;color:#8fa6c4;display:flex;flex-direction:column;align-items:center;gap:5px}
+.cue .a{color:#7FE3FF;animation:bob 1.8s ease-in-out infinite}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.eye{animation:blink 4.6s ease-in-out infinite}@keyframes blink{0%,92%,100%{opacity:1}95%{opacity:.15}}
+@media(max-width:820px){.titleL,.descR{max-width:42vw}.titleL h2{font-size:26px}}
+@media(max-width:560px){.descR{display:none}.titleL{max-width:60vw}}
+@media (prefers-reduced-motion:reduce){.eye{animation:none}}
+</style>
+</head>
+<body>
+<div class="scroll" id="scroll">
+  <div class="viewport">
+    <svg class="svg" id="svg" viewBox="0 0 1200 760" aria-hidden="true">
+      <defs><radialGradient id="rbg"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#cfe0f2"/></radialGradient></defs>
+      <g id="world"></g>
+      <g id="anchor"></g>
+    </svg>
+    <div class="vig"></div>
+    <div class="hud-fr"><sp class="tl"></sp><sp class="tr"></sp><sp class="bl"></sp><sp class="br"></sp></div>
+    <div class="read">PROCESS · <b id="pct">0%</b></div>
+    <div class="titleL" id="tL"><div class="k" id="tk">ÉTAPE 01 / 07</div><h2 id="th">Réception</h2></div>
+    <div class="descR" id="dR"><div class="h" id="dh">Le process entre</div><p id="dp">…</p></div>
+    <div class="cue"><span>défiler</span><span class="a">↓</span></div>
+  </div>
+</div>
+
+<script>
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const NS='http://www.w3.org/2000/svg';
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const rgba=(c,a)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+const lerp=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const seg=(p,a,b)=>Math.max(0,Math.min(1,(p-a)/(b-a)));
+const BLUE=[79,168,240],INDIGO=[110,123,242],TEAL=[63,214,200],CYAN=[127,227,255],GREEN=[110,220,150];
+
+const STEPS=[
+ {t:'Réception',tag:'entrée',col:[242,150,78],dh:'Le process entre',
+  dp:"Webhook, planification ou appel : le workflow démarre. On décode l'entrée, on vérifie sa légitimité — signature, token — et on va chercher le contenu complet. Entrées validées, credentials jamais exposés."},
+ {t:'Nettoyage',tag:'qualité',col:BLUE,dh:"Rien de sale n'entre",
+  dp:"On contrôle la structure, on écarte le vide, le malformé, le hors-scope, et les doublons par clé métier. Le traitement ne voit qu'une donnée propre, conforme au schéma."},
+ {t:'Traitement',tag:'le cœur',col:INDIGO,dh:'Le cœur intelligent',
+  dp:"Transformation, règles métier, routage conditionnel, branches parallèles : chaque cas part au bon endroit. Modularisé en sous-workflows, idempotent, avec validation humaine sur les actions sensibles."},
+ {t:'Enrichissement',tag:'valeur',col:TEAL,dh:'On ajoute de la valeur',
+  dp:"Appel LLM, croisement de bases, scoring. On respecte les plafonds d'API et le budget : rate limiting, mise en cache, retry avec backoff sur les erreurs transitoires."},
+ {t:'Écriture',tag:'sortie',col:BLUE,dh:'On écrit le résultat',
+  dp:"Insert ou update dans Airtable, une base, un fichier. En transactionnel : soit tout réussit, soit on annule proprement — jamais d'état incohérent."},
+ {t:'Notification',tag:'la boucle',col:CYAN,dh:'La boucle se ferme',
+  dp:"On informe les humains et les systèmes, on répond à l'appelant, on marque la donnée comme traitée. Proprement, de bout en bout."},
+ {t:'En service',tag:"l'agent tourne",col:GREEN,dh:'Et ça tourne — même la nuit',
+  dp:"Observabilité, logs, monitoring et alertes veillent en continu. Audit trail et conformité RGPD/HDS pour vos secteurs réglementés, transparence IA de bout en bout. Vous êtes couvert, pas juste automatisé."},
+];
+const N=STEPS.length, SP=300, X=600;
+const tintAt=p=>{const sp=p*(N-1);const i=Math.min(N-2,Math.floor(sp));return lerp(STEPS[i].col,STEPS[i+1].col,sp-i);};
+
+// ---- workflow (défile) ----
+const world=document.getElementById('world');
+world.appendChild(mk('line',{x1:X,y1:-40,x2:X,y2:(N-1)*SP+40,stroke:rgba(CYAN,.35),'stroke-width':'2.5','stroke-dasharray':'2 10','stroke-linecap':'round'}));
+STEPS.forEach((s,i)=>{const y=i*SP;const g=mk('g',{});
+  g.appendChild(mk('rect',{x:X-22,y:y-22,width:44,height:44,rx:13,fill:'rgba(12,26,46,.95)',stroke:rgba(s.col,.65),'stroke-width':'1.8'}));
+  g.appendChild(mk('circle',{cx:X,cy:y,r:5,fill:rgba(s.col,1),filter:`drop-shadow(0 0 4px ${rgba(s.col,.9)})`}));
+  s.node=g;world.appendChild(g);
+  if(i===2)[-70,0,70].forEach(off=>{world.appendChild(mk('path',{d:`M ${X} ${y-70} C ${X+off} ${y-40}, ${X+off} ${y+40}, ${X} ${y+70}`,fill:'none',stroke:rgba(s.col,.5),'stroke-width':'1.5'}));
+    if(off)world.appendChild(mk('circle',{cx:X+off,cy:y,r:3.5,fill:rgba(s.col,.9)}));});
+});
+if(!reduce)for(let i=0;i<N-1;i++){const pk=mk('circle',{r:3,fill:'#7FE3FF',filter:'drop-shadow(0 0 4px #7FE3FF)'});
+  pk.appendChild(mk('animateMotion',{dur:'1.4s',repeatCount:'indefinite',path:`M ${X} ${i*SP} L ${X} ${(i+1)*SP}`}));world.appendChild(pk);}
+
+// ---- ancre centrale : le PROCESS qui se métamorphose ----
+const anchor=document.getElementById('anchor');
+const ag=mk('g',{transform:'translate(600 380)'});anchor.appendChild(ag);
+const halo=mk('circle',{cx:0,cy:0,r:36});ag.appendChild(halo);
+const waves=mk('g',{});ag.appendChild(waves);const w1=mk('circle',{cx:0,cy:0,fill:'none','stroke-width':'1.6'}),w2=mk('circle',{cx:0,cy:0,fill:'none','stroke-width':'1.6'});waves.append(w1,w2);
+const blob=mk('path',{});ag.appendChild(blob);
+const segs=mk('g',{});ag.appendChild(segs);const sgEls=[[-14,-8,14,8],[-14,8,14,-8],[0,-16,0,16]].map(c=>{const l=mk('line',{x1:c[0],y1:c[1],x2:c[2],y2:c[3],'stroke-width':'1.4'});segs.appendChild(l);return l;});
+const core=mk('circle',{cx:0,cy:0,r:6});ag.appendChild(core);
+const sats=mk('g',{});ag.appendChild(sats);const satEls=[0,1,2].map(()=>{const c=mk('circle',{r:3.4});sats.appendChild(c);return c;});
+const bot=mk('g',{});bot.style.opacity=0;ag.appendChild(bot);
+bot.appendChild(mk('rect',{x:-12,y:-15,width:24,height:20,rx:9,fill:'url(#rbg)'}));const botB=bot.lastChild;
+bot.appendChild(mk('rect',{x:-14,y:-40,width:28,height:22,rx:11,fill:'url(#rbg)'}));const botH=bot.lastChild;
+bot.appendChild(mk('rect',{x:-10,y:-37,width:20,height:14,rx:7,fill:'#0C1A2E'}));
+const eyes=mk('g',{class:'eye'});eyes.appendChild(mk('ellipse',{cx:-4.5,cy:-30,rx:2.3,ry:3.1,fill:'#7FE7FF',filter:'drop-shadow(0 0 3px #7FE7FF)'}));eyes.appendChild(mk('ellipse',{cx:4.5,cy:-30,rx:2.3,ry:3.1,fill:'#7FE7FF',filter:'drop-shadow(0 0 3px #7FE7FF)'}));bot.appendChild(eyes);
+
+// bruit fixe pour la forme brute
+const NB=9, offs=[]; for(let i=0;i<NB;i++)offs.push((Math.sin(i*12.9898)*43758.5453)%1*0.9-0.15);
+function blobPath(R,rough){const pts=[];for(let i=0;i<NB;i++){const a=i/NB*6.2832;const rr=R*(1+offs[i]*rough);pts.push([Math.cos(a)*rr,Math.sin(a)*rr]);}
+  const mid=(p,q)=>[(p[0]+q[0])/2,(p[1]+q[1])/2];let d=`M ${mid(pts[NB-1],pts[0]).join(' ')}`;
+  for(let i=0;i<NB;i++){const cur=pts[i],nx=pts[(i+1)%NB],m=mid(cur,nx);d+=` Q ${cur[0]} ${cur[1]} ${m[0]} ${m[1]}`;}return d+' Z';}
+
+const tL=document.getElementById('tL'),dR=document.getElementById('dR');
+const tk=document.getElementById('tk'),th=document.getElementById('th'),dh=document.getElementById('dh'),dp=document.getElementById('dp'),pctEl=document.getElementById('pct');
+let cur=-1;
+
+function loop(now){
+  const sc=document.getElementById('scroll'),rect=sc.getBoundingClientRect();
+  let p=Math.max(0,Math.min(1,(-rect.top)/(sc.offsetHeight-innerHeight)));
+  world.setAttribute('transform',`translate(0 ${380-p*(N-1)*SP})`);
+
+  const c=tintAt(p);
+  const robotP=seg(p,0.88,1), base=1-robotP;
+  const pulse=1+Math.sin(now*0.003)*0.04;
+
+  // forme brute -> lissée (le nettoyage lisse)
+  const rough=Math.max(0,1-p/0.13);
+  blob.setAttribute('d',blobPath(22*pulse,rough));
+  blob.setAttribute('fill',rgba(c,0.4*base)); blob.setAttribute('stroke',rgba(c,0.95*base)); blob.setAttribute('stroke-width','1.6');
+  halo.setAttribute('r',(34+Math.sin(now*0.003)*3)); halo.setAttribute('fill',rgba(c,0.16*base+0.05*robotP));
+
+  // structure interne (traitement)
+  const sv=seg(p,0.28,0.42)*base; segs.style.opacity=sv; sgEls.forEach(l=>l.setAttribute('stroke',rgba(c,0.85)));
+  // satellites (enrichissement)
+  const av=seg(p,0.42,0.58)*base; sats.style.opacity=av; satEls.forEach((s,i)=>{const a=now*0.002+i*2.094;s.setAttribute('cx',Math.cos(a)*32);s.setAttribute('cy',Math.sin(a)*32);s.setAttribute('fill',rgba(c,0.95));});
+  // cœur (écriture)
+  const cv=seg(p,0.58,0.72)*base; core.style.opacity=cv; core.setAttribute('fill',rgba(lerp(c,[255,255,255],0.4),0.95));
+  // ondes (notification)
+  const wv=seg(p,0.72,0.86)*base; waves.style.opacity=wv; const wr=(now%1600)/1600; w1.setAttribute('r',18+wr*26);w1.setAttribute('stroke',rgba(c,(1-wr)*0.8));const wr2=((now+800)%1600)/1600;w2.setAttribute('r',18+wr2*26);w2.setAttribute('stroke',rgba(c,(1-wr2)*0.8));
+
+  // robot final (en service)
+  bot.style.opacity=robotP; botB.setAttribute('stroke',rgba(c,0.9));botB.setAttribute('stroke-width','1.3');botH.setAttribute('stroke',rgba(c,0.9));botH.setAttribute('stroke-width','1.3');
+  ag.style.filter=`drop-shadow(0 0 ${11+robotP*4}px ${rgba(c,0.8)})`;
+
+  // noeud actif
+  const idx=Math.max(0,Math.min(N-1,Math.round(p*(N-1))));
+  STEPS.forEach((st,i)=>{const near=i===idx;st.node.style.filter=near?`drop-shadow(0 0 10px ${rgba(st.col,.7)})`:'none';st.node.style.opacity=Math.abs(i-p*(N-1))<1.6?1:.5;});
+  if(idx!==cur){cur=idx;const st=STEPS[idx];tL.classList.add('swap');dR.classList.add('swap');
+    setTimeout(()=>{tk.textContent=`ÉTAPE 0${idx+1} / 0${N} · ${st.tag}`;th.textContent=st.t;dh.textContent=st.dh;dp.textContent=st.dp;tL.classList.remove('swap');dR.classList.remove('swap');},180);}
+  pctEl.textContent=Math.round(p*100)+'%';
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

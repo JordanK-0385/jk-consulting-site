@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK Consulting — comment on fait</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#7FE3FF;--blue:#4FA8F0;--indigo:#6E7BF2;--teal:#3FD6C8;--ink:#EAF1FB;--muted:#9AB0CC}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#060B18;color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(80% 40% at 50% 0%,rgba(79,168,240,.14),transparent 60%),radial-gradient(60% 50% at 50% 100%,rgba(110,123,242,.12),transparent 60%)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 clamp(20px,5vw,48px)}
+.hero{min-height:64vh;display:flex;flex-direction:column;justify-content:center;padding:110px 0 40px}
+.eyebrow{font-family:'JetBrains Mono';font-size:12.5px;letter-spacing:.16em;color:var(--cyan);margin-bottom:18px}
+.hero h1{font-family:'Space Grotesk';font-weight:700;font-size:clamp(36px,7vw,80px);line-height:.96;letter-spacing:-.03em;margin:0 0 20px;max-width:16ch}
+.hero h1 .g{background:linear-gradient(90deg,var(--cyan),var(--indigo));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;max-width:52ch;font-size:clamp(15px,1.7vw,18px);line-height:1.55;color:var(--muted)}
+
+.timeline{position:relative;padding:30px 0 90px}
+.line{position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-50%);background:rgba(127,227,255,.12);border-radius:2px}
+.fill{position:absolute;left:50%;top:0;width:2px;transform:translateX(-50%);height:0;border-radius:2px;
+  background:linear-gradient(180deg,var(--cyan),var(--blue));box-shadow:0 0 12px rgba(127,227,255,.7)}
+.token{position:absolute;left:50%;top:0;width:16px;height:16px;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,#fff,var(--cyan) 60%,transparent 72%);box-shadow:0 0 18px 4px rgba(127,227,255,.8);opacity:0}
+.token.on{opacity:1}
+
+.step{position:relative;display:grid;grid-template-columns:1fr 96px 1fr;align-items:center;min-height:220px}
+.node{grid-column:2;justify-self:center;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;
+  font-family:'Space Grotesk';font-weight:600;font-size:18px;color:var(--muted);
+  background:rgba(12,26,46,.9);border:1.5px solid rgba(127,227,255,.25);transition:.5s;z-index:2}
+.step.act .node{color:#061020;background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 22px rgba(127,227,255,.7)}
+.card{max-width:38ch;opacity:.35;transform:translateY(10px);transition:opacity .55s,transform .55s}
+.step.act .card{opacity:1;transform:translateY(0)}
+.step:nth-child(odd) .card{grid-column:1;text-align:right;justify-self:end}
+.step:nth-child(even) .card{grid-column:3}
+.card h3{font-family:'Space Grotesk';font-weight:600;font-size:clamp(22px,3vw,32px);letter-spacing:-.01em;margin:0 0 10px}
+.step.act .card h3{color:var(--cyan)}
+.card p{margin:0;color:#b8c8de;line-height:1.55;font-size:15.5px}
+
+.end{text-align:center;padding:20px 0 120px}
+.end .cap{font-family:'JetBrains Mono';font-size:12.5px;letter-spacing:.14em;color:var(--teal);margin-bottom:14px}
+.end h2{font-family:'Space Grotesk';font-weight:700;font-size:clamp(26px,4.5vw,44px);letter-spacing:-.02em;margin:0 0 8px}
+.end .arw{color:var(--cyan);font-size:22px;margin-top:16px;animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+@media(max-width:720px){
+  .line,.fill,.token{left:26px}
+  .step{grid-template-columns:52px 1fr;gap:18px;min-height:150px}
+  .node{grid-column:1;width:44px;height:44px;font-size:15px}
+  .step:nth-child(odd) .card,.step:nth-child(even) .card{grid-column:2;text-align:left;justify-self:start}
+}
+@media (prefers-reduced-motion:reduce){.end .arw{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">COMMENT ON FAIT</div>
+    <h1>De la friction<br>au bureau <span class="g">augmenté.</span></h1>
+    <p>Vous venez de voir le résultat. Voici le chemin — cinq étapes, du premier rendez-vous jusqu'aux agents qui tournent seuls. On suit votre besoin, pas à pas.</p>
+  </header>
+
+  <section class="timeline" id="tl">
+    <div class="line"></div>
+    <div class="fill" id="fill"></div>
+    <div class="token" id="token"></div>
+
+    <div class="step"><div class="node">01</div><div class="card"><h3>Diagnostic</h3><p>On cartographie où part le temps et où ça coince — et ce qui ne mérite pas d'être automatisé.</p></div></div>
+    <div class="step"><div class="node">02</div><div class="card"><h3>Conception</h3><p>On dessine le plan ensemble, en clair. Vous validez avant qu'une seule ligne n'existe.</p></div></div>
+    <div class="step"><div class="node">03</div><div class="card"><h3>Construction</h3><p>On bâtit vos agents avec l'IA — sans jargon, sans boîte noire. Vous voyez ce qui se passe.</p></div></div>
+    <div class="step"><div class="node">04</div><div class="card"><h3>Déploiement</h3><p>On les met en service, un par service. Les écrans s'allument, ça tourne — même la nuit.</p></div></div>
+    <div class="step"><div class="node">05</div><div class="card"><h3>Autonomie</h3><p>On vous forme à piloter. Le but n'est pas de vous rendre dépendant, c'est de vous rendre plus fort.</p></div></div>
+  </section>
+
+  <div class="end">
+    <div class="cap">ET CONCRÈTEMENT ?</div>
+    <h2>Voyons un agent s'installer.</h2>
+    <div class="arw">↓</div>
+  </div>
+</div>
+
+<script>
+const tl=document.getElementById('tl'),fill=document.getElementById('fill'),token=document.getElementById('token');
+const steps=[...document.querySelectorAll('.step')];
+function update(){
+  const r=tl.getBoundingClientRect(), vh=innerHeight, mid=vh*0.5;
+  const total=r.height;
+  let prog=(mid-r.top)/total; prog=Math.max(0,Math.min(1,prog));
+  fill.style.height=(prog*total)+'px';
+  token.style.top=(prog*total)+'px';
+  token.classList.toggle('on', r.top<mid && r.bottom>0);
+  steps.forEach(s=>{const sr=s.getBoundingClientRect();const c=sr.top+sr.height/2;
+    s.classList.toggle('act', c<mid+40);});
+}
+let t=false;addEventListener('scroll',()=>{if(!t){t=true;requestAnimationFrame(()=>{update();t=false;});}},{passive:true});
+addEventListener('resize',update);update();
+</script>
+</body>
+</html>
