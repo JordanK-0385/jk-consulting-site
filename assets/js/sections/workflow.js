@@ -20,26 +20,23 @@ const CYAN   = [127, 227, 255];
 const GREEN  = [110, 220, 150];
 const ORANGE = [242, 150,  78];
 
-/* Sept jalons. La colonne de droite porte la couche gouvernance —
-   robustesse, sécurité, conformité — qui est l'argument de SPECS §1. */
-const STEPS = [
-  { title:'Réception', tag:'entrée', color:ORANGE, lead:'Le process entre',
-    body:"Webhook, planification ou appel : le workflow démarre. On décode l'entrée, on vérifie sa légitimité — signature, token — et on va chercher le contenu complet. Entrées validées, credentials jamais exposés." },
-  { title:'Nettoyage', tag:'qualité', color:BLUE, lead:"Rien de sale n'entre",
-    body:"On contrôle la structure, on écarte le vide, le malformé, le hors-scope, et les doublons par clé métier. Le traitement ne voit qu'une donnée propre, conforme au schéma." },
-  { title:'Traitement', tag:'le cœur', color:INDIGO, lead:'Le cœur intelligent',
-    body:"Transformation, règles métier, routage conditionnel, branches parallèles : chaque cas part au bon endroit. Modularisé en sous-workflows, idempotent, avec validation humaine sur les actions sensibles." },
-  { title:'Enrichissement', tag:'valeur', color:TEAL, lead:'On ajoute de la valeur',
-    body:"Appel LLM, croisement de bases, scoring. On respecte les plafonds d'API et le budget : rate limiting, mise en cache, retry avec backoff sur les erreurs transitoires." },
-  { title:'Écriture', tag:'sortie', color:BLUE, lead:'On écrit le résultat',
-    body:"Insert ou update dans Airtable, une base, un fichier. En transactionnel : soit tout réussit, soit on annule proprement — jamais d'état incohérent." },
-  { title:'Notification', tag:'la boucle', color:CYAN, lead:'La boucle se ferme',
-    body:"On informe les humains et les systèmes, on répond à l'appelant, on marque la donnée comme traitée. Proprement, de bout en bout." },
-  { title:'En service', tag:"l'agent tourne", color:GREEN, lead:'Et ça tourne — même la nuit',
-    body:"Observabilité, logs, monitoring et alertes veillent en continu. Audit trail et conformité RGPD/HDS pour vos secteurs réglementés, transparence IA de bout en bout. Vous êtes couvert, pas juste automatisé." },
-];
+/* Couleurs de la métamorphose, dans l'ordre de SPECS §2 : orange brut,
+   bleu, indigo, teal, bleu, cyan, vert « en service ». Les textes, eux,
+   vivent dans le balisage (.steps-source) et sont lus au démarrage : une
+   seule source, et modifiable sans toucher au JavaScript. */
+const STEP_COLORS = [ORANGE, BLUE, INDIGO, TEAL, BLUE, CYAN, GREEN];
 
-const N = STEPS.length;
+function readSteps(root){
+  const items = [...root.querySelectorAll('.steps-source > li')];
+  return items.map((li, i) => ({
+    tag:   li.dataset.tag,
+    title: li.querySelector('h3').textContent,
+    lead:  li.querySelector('.lead').textContent,
+    body:  li.querySelector('.detail').textContent,
+    color: STEP_COLORS[i] ?? CYAN,
+  }));
+}
+
 const SPACING = 300;       // écart vertical entre jalons, en unités viewBox
 const AXIS_X = 600;        // le workflow défile sur cet axe
 const ANCHOR_Y = 380;      // le process reste ancré ici
@@ -47,10 +44,10 @@ const SWAP_MS = 180;       // temps de fondu avant d'échanger le texte
 
 /* Teinte interpolée le long du parcours : la métamorphose est continue,
    pas une suite de paliers. */
-const tintAt = p => {
-  const scaled = p * (N - 1);
-  const i = Math.min(N - 2, Math.floor(scaled));
-  return lerp(STEPS[i].color, STEPS[i + 1].color, scaled - i);
+const makeTint = (steps) => p => {
+  const scaled = p * (steps.length - 1);
+  const i = Math.min(steps.length - 2, Math.floor(scaled));
+  return lerp(steps[i].color, steps[i + 1].color, scaled - i);
 };
 
 /* Bruit fixe de la forme brute : identique d'un chargement à l'autre. */
@@ -76,6 +73,11 @@ function blobPath(radius, roughness){
 }
 
 export function initWorkflow(root){
+  const STEPS = readSteps(root);
+  if (!STEPS.length) return;
+  const N = STEPS.length;
+  const tintAt = makeTint(STEPS);
+
   const stage   = root.querySelector('.stage');
   const fitG    = root.querySelector('.scene-fit');
   const world   = root.querySelector('.world');
@@ -85,7 +87,7 @@ export function initWorkflow(root){
   const milestone  = root.querySelector('.milestone');
   const governance = root.querySelector('.governance');
   const stepNoEl = root.querySelector('.step-no');
-  const titleEl  = root.querySelector('.milestone h3');
+  const titleEl  = root.querySelector('.milestone .title');
   const leadEl   = root.querySelector('.governance .lead');
   /* .lead est lui-même un <p> : viser '.governance p' renvoyait le même
      élément, si bien que le corps écrasait l'accroche et que le paragraphe

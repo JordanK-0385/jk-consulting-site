@@ -80,6 +80,10 @@ button{ font: inherit; color: inherit; }
   border: 0;
 }
 
+/* Contenu réservé aux technologies d'assistance : présent dans l'arbre
+   d'accessibilité, invisible et sans effet sur la mise en page. */
+.steps-source{ margin: 0; padding: 0; }
+
 .skip-link{
   position: absolute;
   top: 0; left: 0;
