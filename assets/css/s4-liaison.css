@@ -1,0 +1,157 @@
+/* ============================================================
+   SECTION 4 — LIAISON · dézoom vers le bureau · fond SOMBRE
+   Port de prototypes/4-liaison-bureau.html.
+
+   On part au plus près de l'agent « en service » qui vient de naître en
+   section 3, et on dézoome jusqu'à la maquette entière : les robots
+   apparaissent service par service, les liens se tissent, et quatre
+   bénéfices s'écartent sur les côtés (SPECS §3).
+   ============================================================ */
+
+.s-liaison{ --scroll-height: var(--h-liaison); }
+
+.s-liaison > .stage{
+  background:
+    radial-gradient(85% 60% at 50% 42%, rgba(79,168,240,.12), transparent 60%),
+    radial-gradient(120% 120% at 50% 30%, var(--bg-high) 0%, var(--bg-mid) 46%, var(--bg-deep) 100%),
+    radial-gradient(circle at 1px 1px, var(--grain) 1px, transparent 0);
+  background-size: auto, auto, 34px 34px;
+}
+
+.s-liaison .scene-svg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 5;
+}
+
+.s-liaison .vignette{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 11;
+  background: radial-gradient(120% 100% at 50% 48%, transparent 60%, rgba(2,5,14,.5) 100%);
+}
+
+.s-liaison .hud{ position: absolute; inset: 22px; pointer-events: none; z-index: 15; }
+.s-liaison .hud span{ position: absolute; width: 20px; height: 20px; border: 1.5px solid rgba(127,227,255,.3); }
+.s-liaison .hud .tl{ top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.s-liaison .hud .tr{ top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.s-liaison .hud .bl{ bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.s-liaison .hud .br{ bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+/* ---- Texte central, révélé par le dézoom ---- */
+.s-liaison .central{
+  position: absolute;
+  left: 50%;
+  top: clamp(70px, 15vh, 150px);
+  transform: translateX(-50%);
+  z-index: 16;
+  text-align: center;
+  /* Même défaut que la landing : min(22ch, 86vw) se calculait sur les 16px
+     du bloc et donnait 220px pour un titre de 64px. Le titre se cassait en
+     six lignes et cascadait par-dessus la maquette du bureau. */
+  max-width: min(86vw, 820px);
+  pointer-events: none;
+}
+.s-liaison .central .kicker{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .16em;
+  color: var(--accent-cyan);
+  margin-bottom: 12px;
+}
+.s-liaison .central h2{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(30px, 5vw, 64px);
+  line-height: .96;
+  letter-spacing: -.02em;
+}
+.s-liaison .central h2 .grad{
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---- Les quatre bénéfices ---- */
+.s-liaison .benefits{
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  pointer-events: none;
+}
+.s-liaison .benefit{
+  position: absolute;
+  max-width: 230px;
+}
+.s-liaison .benefit h3{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(15px, 1.5vw, 18px);
+  margin-bottom: 8px;
+  color: var(--fg);
+}
+.s-liaison .benefit p{ color: #a9bcd6; font-size: 13.5px; line-height: 1.5; }
+
+.s-liaison .benefit-tl{ left: clamp(20px, 7vw, 110px); top: 30%; text-align: right; }
+.s-liaison .benefit-tr{ right: clamp(20px, 7vw, 110px); top: 30%; text-align: left; }
+.s-liaison .benefit-bl{ left: clamp(20px, 7vw, 110px); top: 60%; text-align: right; }
+.s-liaison .benefit-br{ right: clamp(20px, 7vw, 110px); top: 60%; text-align: left; }
+
+/* ---- Invite au défilement ---- */
+.s-liaison .cue{
+  position: absolute;
+  left: 50%; bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 16;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: #8fa6c4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.s-liaison .cue .arrow{ color: var(--accent-cyan); animation: liaison-bob 1.8s ease-in-out infinite; }
+.s-liaison .eye{ animation: liaison-blink 4.6s ease-in-out infinite; }
+
+@keyframes liaison-bob  { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(5px) } }
+@keyframes liaison-blink{ 0%,92%,100%{ opacity: 1 } 95%{ opacity: .15 } }
+
+/* ---- Replis ---- */
+@media (max-width: 820px){
+  .s-liaison .benefit{ max-width: 150px; }
+  .s-liaison .benefit h3{ font-size: 13px; }
+  .s-liaison .benefit p{ font-size: 11px; }
+}
+
+/* Sous 560px, quatre blocs de 150px collés aux bords deviennent illisibles
+   et recouvrent la maquette. On les descend en grille 2×2 sur un voile :
+   les quatre bénéfices restent lus, et l'écartement latéral — le geste de
+   la section — est conservé colonne par colonne. */
+@media (max-width: 560px){
+  .s-liaison .central{ top: 58px; }
+  .s-liaison .central h2{ font-size: 28px; }
+
+  .s-liaison .benefits{
+    inset: auto 0 60px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+    padding: 16px 18px 18px;
+    background: linear-gradient(180deg, transparent, rgba(6,11,24,.72) 18%, rgba(6,11,24,.93));
+  }
+  .s-liaison .benefit{
+    position: static;
+    max-width: none;
+    text-align: left;
+  }
+  .s-liaison .benefit h3{ font-size: 13.5px; margin-bottom: 5px; }
+  .s-liaison .benefit p{ font-size: 11.5px; line-height: 1.45; }
+  .s-liaison .cue{ bottom: 12px; }
+}

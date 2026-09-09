@@ -14,13 +14,14 @@ import './core/motion.js'; // pose .reduced-motion sur <html> dès le chargement
 import { initLanding } from './sections/landing.js';
 import { initMethod } from './sections/method.js';
 import { initWorkflow } from './sections/workflow.js';
+import { initLiaison } from './sections/liaison.js';
 
 /** @type {Array<[string, (root: Element) => void]>} */
 const sections = [
   ['#landing', initLanding],
   ['#methode', initMethod],
   ['#workflow', initWorkflow],
-  // ['#liaison',      initLiaison],   — étape 5
+  ['#liaison', initLiaison],
   // ['#faq',          initFaq],       — étape 7
 ];
 
