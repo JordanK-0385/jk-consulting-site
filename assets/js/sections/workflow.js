@@ -56,7 +56,48 @@ const ANCHOR_Y = 380;      // le process reste ancré ici
  * parcours à l'horizontale, et quatre jalons sur sept.
  */
 const PATH_LARGE = [[600, 60], [600, 360], [2700, 360], [2700, 1160]];
+
+/*
+ * REPLI MOBILE — deux variantes, à trancher sur appareil réel.
+ * AMELIORATIONS : « proposer un repli mobile et le montrer avant de figer ».
+ * Choix temporaire par ?fil=a ou ?fil=b, à retirer une fois la décision prise.
+ *
+ * Le chiffre qui commande : un nœud du parcours large fait 190 unités, soit
+ * 92px à 390px de large, avec un titre à 7.8px — illisible. Les deux
+ * variantes raccourcissent donc le parcours (les nœuds se rapprochent) ET
+ * relèvent l'échelle, pour ramener le titre à 13px.
+ */
+
+/* A — le virage tenu, mais court. Tronçon horizontal ramené de 2100 à 1000
+   unités, soit 56% du parcours et quatre jalons dessus. Deux nœuds visibles
+   à la fois : le canvas se lit encore, en plus resserré. */
+const PATH_MOBILE_A = [[600, 120], [600, 360], [1600, 360], [1600, 920]];
+
+/* B — le virage seulement suggéré. Le fil reste vertical mais serpente :
+   décrochés latéraux de ±160 unités, aucun tronçon horizontal. Plus sûr,
+   moins de signature.
+   Tronçons verticaux longs (500 unités) : une première version plus courte
+   faisait tenir tout le parcours à l'écran, si bien qu'on le contemplait au
+   lieu de le traverser, et que les nœuds d'extrémité percutaient la
+   narration. */
+const PATH_MOBILE_B = [
+  [600,  80], [600,  580], [760,  670], [760, 1170],
+  [440, 1260], [440, 1760], [600, 1850], [600, 2350],
+];
+
 const CORNER_R = 56;
+const MOBILE_MAX = 560;
+
+/* Gabarit des nœuds : plus étroit et proportionnellement plus typé sur
+   mobile, faute de quoi le texte tombe sous le seuil de lisibilité. */
+const NODE_LARGE  = { w: 190, h: 50, tag: 10, title: 16 };
+const NODE_MOBILE = { w: 200, h: 56, tag: 14, title: 20 };
+
+/** Variante de repli demandée par l'URL, le temps de l'arbitrage. */
+function mobileVariant(){
+  const asked = new URLSearchParams(location.search).get('fil');
+  return asked === 'b' ? 'b' : 'a';
+}
 
 /** Chemin polygonal à coins arrondis. */
 function roundedPolyline(points, radius){
@@ -137,99 +178,117 @@ export function initWorkflow(root){
 
   /* ---------- le workflow qui défile, le long du parcours coudé ---------- */
 
-  const trace = roundedPolyline(PATH_LARGE, CORNER_R);
+  /* Le monde est reconstruit quand on change de format : le parcours et le
+     gabarit des nœuds diffèrent entre grand écran et mobile, et une simple
+     rotation de téléphone doit suffire à basculer. */
+  let measure = null, PATH_LEN = 0, nodes = [];
+  let builtFor = '';
 
-  /* Lueur diffuse sous le rail : donne de la matière au tracé. */
-  const railGlow = mk('path', {
-    d: trace, fill: 'none', stroke: rgba(CYAN, .18), 'stroke-width': '14',
-    'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-  });
-  railGlow.style.filter = 'blur(7px)';
-  world.appendChild(railGlow);
+  function buildWorld(){
+    const mobile = stage.clientWidth <= MOBILE_MAX;
+    const variant = mobileVariant();
+    const key = mobile ? `mobile-${variant}` : 'large';
+    if (key === builtFor) return;
+    builtFor = key;
 
-  world.appendChild(mk('path', {
-    d: trace, fill: 'none', stroke: rgba(CYAN, .35), 'stroke-width': '2.5',
-    'stroke-dasharray': '2 10', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
-  }));
+    world.replaceChildren();
+    packets.replaceChildren();
 
-  /* Chemin de mesure : sert à placer les jalons et à piloter la caméra.
-     Invisible, mais bien dans le document — getPointAtLength l'exige. */
-  const measure = mk('path', { id: 'jk-workflow-path', d: trace, fill: 'none', stroke: 'none' });
-  world.appendChild(measure);
-  const PATH_LEN = measure.getTotalLength();
+    const points = mobile ? (variant === 'b' ? PATH_MOBILE_B : PATH_MOBILE_A) : PATH_LARGE;
+    const NODE = mobile ? NODE_MOBILE : NODE_LARGE;
+    const trace = roundedPolyline(points, CORNER_R);
 
-  /** Position d'un jalon sur le parcours, en fraction de sa longueur. */
-  const atStep = i => measure.getPointAtLength(PATH_LEN * (i / (N - 1)));
+    /* Lueur diffuse sous le rail : donne de la matière au tracé. */
+    const railGlow = mk('path', {
+      d: trace, fill: 'none', stroke: rgba(CYAN, .18), 'stroke-width': '14',
+      'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    });
+    railGlow.style.filter = 'blur(7px)';
+    world.appendChild(railGlow);
 
-  const NODE_W = 190, NODE_H = 50;
-
-  const nodes = STEPS.map((step, i) => {
-    const pt = atStep(i);
-    const g = mk('g', {});
-    const left = pt.x - NODE_W / 2, top = pt.y - NODE_H / 2;
-
-    /* Les branches du traitement s'ouvrent perpendiculairement au parcours :
-       verticalement sur un tronçon horizontal, et inversement. */
-    if (i === 2){
-      const before = measure.getPointAtLength(Math.max(0, PATH_LEN * (i / (N - 1)) - 30));
-      const after  = measure.getPointAtLength(Math.min(PATH_LEN, PATH_LEN * (i / (N - 1)) + 30));
-      const angle = Math.atan2(after.y - before.y, after.x - before.x) * 180 / Math.PI;
-      const branches = mk('g', { transform: `translate(${pt.x} ${pt.y}) rotate(${angle})` });
-      for (const offset of [-72, 0, 72]){
-        branches.appendChild(mk('path', {
-          d: `M 0 -96 C ${offset} -52, ${offset} 52, 0 96`,
-          fill: 'none', stroke: rgba(step.color, .45), 'stroke-width': '1.5',
-        }));
-        if (offset){
-          branches.appendChild(mk('circle', { cx: offset, cy: 0, r: 3.5, fill: rgba(step.color, .9) }));
-        }
-      }
-      world.appendChild(branches);
-    }
-
-    /* Nœud façon canvas n8n : c'est ce qui rend le tronçon horizontal
-       lisible — trois ou quatre nœuds côte à côte doivent se nommer. */
-    g.appendChild(mk('rect', {
-      x: left, y: top, width: NODE_W, height: NODE_H, rx: 14,
-      fill: 'rgba(12,26,46,.96)', stroke: rgba(step.color, .6), 'stroke-width': '1.6',
+    world.appendChild(mk('path', {
+      d: trace, fill: 'none', stroke: rgba(CYAN, .35), 'stroke-width': '2.5',
+      'stroke-dasharray': '2 10', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
     }));
-    g.appendChild(mk('rect', { x: left, y: top, width: 6, height: NODE_H, rx: 3, fill: rgba(step.color, 1) }));
-    g.appendChild(mk('circle', { cx: left + 22, cy: pt.y, r: 5, fill: rgba(step.color, 1) }));
 
-    const tag = mk('text', {
-      x: left + 40, y: pt.y - 4, fill: '#8fa6c4',
-      'font-family': 'JetBrains Mono, monospace', 'font-size': '10',
+    /* Chemin de mesure : sert à placer les jalons et à piloter la caméra.
+       Invisible, mais bien dans le document — getPointAtLength l'exige. */
+    measure = mk('path', { id: 'jk-workflow-path', d: trace, fill: 'none', stroke: 'none' });
+    world.appendChild(measure);
+    PATH_LEN = measure.getTotalLength();
+
+    const atLength = i => PATH_LEN * (i / (N - 1));
+
+    nodes = STEPS.map((step, i) => {
+      const pt = measure.getPointAtLength(atLength(i));
+      const g = mk('g', {});
+      const left = pt.x - NODE.w / 2, top = pt.y - NODE.h / 2;
+
+      /* Les branches du traitement s'ouvrent perpendiculairement au
+         parcours : verticalement sur un tronçon horizontal, et inversement. */
+      if (i === 2){
+        const before = measure.getPointAtLength(Math.max(0, atLength(i) - 30));
+        const after  = measure.getPointAtLength(Math.min(PATH_LEN, atLength(i) + 30));
+        const angle = Math.atan2(after.y - before.y, after.x - before.x) * 180 / Math.PI;
+        const branches = mk('g', { transform: `translate(${pt.x} ${pt.y}) rotate(${angle})` });
+        for (const offset of [-72, 0, 72]){
+          branches.appendChild(mk('path', {
+            d: `M 0 -96 C ${offset} -52, ${offset} 52, 0 96`,
+            fill: 'none', stroke: rgba(step.color, .45), 'stroke-width': '1.5',
+          }));
+          if (offset){
+            branches.appendChild(mk('circle', { cx: offset, cy: 0, r: 3.5, fill: rgba(step.color, .9) }));
+          }
+        }
+        world.appendChild(branches);
+      }
+
+      /* Nœud façon canvas n8n : c'est ce qui rend le tronçon horizontal
+         lisible — trois ou quatre nœuds côte à côte doivent se nommer. */
+      g.appendChild(mk('rect', {
+        x: left, y: top, width: NODE.w, height: NODE.h, rx: 14,
+        fill: 'rgba(12,26,46,.96)', stroke: rgba(step.color, .6), 'stroke-width': '1.6',
+      }));
+      g.appendChild(mk('rect', { x: left, y: top, width: 6, height: NODE.h, rx: 3, fill: rgba(step.color, 1) }));
+      g.appendChild(mk('circle', { cx: left + 22, cy: pt.y, r: 5, fill: rgba(step.color, 1) }));
+
+      const tag = mk('text', {
+        x: left + 40, y: pt.y - 5, fill: '#8fa6c4',
+        'font-family': 'JetBrains Mono, monospace', 'font-size': String(NODE.tag),
+      });
+      tag.textContent = step.tag;
+      g.appendChild(tag);
+
+      const title = mk('text', {
+        x: left + 40, y: pt.y + NODE.title, fill: '#EAF1FB',
+        'font-family': 'Space Grotesk, sans-serif', 'font-size': String(NODE.title), 'font-weight': '600',
+      });
+      title.textContent = step.title;
+      g.appendChild(title);
+
+      world.appendChild(g);
+      return g;
     });
-    tag.textContent = step.tag;
-    g.appendChild(tag);
 
-    const title = mk('text', {
-      x: left + 40, y: pt.y + 14, fill: '#EAF1FB',
-      'font-family': 'Space Grotesk, sans-serif', 'font-size': '16', 'font-weight': '600',
-    });
-    title.textContent = step.title;
-    g.appendChild(title);
-
-    world.appendChild(g);
-    return g;
-  });
-
-  /* Paquets SMIL entre jalons — masqués par CSS en mouvement réduit.
-     Ils suivent le rail lui-même via mpath, bornés au tronçon voulu par
-     keyPoints : sur un parcours coudé, une droite ne convient plus. */
-  for (let i = 0; i < N - 1; i++){
-    const dot = mk('circle', { r: 3, fill: '#7FE3FF', filter: 'drop-shadow(0 0 4px #7FE3FF)' });
-    const motion = mk('animateMotion', {
-      dur: '1.4s', repeatCount: 'indefinite', calcMode: 'linear',
-      keyPoints: `${i / (N - 1)};${(i + 1) / (N - 1)}`, keyTimes: '0;1',
-    });
-    const mpath = mk('mpath', {});
-    mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#jk-workflow-path');
-    mpath.setAttribute('href', '#jk-workflow-path');
-    motion.appendChild(mpath);
-    dot.appendChild(motion);
-    packets.appendChild(dot);
+    /* Paquets SMIL entre jalons — masqués par CSS en mouvement réduit.
+       Ils suivent le rail lui-même via mpath, bornés au tronçon voulu par
+       keyPoints : sur un parcours coudé, une droite ne convient plus. */
+    for (let i = 0; i < N - 1; i++){
+      const dot = mk('circle', { r: 3, fill: '#7FE3FF', filter: 'drop-shadow(0 0 4px #7FE3FF)' });
+      const motion = mk('animateMotion', {
+        dur: '1.4s', repeatCount: 'indefinite', calcMode: 'linear',
+        keyPoints: `${i / (N - 1)};${(i + 1) / (N - 1)}`, keyTimes: '0;1',
+      });
+      const mpath = mk('mpath', {});
+      mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#jk-workflow-path');
+      mpath.setAttribute('href', '#jk-workflow-path');
+      motion.appendChild(mpath);
+      dot.appendChild(motion);
+      packets.appendChild(dot);
+    }
   }
+
+  buildWorld();
 
   /* ---------- l'ancre : le process qui se métamorphose ---------- */
 
@@ -286,12 +345,15 @@ export function initWorkflow(root){
   /* ---------- cadrage responsive ---------- */
 
   function fit(){
-    const scale = stage.clientWidth < 560 ? 1.5 : 1;
+    /* Sur mobile, l'échelle est calculée pour que le titre d'un nœud reste
+       au-dessus du seuil de lisibilité : 20 unités de viewBox rendues à
+       environ 13px à l'écran. */
+    const scale = stage.clientWidth <= MOBILE_MAX ? 2 : 1;
     fitG.setAttribute('transform',
       `translate(${AXIS_X} ${ANCHOR_Y}) scale(${scale}) translate(${-AXIS_X} ${-ANCHOR_Y})`);
   }
   fit();
-  addEventListener('resize', fit, { passive: true });
+  addEventListener('resize', () => { buildWorld(); fit(); }, { passive: true });
 
   /* ---------- boucle ---------- */
 
@@ -336,6 +398,7 @@ export function initWorkflow(root){
     /* Caméra : on centre le point courant du parcours sur l'ancre. Sur le
        tronçon horizontal, le même scroll vertical fait donc défiler l'image
        latéralement — c'est tout le geste. */
+    if (!measure || !PATH_LEN) return;
     const head = measure.getPointAtLength(PATH_LEN * p);
     world.setAttribute('transform', `translate(${AXIS_X - head.x} ${ANCHOR_Y - head.y})`);
 
