@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK Consulting — chaque service a son agent</title>
+<meta name="description" content="Des agents IA dans chaque pôle de votre entreprise, connectés entre eux et gouvernés : sécurité, conformité et robustesse dès la conception. JK Consulting installe, vous restez maître.">
+<meta name="theme-color" content="#060B18">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="JK Consulting — chaque service a son agent">
+<meta property="og:description" content="Des agents IA dans chaque pôle, connectés entre eux et gouvernés. Le bureau augmenté, installé chez vous.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+
+<script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#methode">Aller au contenu</a>
+
+<!-- Définitions SVG partagées.
+     À l'audit, id="rbg" était déclaré dans trois protos : les IDs SVG étant
+     globaux au document, seul le premier aurait gagné et les robots des
+     sections 3 et 4 auraient perdu leur remplissage. Un seul jeu ici, préfixé,
+     référencé par toutes les scènes. -->
+<svg class="visually-hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="jk-bot-body">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#cfe0f2"/>
+    </radialGradient>
+    <filter id="jk-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+</svg>
+
+<main>
+
+  <!-- 1 · LANDING — le résultat · SOMBRE · rempli à l'étape 2 -->
+  <section id="landing" class="section section--sticky s-landing on-dark" aria-labelledby="landing-title">
+    <div class="stage">
+      <h1 id="landing-title" class="visually-hidden">Chaque service a son agent.</h1>
+    </div>
+  </section>
+
+  <!-- 2 · COMMENT ON FAIT — la méthode · CLAIR · rempli à l'étape 3 -->
+  <section id="methode" class="section s-method on-light" aria-labelledby="methode-title">
+    <h2 id="methode-title" class="visually-hidden">De la friction au bureau augmenté.</h2>
+  </section>
+
+  <!-- 3 · LE WORKFLOW — la métamorphose · SOMBRE · rempli à l'étape 4 -->
+  <section id="workflow" class="section section--sticky s-workflow on-dark" aria-labelledby="workflow-title">
+    <div class="stage">
+      <h2 id="workflow-title" class="visually-hidden">Le workflow, étape par étape.</h2>
+    </div>
+  </section>
+
+  <!-- 4 · LIAISON — dézoom vers le bureau · SOMBRE · rempli à l'étape 5 -->
+  <section id="liaison" class="section section--sticky s-liaison on-dark" aria-labelledby="liaison-title">
+    <div class="stage">
+      <h2 id="liaison-title" class="visually-hidden">Un agent devient tout un bureau.</h2>
+    </div>
+  </section>
+
+  <!-- 5 · TÉMOIGNAGES · CLAIR · construit à l'étape 6
+       Contenu réel non fourni à ce jour : la section portera un bandeau
+       « CONTENU FICTIF » visible tant que les vrais témoignages manquent. -->
+  <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
+    <h2 id="temoignages-title" class="visually-hidden">Ils nous ont fait confiance.</h2>
+  </section>
+
+  <!-- 6 · FAQ + PRÊT À… · CLAIR puis SOMBRE · rempli à l'étape 7 -->
+  <section id="faq" class="section s-faq on-light" aria-labelledby="faq-title">
+    <h2 id="faq-title" class="visually-hidden">Questions fréquentes</h2>
+  </section>
+
+  <section id="contact" class="section s-contact on-dark" aria-labelledby="contact-title">
+    <h2 id="contact-title" class="visually-hidden">Prêt à passer à l'IA ?</h2>
+  </section>
+
+</main>
+
+</body>
+</html>

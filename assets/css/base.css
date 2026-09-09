@@ -1,0 +1,114 @@
+/* ============================================================
+   BASE — reset, typographie de fond, accessibilité.
+   Aucune règle spécifique à une section ici.
+   ============================================================ */
+
+*, *::before, *::after{ box-sizing: border-box; }
+
+html{ scroll-behavior: smooth; }
+/* On ne force jamais le scroll doux à quelqu'un qui a demandé moins de mouvement. */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+}
+
+html, body{ margin: 0; }
+
+body{
+  background: var(--bg-deep);
+  color: var(--on-dark-fg);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Les sections sticky débordent horizontalement pendant les zooms SVG. */
+  overflow-x: hidden;
+}
+
+h1, h2, h3{
+  font-family: var(--font-display);
+  letter-spacing: -.02em;
+  margin: 0;
+}
+
+p{ margin: 0; }
+
+img, svg{ max-width: 100%; }
+
+a{ color: inherit; }
+
+button{ font: inherit; color: inherit; }
+
+/* ---- Conteneur éditorial ---- */
+.wrap{
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---- Section : chaque section du récit ---- */
+.section{
+  position: relative;
+  /* Isole les empilements : les vignettes/HUD d'une section ne peuvent
+     jamais passer au-dessus de la suivante. */
+  isolation: isolate;
+}
+
+/* Section immersive : conteneur haut + scène collée.
+   Chaque section fixe son --scroll-height (cf. tokens.css, arbitrage A). */
+.section--sticky{
+  position: relative;
+  height: var(--scroll-height, 100vh);
+}
+.section--sticky > .stage{
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ---- Accessibilité ---- */
+.visually-hidden{
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link{
+  position: absolute;
+  top: 0; left: 0;
+  z-index: 999;
+  transform: translateY(-120%);
+  background: var(--neon-cyan);
+  color: #061020;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: transform .2s;
+}
+.skip-link:focus{ transform: translateY(0); }
+
+:focus-visible{
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.on-light :focus-visible{ outline-color: var(--deep-blue); }
+
+/* ---- Réduction de mouvement ----
+   motion.js pose .reduced-motion sur <html> et gèle le temps ambiant
+   côté JS. Ici on coupe le versant CSS. */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after{
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+}

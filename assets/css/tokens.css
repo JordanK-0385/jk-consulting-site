@@ -1,0 +1,117 @@
+/* ============================================================
+   TOKENS — source de vérité de la charte (cf. SPECS.md §2)
+   Rien d'autre dans le projet ne définit une couleur en dur.
+   ============================================================ */
+
+:root{
+  /* ---- Typographie ---- */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---- Surfaces sombres ---- */
+  --bg-deep:  #060B18;
+  --bg-mid:   #081124;
+  --bg-high:  #0B1830;
+
+  /* ---- Surface claire ---- */
+  --paper:      #F5F7FA;
+  --ink:        #0C1420;
+  --ink-muted:  #5B6B7D;
+  --rule:       #E2E7EE;
+
+  /* ---- Texte sur sombre ---- */
+  --on-dark-fg:       #EAF1FB;
+  --on-dark-fg-muted: #9AB0CC;
+
+  /* ---- Accents : jeu SOMBRE (néon vif) ---- */
+  --neon-cyan:   #7FE3FF;
+  --neon-blue:   #4FA8F0;
+  --neon-green:  #6EDC96;
+  --neon-indigo: #6E7BF2;
+  --neon-teal:   #3FD6C8;
+
+  /* ---- Accents : jeu CLAIR (assombri, contraste sur papier) ---- */
+  --deep-cyan:  #1E9FD6;
+  --deep-blue:  #3B7BE0;
+  --deep-green: #1FB574;
+
+  /* ---- Métamorphose du process (section 3, dans l'ordre) ---- */
+  --morph-1: #F2964E;  /* orange — brut */
+  --morph-2: #4FA8F0;  /* bleu */
+  --morph-3: #6E7BF2;  /* indigo */
+  --morph-4: #3FD6C8;  /* teal */
+  --morph-5: #7FE3FF;  /* cyan */
+  --morph-6: #6EDC96;  /* vert — agent en service */
+
+  /* ---- Grain de points sur les fonds sombres ---- */
+  --grain: rgba(127, 227, 255, .04);
+
+  /* ---- Rythme ---- */
+  --gutter:    clamp(20px, 5vw, 52px);
+  --measure:   1180px;
+  --radius-pill: 999px;
+
+  /* ---- Hauteurs de scroll (arbitrage A : desktop = protos à l'identique) ---- */
+  --h-landing:  220vh;
+  --h-workflow: 700vh;
+  --h-liaison:  340vh;
+}
+
+/* Arbitrage A : sur mobile uniquement, on raccourcit le défilement.
+   Le récit reste entier, le pouce souffre moins. Desktop inchangé. */
+@media (max-width: 720px){
+  :root{
+    --h-landing:  180vh;
+    --h-workflow: 400vh;
+    --h-liaison:  220vh;
+  }
+}
+
+/* ============================================================
+   LES DEUX CONTEXTES
+   Toute section porte .on-dark ou .on-light. Les composants
+   n'utilisent QUE --accent-* / --fg / --surface : ils s'adaptent
+   au fond sans connaître leur contexte.
+   ============================================================ */
+
+.on-dark{
+  --surface:   var(--bg-deep);
+  --fg:        var(--on-dark-fg);
+  --fg-muted:  var(--on-dark-fg-muted);
+  --hairline:  rgba(127, 227, 255, .18);
+
+  --accent-cyan:   var(--neon-cyan);
+  --accent-blue:   var(--neon-blue);
+  --accent-green:  var(--neon-green);
+  --accent-indigo: var(--neon-indigo);
+  --accent-teal:   var(--neon-teal);
+
+  /* CTA plein : cyan néon, texte encre (SPECS §2) */
+  --cta-bg: var(--neon-cyan);
+  --cta-fg: #061020;
+
+  color: var(--fg);
+  background-color: var(--surface);
+}
+
+.on-light{
+  --surface:   var(--paper);
+  --fg:        var(--ink);
+  --fg-muted:  var(--ink-muted);
+  --hairline:  var(--rule);
+
+  --accent-cyan:  var(--deep-cyan);
+  --accent-blue:  var(--deep-blue);
+  --accent-green: var(--deep-green);
+  /* indigo/teal n'ont pas de variante claire (SPECS §2) : on retombe
+     sur le bleu assombri plutôt que d'inventer une couleur. */
+  --accent-indigo: var(--deep-blue);
+  --accent-teal:   var(--deep-cyan);
+
+  --cta-bg: var(--deep-cyan);
+  --cta-fg: #FFFFFF;
+
+  color: var(--fg);
+  background-color: var(--surface);
+}
