@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/s1-landing.css">
 <link rel="stylesheet" href="assets/css/s2-method.css">
+<link rel="stylesheet" href="assets/css/s3-workflow.css">
 
 <script type="module" src="assets/js/main.js"></script>
 </head>
@@ -144,10 +145,37 @@
     </div>
   </section>
 
-  <!-- 3 · LE WORKFLOW — la métamorphose · SOMBRE · rempli à l'étape 4 -->
+  <!-- 3 · LE WORKFLOW — la métamorphose · SOMBRE -->
   <section id="workflow" class="section section--sticky s-workflow on-dark" aria-labelledby="workflow-title">
+    <h2 id="workflow-title" class="visually-hidden">Le workflow, étape par étape.</h2>
     <div class="stage">
-      <h2 id="workflow-title" class="visually-hidden">Le workflow, étape par étape.</h2>
+
+      <svg class="scene-svg" viewBox="0 0 1200 760" aria-hidden="true" focusable="false">
+        <g class="scene-fit">
+          <g class="world"></g>
+          <g class="packets"></g>
+          <g class="anchor"></g>
+        </g>
+      </svg>
+      <div class="vignette"></div>
+
+      <div class="hud" aria-hidden="true">
+        <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      </div>
+      <p class="readout" aria-hidden="true">PROCESS · <b>0%</b></p>
+
+      <div class="milestone">
+        <p class="step-no">ÉTAPE 01 / 07 · entrée</p>
+        <h3>Réception</h3>
+      </div>
+
+      <div class="governance">
+        <p class="lead">Le process entre</p>
+        <p class="detail">Webhook, planification ou appel : le workflow démarre. On décode l'entrée, on vérifie sa légitimité — signature, token — et on va chercher le contenu complet. Entrées validées, credentials jamais exposés.</p>
+      </div>
+
+      <div class="cue" aria-hidden="true"><span>défiler</span><span class="arrow">↓</span></div>
+
     </div>
   </section>
 
