@@ -1,0 +1,16 @@
+{
+  "name": "jk-consulting-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site vitrine JK Consulting — page unique, sans étape de build.",
+  "type": "module",
+  "scripts": {
+    "check": "npm run check:static && npm run check:browser",
+    "check:static": "node scripts/check-static.mjs",
+    "check:browser": "node scripts/check-browser.mjs",
+    "dev": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

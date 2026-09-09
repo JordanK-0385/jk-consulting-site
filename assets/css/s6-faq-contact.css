@@ -126,6 +126,9 @@
 }
 
 .s-contact .ripples{ position: absolute; inset: 0; pointer-events: none; }
+/* Six anneaux concentriques. Dimensions et déphasages en feuille de style
+   plutôt qu'en attribut style : c'est ce qui permet une CSP sans
+   'unsafe-inline' (cf. vercel.json). */
 .s-contact .ripple{
   position: absolute;
   left: 50%; top: 56%;
@@ -137,6 +140,13 @@
      la règle globale de base.css. */
   animation: contact-swell 9s ease-in-out infinite;
 }
+
+.s-contact .ripple:nth-child(1){ width: 180px; height: 180px; opacity: 1.0; animation-delay: -0.0s; }
+.s-contact .ripple:nth-child(2){ width: 330px; height: 330px; opacity: 0.857; animation-delay: -1.4s; }
+.s-contact .ripple:nth-child(3){ width: 480px; height: 480px; opacity: 0.714; animation-delay: -2.8s; }
+.s-contact .ripple:nth-child(4){ width: 630px; height: 630px; opacity: 0.571; animation-delay: -4.2s; }
+.s-contact .ripple:nth-child(5){ width: 780px; height: 780px; opacity: 0.429; animation-delay: -5.6s; }
+.s-contact .ripple:nth-child(6){ width: 930px; height: 930px; opacity: 0.286; animation-delay: -7.0s; }
 
 @keyframes contact-swell{
   0%, 100%{ transform: translate(-50%,-50%) scale(1);    opacity: 1 }
