@@ -293,6 +293,26 @@ export function initLanding(root){
 
   /* ---------- boucle ---------- */
 
+  /*
+   * FOYER DE LA CONDENSATION — le pixel où le bureau finit et où la lueur
+   * commence. Ce n'est PAS le centre géométrique du plateau : le pivot du
+   * cadrage est à (600, 410) alors que l'empreinte réellement rendue est
+   * centrée à (600, 483). L'écart est de 73 unités, soit ~1,2 px une fois
+   * l'échelle finale appliquée — invisible seul, mais on vise le point que
+   * l'oeil lit comme « le point », pas une abstraction géométrique.
+   *
+   * Mesuré une fois : la boîte ne dépend pas du scroll, seul le transform
+   * change, et getScreenCTM() l'absorbe. Aucun coût par frame.
+   */
+  let FOYER_X = PIVOT_X, FOYER_Y = PIVOT_Y;
+  try {
+    const boite = sceneG.getBBox();
+    if (boite.width > 0){
+      FOYER_X = boite.x + boite.width / 2;
+      FOYER_Y = boite.y + boite.height / 2;
+    }
+  } catch { /* getBBox indisponible : le pivot reste un repli correct */ }
+
   register(root, now => {
     const p = stickyProgress(root);
     const t = ambientTime(now);
@@ -332,21 +352,33 @@ export function initLanding(root){
       const naissance = seg(p, RELAIS[0], RELAIS[1]);
       const mediane = window.innerHeight * 0.5;
 
-      /* Une fois la section décollée, la scène remonte et sort de l'écran.
-         Le fil ne la suit pas : il se tient sur la médiane et attend que la
-         méthode le reprenne. Sans cette retenue, il partait à y=-101 puis
-         revenait d'un bond de 554px. */
-      const y = ctm.b * PIVOT_X + ctm.d * PIVOT_Y + ctm.f;
-
-      /* Et son poids retombe à mesure que la section sort, exactement dans
-         la fenêtre où celui de la méthode monte : c'est le même passage de
-         relais que sur la couture méthode -> workflow. */
+      /* Sortie de la section : sert à la fois de retenue du fil et de
+         décroissance de son poids, exactement dans la fenêtre où celui de la
+         méthode monte — le même passage de relais que sur la couture
+         méthode -> workflow. Vaut 0 pendant tout le relais. */
       const bas = root.getBoundingClientRect().bottom;
       const sortie = clamp01(1 - bas / window.innerHeight);
 
+      /* Le foyer, projeté à l'écran par la matrice de la scène : le fil est
+         donc posé sur le point, quels que soient le cadrage et l'échelle. */
+      const foyer = ctm.b * FOYER_X + ctm.d * FOYER_Y + ctm.f;
+
+      /* Une fois la section décollée, la scène remonte et sort de l'écran.
+         Le fil ne la suit pas : il se tient sur la médiane et attend que la
+         méthode le reprenne. Sans cette retenue, il partait à y=-101 puis
+         revenait d'un bond de 554px.
+         Mais elle ne s'arme QU'À la sortie. Une première version la posait
+         sans condition : pendant tout le relais, l'étincelle se retrouvait
+         plaquée sur la médiane, 25px SOUS le point où le bureau finissait sa
+         contraction — on lisait deux objets empilés, pas une transformation.
+         Tant que la section est collée, le fil est EXACTEMENT sur le point :
+         c'est la condition de la superposition. */
+      const retenue = seg(sortie, 0, 0.25);
+      const y = foyer + (Math.max(foyer, mediane) - foyer) * retenue;
+
       claim({
-        x: ctm.a * PIVOT_X + ctm.c * PIVOT_Y + ctm.e,
-        y: Math.max(y, mediane),
+        x: ctm.a * FOYER_X + ctm.c * FOYER_Y + ctm.e,
+        y,
         weight: naissance * (1 - seg(sortie, 0.25, 0.85)),
         /* L'étincelle naît à l'empreinte du point qu'était le bureau, puis
            se resserre : la taille aussi est une continuité. */
