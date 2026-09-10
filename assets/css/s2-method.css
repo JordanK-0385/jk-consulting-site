@@ -25,19 +25,35 @@
 
    Un seul repère pour tout : le rail, les nœuds, le chapô et la bascule s'y
    accrochent, donc rien ne peut se désaligner. */
-.s-method{ --axe: 83%; }
+.s-method{ --texte: 48%; }
 
-/* Le texte s'arrête 48px avant l'axe — la moitié de la colonne des nœuds. */
-.s-method .intro{ padding-right: calc(100% - var(--axe) + 48px); }
+/* ---- Le parcours : texte fixe, étapes qui défilent ----
+   Le chapô et la timeline partagent une grille. C'est ce qui rend le sticky
+   possible : collé dans SA colonne, le texte ne peut pas chevaucher les
+   étapes, qui défilent dans la colonne d'à côté. Empilés comme avant, ils se
+   seraient recouverts.
+
+   La grille borne aussi le texte : plus besoin de padding calculé pour lui
+   réserver un couloir, la colonne s'en charge. */
+.s-method .parcours{
+  display: grid;
+  grid-template-columns: var(--texte) 1fr;
+  column-gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
 
 /* ---- Chapô ---- */
 .s-method .intro{
-  min-height: 64vh;
+  /* Haut d'un écran, contenu centré dedans : le bloc reste à la même hauteur
+     tout au long du parcours. Il se décolle tout seul quand .parcours se
+     termine — donc à la fin de la dernière étape, pas avant. */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: clamp(70px, 12vh, 110px);
-  padding-bottom: 40px;
 }
 .s-method .eyebrow{
   font-family: var(--font-mono);
@@ -82,8 +98,9 @@
 .s-method .line,
 .s-method .fill{
   position: absolute;
-  left: var(--axe);
-  transform: translateX(-50%);
+  /* 47px + la moitié des 2px de largeur : le centre du trait tombe à 48px du
+     bord droit, exactement le centre de la colonne des nœuds. */
+  right: 47px;
   width: 2px;
   border-radius: 2px;
 }
@@ -97,10 +114,16 @@
 .s-method .step{
   position: relative;
   display: grid;
-  /* La colonne du nœud est centrée sur l'axe : 48px de part et d'autre. */
-  grid-template-columns: calc(var(--axe) - 48px) 96px 1fr;
+  /* La colonne des nœuds ferme la piste : son centre tombe donc à 48px du
+     bord droit, comme le trait. */
+  grid-template-columns: 1fr 96px;
   align-items: center;
-  min-height: 220px;
+  /* Le chapô reste collé tant que .parcours défile : sa course vaut donc
+     hauteur(timeline) - hauteur(écran). À 220px par étape, la timeline ne
+     dépassait l'écran que de 320px et le texte se décollait presque aussitôt.
+     À cette hauteur la phase collée dure environ un écran et demi — et les
+     nœuds, plus espacés, laissent respirer l'accostage. */
+  min-height: clamp(240px, 40vh, 400px);
 }
 .s-method .node{
   grid-column: 2;
@@ -236,7 +259,14 @@
     justify-self: start;
     max-width: none;
   }
-  .s-method .intro{ min-height: 0; }
+  /* Ni grille ni sticky : le chapô repasse au-dessus, en flux normal. */
+  .s-method .parcours{ display: block; }
+  .s-method .intro{
+    position: static;
+    height: auto;
+    padding-top: clamp(40px, 8vh, 70px);
+    padding-bottom: 30px;
+  }
 
   /* Le rail passe à gauche (26px) : le couloir change de côté. 70px = la
      colonne du nœud (52) plus sa gouttière (18), donc chapô et bascule
