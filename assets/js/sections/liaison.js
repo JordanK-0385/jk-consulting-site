@@ -15,12 +15,34 @@ import { rgba, shade, seg, easeOut, clamp01 } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { claim } from '../core/thread.js';
+import { makeDock } from '../core/dock.js';
 
 /* Maille du plateau 4×4 — plus resserrée que la landing, l'origine diffère. */
 const iso = makeIso({ cx: 600, cy: 300 });
 
 const VIEW_X = 600;   // centre optique du cadrage
 const VIEW_Y = 380;
+
+/*
+ * LA FERMETURE (COMMIT-7). Exact inverse de l'ouverture : là-bas le bureau se
+ * ramassait en une étincelle, ici l'agent redéploie le bureau.
+ *
+ * On ne part donc PAS du plan complet qu'on élargirait : on part d'UNE dalle,
+ * et on ajoute. Avant, 14 des 27 éléments de scène étaient déjà à l'écran au
+ * premier pixel de la section — le dézoom ne faisait qu'élargir un plan déjà
+ * construit.
+ *
+ * Ordre des poses : devant, droite, gauche, fond. Les quatre zones tombent en
+ * croix dans le repère isométrique ; en partant de celle du zoom, le bureau
+ * s'étend en s'éloignant du spectateur.
+ */
+const ORDRE = [3, 1, 2, 0];
+const POSE  = [0.05, 0.19, 0.33, 0.47];
+const ETALE = 0.06;          // durée d'apparition d'une dalle
+const CAM_FIN = 0.52;        // le dézoom est terminé quand la 4e est posée
+
+/* Hauteur de chute du premier agent, en unités de viewBox. */
+const CHUTE = 320;
 
 const WHITE  = [220, 232, 246];
 const SCREEN = [111, 224, 255];
@@ -43,42 +65,63 @@ export function initLiaison(root){
 
   /* ---------- plateau ---------- */
 
+  /* Le sol monte en opacité au fil des poses : les dalles ne flottent jamais
+     dans le vide, mais le plan ne se donne pas d'emblée non plus. */
+  const plateau = mk('g', {});
+  scene.appendChild(plateau);
   const north = iso(0, 0), east = iso(4, 0), south = iso(4, 4), west = iso(0, 4);
   const SLAB = 18;
-  poly(scene, '#0A1428', points(east, south, [south[0], south[1] + SLAB], [east[0], east[1] + SLAB]));
-  poly(scene, '#081020', points(south, west, [west[0], west[1] + SLAB], [south[0], south[1] + SLAB]));
-  roundPath(scene, [north, east, south, west], 26, '#0E1A2E');
+  poly(plateau, '#0A1428', points(east, south, [south[0], south[1] + SLAB], [east[0], east[1] + SLAB]));
+  poly(plateau, '#081020', points(south, west, [west[0], west[1] + SLAB], [south[0], south[1] + SLAB]));
+  roundPath(plateau, [north, east, south, west], 26, '#0E1A2E');
 
   /* ---------- zones de service ---------- */
 
-  const borders = ZONES.map(({ gx, gy, color }) => {
-    roundPath(scene,
+  /* Une dalle = un espace de travail complet, révélé d'un bloc : sol teinté,
+     bordure, bureau, écran. Les regrouper est ce qui rend la pose possible —
+     posés à plat sur la scène, ces quatre éléments auraient demandé quatre
+     pilotages parallèles pour un seul geste. */
+  const dalles = [], borders = [];
+  for (const { gx, gy, color } of ZONES){
+    const dalle = mk('g', {});
+    dalle.style.opacity = 0;
+    scene.appendChild(dalle);
+
+    roundPath(dalle,
       [iso(gx + .2, gy + .2), iso(gx + 1.8, gy + .2), iso(gx + 1.8, gy + 1.8), iso(gx + .2, gy + 1.8)],
       14, rgba(color, .12));
 
-    const border = roundPath(scene,
+    const border = roundPath(dalle,
       [iso(gx, gy), iso(gx + 2, gy), iso(gx + 2, gy + 2), iso(gx, gy + 2)],
       16, 'none', { stroke: rgba(color, .85), 'stroke-width': '2' });
     border.style.filter = `drop-shadow(0 0 6px ${rgba(color, .7)})`;
 
     /* bureau + écran allumé */
-    poly(scene, shade(WHITE, 1.14), points(
+    poly(dalle, shade(WHITE, 1.14), points(
       iso(gx + .6, gy + .55, .28), iso(gx + 1.4, gy + .55, .28),
       iso(gx + 1.4, gy + 1.05, .28), iso(gx + .6, gy + 1.05, .28)));
     const [sx, sy] = iso(gx + 1, gy + .65, .34);
-    scene.appendChild(mk('rect', {
+    /* Le penchement doit se faire AUTOUR de l'écran, pas autour de l'origine
+       du SVG. Tel quel — hérité du proto — skewY décalait chaque écran de
+       x·tan(26°), soit près de 300 unités : les quatre tombaient sous leur
+       bureau. Invisible tant que le plan s'affichait d'un bloc, flagrant dès
+       que les dalles se posent une à une sur fond vide. */
+    dalle.appendChild(mk('rect', {
       x: sx - 9, y: sy - 13, width: 18, height: 12, rx: 3,
-      fill: rgba(SCREEN, .9), transform: 'skewY(26)',
+      fill: rgba(SCREEN, .9),
+      transform: `translate(${sx} ${sy}) skewY(26) translate(${-sx} ${-sy})`,
       filter: `drop-shadow(0 0 4px ${rgba(SCREEN, .8)})`,
     }));
 
-    return border;
-  });
+    dalles.push(dalle);
+    borders.push(border);
+  }
 
   /* ---------- liens entre services ---------- */
 
   const centres = ZONES.map(z => iso(z.gx + 1, z.gy + 1, .7));
-  const links = [[0, 1], [1, 3], [3, 2], [2, 0]].map(([a, b]) => {
+  const PAIRES = [[0, 1], [1, 3], [3, 2], [2, 0]];
+  const links = PAIRES.map(([a, b]) => {
     const A = centres[a], B = centres[b];
     const link = mk('path', {
       d: `M ${A[0]} ${A[1]} Q ${(A[0] + B[0]) / 2} ${(A[1] + B[1]) / 2 - 26} ${B[0]} ${B[1]}`,
@@ -93,7 +136,12 @@ export function initLiaison(root){
 
   function robot(gx, gy, color){
     const [x, y] = iso(gx, gy);
+    /* Deux groupes emboîtés : l'extérieur porte la chute du premier agent,
+       l'intérieur reste à sa place. Sans cela, animer la descente écraserait
+       la translation qui pose le robot sur sa dalle. */
+    const enveloppe = mk('g', {});
     const g = mk('g', { transform: `translate(${x} ${y - 4})` });
+    enveloppe.appendChild(g);
     g.style.opacity = 0;
     g.appendChild(mk('ellipse', { cx: 0, cy: -14, rx: 17, ry: 17, fill: rgba(color, .18) }));
     g.appendChild(mk('rect', { x: -10, y: -15, width: 20, height: 18, rx: 8, fill: 'url(#jk-bot-body)', stroke: rgba(color, .85), 'stroke-width': '1.2' }));
@@ -106,8 +154,8 @@ export function initLiaison(root){
     }
     g.appendChild(eyes);
     g.style.filter = `drop-shadow(0 0 5px ${rgba(color, .6)})`;
-    scene.appendChild(g);
-    return g;
+    scene.appendChild(enveloppe);
+    return { g, enveloppe };
   }
 
   const robots = [
@@ -116,6 +164,15 @@ export function initLiaison(root){
     robot(1, 3, ZONES[2].color),
     robot(3, 3, ZONES[3].color),
   ];
+
+  /* Rang de pose de chaque zone : ORDRE dit qui vient quand, ceci dit quand
+     vient chacun. Une seule table à tenir à jour. */
+  const rang = ZONES.map((_, i) => ORDRE.indexOf(i));
+
+  /* Le dézoom passe exactement par chaque pose et y ralentit — c'est la
+     courbe d'accostage de la méthode, appliquée à la caméra plutôt qu'à un
+     jeton. « Recule, marque la pose, recule », sans une seule condition. */
+  const dockCam = makeDock(POSE.map(v => v / CAM_FIN), 0.9);
 
   /* Point de départ du dézoom : l'agent Front-office, le dernier « en service ». */
   const [focusX, focusY] = iso(3, 3, 0.4);
@@ -156,40 +213,81 @@ export function initLiaison(root){
       claim({
         x: ctm.a * focusX + ctm.c * focusY + ctm.e,
         y: mediane + (cible - mediane) * pose,
-        weight: seg(arrivee, 0.15, 0.6) * (1 - seg(p, 0.05, 0.20)),
+        weight: seg(arrivee, 0.15, 0.6) * (1 - seg(p, POSE[0], POSE[0] + ETALE)),
         radius: 9, color: ZONES[3].color, tail: 60,
       });
     }
 
-    /* 0 = collé sur l'agent, 1 = maquette entière. */
-    const out = easeOut(seg(p, 0, 0.5));
+    /* 0 = collé sur la première dalle, 1 = maquette entière. La caméra
+       recule par paliers : le docking la fait passer exactement par chaque
+       pose et ralentir à son approche. */
+    const out = easeOut(dockCam(clamp01(p / CAM_FIN)));
     const scale = 3 - 2 * out;
     const tx = (1 - out) * (VIEW_X - focusX);
     const ty = (1 - out) * (VIEW_Y - focusY);
     scene.setAttribute('transform',
       `translate(${VIEW_X * (1 - scale) + tx * scale} ${VIEW_Y * (1 - scale) + ty * scale}) scale(${scale})`);
 
-    /* Les agents s'allument service par service. */
-    robots.forEach((r, i) => { r.style.opacity = easeOut(seg(p, 0.12 + i * 0.08, 0.28 + i * 0.08)); });
-    borders.forEach((b, i) => {
-      b.setAttribute('stroke', rgba(ZONES[i].color, 0.5 + 0.45 * easeOut(seg(p, 0.12 + i * 0.08, 0.3 + i * 0.08))));
+    /* Avancement de la pose de chaque zone, 0 à 1. Tout le reste en découle :
+       la dalle, son agent, ses liens, et le sol qui monte dessous. */
+    const posee = ZONES.map((_, i) => {
+      /* La première est là au premier pixel : c'est l'espace de travail sur
+         lequel l'agent vient se poser. Sans elle, il tomberait dans le vide. */
+      if (rang[i] === 0) return 1;
+      const t = POSE[rang[i]];
+      return easeOut(seg(p, t, t + ETALE));
     });
-    links.forEach((l, i) => { l.style.opacity = easeOut(seg(p, 0.4 + i * 0.03, 0.52 + i * 0.03)); });
 
-    /* Le titre arrive quand le dézoom est bien engagé. */
-    const reveal = seg(p, 0.22, 0.4);
+    dalles.forEach((d, i) => { d.style.opacity = posee[i]; });
+
+    /* Le sol suit le nombre de dalles posées, sans jamais partir de zéro :
+       une dalle seule sur du vide flotterait. */
+    plateau.style.opacity = 0.32 + 0.68 * easeOut(seg(p, POSE[0], POSE[3] + ETALE));
+
+    /* Chaque agent arrive juste après sa dalle — la dalle d'abord, l'agent
+       ensuite : on pose l'espace de travail, puis celui qui l'occupe. */
+    robots.forEach(({ g }, i) => {
+      const t = POSE[rang[i]];
+      /* Le premier agent NAÎT du fil : fondu-enchaîné serré au même pixel,
+         dans la fenêtre exacte où le poids du fil retombe. Les suivants
+         arrivent APRÈS leur dalle — on pose l'espace de travail, puis celui
+         qui l'occupe. */
+      g.style.opacity = rang[i] === 0
+        ? seg(p, t, t + ETALE)
+        : easeOut(seg(p, t + ETALE * 0.6, t + ETALE * 1.7));
+    });
+
+    /* LE PREMIER AGENT CONTINUE LA DESCENTE DU FIL. Il tombe depuis le haut
+       du cadre et se pose sur la première dalle ; le fil s'éteint pile à
+       l'arrivée. C'est la reprise du relais : le point devient l'agent, comme
+       le bureau était devenu le point à la landing. */
+    const chute = 1 - easeOut(seg(p, 0, POSE[0]));
+    robots[ORDRE[0]].enveloppe.setAttribute('transform', `translate(0 ${-CHUTE * chute})`);
+
+    borders.forEach((b, i) => {
+      b.setAttribute('stroke', rgba(ZONES[i].color, 0.5 + 0.45 * posee[i]));
+    });
+
+    /* Un lien n'existe que si ses deux extrémités sont posées. */
+    links.forEach((l, i) => {
+      const [a, b] = PAIRES[i];
+      l.style.opacity = Math.min(posee[a], posee[b]);
+    });
+
+    /* Le titre arrive quand le bureau est complet. */
+    const reveal = seg(p, 0.52, 0.64);
     central.style.opacity = reveal;
     central.style.transform = `translateX(-50%) translateY(${(1 - reveal) * -14}px)`;
 
     /* Les bénéfices s'écartent depuis le centre, colonne de gauche vers la
        gauche, colonne de droite vers la droite. */
     benefits.forEach((b, i) => {
-      const shown = easeOut(seg(p, 0.42 + i * 0.05, 0.6 + i * 0.05));
+      const shown = easeOut(seg(p, 0.60 + i * 0.05, 0.76 + i * 0.05));
       const direction = i % 2 === 0 ? -1 : 1;
       b.style.opacity = shown;
       b.style.transform = `translateX(${(1 - shown) * direction * 40}px)`;
     });
 
-    cue.style.opacity = easeOut(seg(p, 0.82, 0.95));
+    cue.style.opacity = easeOut(seg(p, 0.80, 0.88));
   });
 }

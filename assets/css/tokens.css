@@ -59,7 +59,7 @@
      le bureau en un point. */
   --h-landing:  280vh;
   --h-workflow: 700vh;
-  --h-liaison:  340vh;
+  --h-liaison:  460vh;
 }
 
 /* Arbitrage A : sur mobile uniquement, on raccourcit le défilement.
@@ -68,7 +68,7 @@
   :root{
     --h-landing:  180vh;
     --h-workflow: 400vh;
-    --h-liaison:  220vh;
+    --h-liaison:  300vh;
   }
 }
 
