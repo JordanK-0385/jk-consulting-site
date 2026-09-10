@@ -86,7 +86,20 @@
 }
 
 /* ---- Timeline ---- */
-.s-method .timeline{ position: relative; padding: 30px 0 90px; }
+/* Plus de retrait en tête : le trait doit commencer À RAS du raccord
+   nuit -> papier, sans bande de papier nu intercalée. */
+.s-method .timeline{ position: relative; padding: 0 0 90px; }
+
+/* Le premier pas est plus court que les autres. À hauteur pleine, son nœud
+   tombait au milieu du pas, soit 318px sous le haut de l'écran à l'entrée de
+   section : 210px de trait nu sous le raccord, et « 01 Diagnostic » qui
+   arrivait à mi-hauteur. Les arrêts du fil étant relevés dans le DOM, ce
+   raccourci se propage tout seul à l'accostage.
+   Desktop seulement : en mobile le chapô passe au-dessus en flux normal et
+   la timeline commence déjà haut. */
+@media (min-width: 721px){
+  .s-method .step:first-child{ min-height: clamp(150px, 24vh, 240px); }
+}
 
 /* Rail et étapes sont chacun dans leur conteneur. Dans le proto, les trois
    éléments du rail étaient frères des étapes : nth-child comptait donc trois

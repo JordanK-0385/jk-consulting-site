@@ -20,14 +20,3 @@ export function stickyProgress(el, palier = 0){
   if (travel <= 0) return 0;
   return clamp01(-el.getBoundingClientRect().top / travel);
 }
-
-/**
- * Progression d'une section éditoriale (flux normal), mesurée à la ligne
- * médiane du viewport. Utilisée par la timeline de la section 2 : un jalon
- * s'allume quand il croise le milieu de l'écran, pas quand il entre.
- */
-export function midlineProgress(el){
-  const rect = el.getBoundingClientRect();
-  if (rect.height <= 0) return 0;
-  return clamp01((window.innerHeight * 0.5 - rect.top) / rect.height);
-}

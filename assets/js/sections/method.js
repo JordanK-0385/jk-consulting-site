@@ -9,7 +9,6 @@
  */
 
 import { register } from '../core/raf.js';
-import { midlineProgress } from '../core/scroll.js';
 import { claim } from '../core/thread.js';
 import { clamp01, seg } from '../core/color.js';
 import { makeDock, dockNearness } from '../core/dock.js';
@@ -50,7 +49,25 @@ export function initMethod(root){
   register(root, () => {
     const rect = timeline.getBoundingClientRect();
     const middle = window.innerHeight * 0.5;
-    const progression = midlineProgress(timeline);
+
+    /* LE FIL ENTRE PAR LE HAUT DU TRAIT. Il attend sur la médiane, s'accroche
+       au sommet de la ligne dès qu'elle l'atteint, et remonte avec elle
+       jusqu'au plafond — c'est là seulement qu'il commence à DESCENDRE le
+       rail vers 01, 02, etc. Sans ce retard, la progression démarrait à la
+       médiane : le temps que la section remplisse l'écran, le fil avait déjà
+       parcouru 310px de rail et se retrouvait SOUS le premier nœud, à
+       mi-course, alors qu'il devait encore être à son sommet.
+
+       Le retard vaut exactement la distance de la médiane au plafond : la
+       phase d'accrochage se termine donc à l'instant précis où le sommet du
+       trait atteint le plafond, sans réglage à tenir à jour. En mobile le
+       plafond EST la médiane, le retard est nul et le comportement validé
+       est rendu à l'identique. */
+    const etroit = window.innerWidth <= 720;
+    const plafond = etroit ? middle : window.innerHeight * 0.18;
+    const retard = middle - plafond;
+    const course = Math.max(1, rect.height - retard);
+    const progression = clamp01((middle - retard - rect.top) / course);
     /* Docking : le fil ralentit en arrivant sur un nœud. Ici le « monde »
        est le document lui-même, qui défile à vitesse constante — le token
        s'attache donc au nœud et remonte un instant avec lui, avant de se
@@ -77,7 +94,7 @@ export function initMethod(root){
        exactement la médiane — le passage d'un régime à l'autre est donc
        continu, y compris avec l'oscillation d'accostage. */
     const sansRail = progression <= 0;
-    const brut = sansRail ? middle : rect.top + travelled;
+    const brut = sansRail ? Math.min(rect.top, middle) : rect.top + travelled;
 
     /* Mais jamais SOUS l'extrémité du trait. Sans cette borne, le fil
        franchissait le bout du rail après « Autonomie » et se figeait sur la
@@ -93,8 +110,6 @@ export function initMethod(root){
        plafond y vaut donc la médiane, ce qui rend exactement le comportement
        figé et validé. Même point de bascule que le CSS (720px). */
     const pointe = rect.bottom;
-    const etroit = window.innerWidth <= 720;
-    const plafond = etroit ? middle : window.innerHeight * 0.18;
     const y = Math.max(Math.min(brut, pointe), plafond);
 
     /* Pulsation d'accostage : le nœud sous le fil se marque une fois. */
@@ -132,9 +147,14 @@ export function initMethod(root){
       color: TOKEN_LIGHT, tail: 90,
     });
 
+    /* Une étape s'allume au PASSAGE DU FIL, pas à une hauteur d'écran fixe.
+       C'est lui qui allume les étapes ; le lier à la médiane marchait tant
+       qu'il y restait, mais il entre maintenant plus haut et les cartes se
+       seraient éclairées avant son arrivée. Sur la fin de la section, où il
+       rejoint la médiane, le déclenchement est le même qu'avant. */
     for (const step of steps){
       const box = step.getBoundingClientRect();
-      step.classList.toggle('act', box.top + box.height / 2 < middle + LEAD);
+      step.classList.toggle('act', box.top + box.height / 2 < y + LEAD);
     }
 
 
