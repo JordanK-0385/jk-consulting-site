@@ -27,6 +27,8 @@ const DEBORD = 1.60;
 /* Vitesse de la sortie, en multiples de celle de la traversée. */
 const FUITE = 4;
 
+
+
 export function initTemoignages(root){
   const survol = root.querySelector('.survol');
   const agent  = survol && survol.querySelector('.agent-plein');
@@ -42,6 +44,51 @@ export function initTemoignages(root){
     (parseFloat(getComputedStyle(document.documentElement)
       .getPropertyValue('--couture')) || 170) / 100 * window.innerHeight;
   if (!agent || !papier) return;
+
+  /* Placement du robot pour une avance donnée du vol. Extrait de la boucle
+     parce que la recherche du départ s'en sert aussi : deux façons de le
+     poser, ce serait deux trajectoires à tenir d'accord. */
+  function poser(vol, vw, vh){
+    const prof = Math.min(vol, 1) ** 2 * 0.55 + Math.min(vol, 1) * 0.45;
+    const x = (1.30 - 1.60 * vol) * vw;
+    const y = (-0.22 + 1.46 * vol) * vh;
+    agent.style.setProperty('--x', `${x.toFixed(1)}px`);
+    agent.style.setProperty('--y', `${y.toFixed(1)}px`);
+    agent.style.setProperty('--s', (0.5 + 1.25 * prof).toFixed(3));
+    agent.style.setProperty('--r', `${(-24 + 13 * Math.min(vol, 1)).toFixed(1)}deg`);
+    return { x, y, prof };
+  }
+
+  /* OÙ COMMENCE RÉELLEMENT LE VOL. Le début de la trajectoire se joue hors du
+     cadre : la traversée s'ouvrait sur une attente, scène du bureau achevée
+     et immobile, et rien qui entre. On part maintenant du premier instant où
+     le robot touche le cadre — le chemin parcouru à l'écran est le même, c'est
+     l'attente qui disparaît.
+
+     Cherché et non codé : la valeur dépend de sa taille à l'écran, donc du
+     viewport. Elle vaut 0,06 en 1440x900, 0,07 en 1920x1080 — et zéro sur un
+     écran étroit, où il déborde déjà du cadre au premier instant. Une
+     dichotomie au démarrage et à chaque redimensionnement, jamais dans la
+     boucle. */
+  let entree = 0;
+  function chercherEntree(){
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const dedans = v => {
+      poser(v, vw, vh);
+      const r = agent.getBoundingClientRect();
+      return r.right > 0 && r.left < vw && r.bottom > 0 && r.top < vh;
+    };
+    entree = 0;
+    if (dedans(0) || !dedans(0.5)) return;
+    let bas = 0, haut = 0.5;
+    for (let i = 0; i < 18; i++){
+      const m = (bas + haut) / 2;
+      if (dedans(m)) haut = m; else bas = m;
+    }
+    entree = haut;
+  }
+  chercherEntree();
+  addEventListener('resize', chercherEntree, { passive: true });
 
   /* Nommée, et jouée une fois avant l'enregistrement : la découpe du papier
      doit exister DÈS LA PREMIÈRE PEINTURE. register() ne réveille la boucle
@@ -73,7 +120,9 @@ export function initTemoignages(root){
          une sortie. Il poursuit donc la même droite jusqu'à ce que sa dernière
          trace ait quitté le cadre, et il file — au plus près de l'objectif,
          c'est là qu'il balaie le plus vite. */
-      const vol = brut <= 1 ? brut : Math.min(1 + (brut - 1) * FUITE, DEBORD);
+      const vol = brut <= 1
+        ? entree + (1 - entree) * brut
+        : Math.min(1 + (brut - 1) * FUITE, DEBORD);
 
       /* La profondeur s'accélère : à distance égale parcourue, l'objet grossit
          de plus en plus vite. C'est ce qui donne le rapprochement plutôt
@@ -83,16 +132,7 @@ export function initTemoignages(root){
          près, et continuer à le grandir en le poussant dehors l'agrandissait
          plus vite qu'il ne s'écartait — sur un écran étroit il ne sortait
          jamais du cadre. La sortie est un glissement, pas une approche. */
-      const prof = Math.min(vol, 1) ** 2 * 0.55 + Math.min(vol, 1) * 0.45;
-
-      const x = (1.30 - 1.60 * vol) * vw;
-      const y = (-0.22 + 1.46 * vol) * vh;
-      const ech = 0.5 + 1.25 * prof;
-
-      agent.style.setProperty('--x', `${x.toFixed(1)}px`);
-      agent.style.setProperty('--y', `${y.toFixed(1)}px`);
-      agent.style.setProperty('--s', ech.toFixed(3));
-      agent.style.setProperty('--r', `${(-24 + 13 * Math.min(vol, 1)).toFixed(1)}deg`);
+      const { x, y, prof } = poser(vol, vw, vh);
 
       /* Lumière fixe en haut de l'écran : l'ombre s'écarte du robot à mesure
          qu'il s'en éloigne, et s'élargit à mesure qu'il monte vers nous. */

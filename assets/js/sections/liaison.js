@@ -312,15 +312,22 @@ export function initLiaison(root){
     central.style.transform = `translateX(-50%) translateY(${(1 - reveal) * -14}px)`;
 
     /* Les bénéfices s'écartent depuis le centre, colonne de gauche vers la
-       gauche, colonne de droite vers la droite. */
+       gauche, colonne de droite vers la droite.
+
+       Leur arrivée court jusqu'au palier au lieu de s'arrêter à 91 % : le
+       contenu était posé, complet et figé, 0,32 écran avant que le robot ne
+       puisse entrer. La section n'est pas plus longue — c'est la queue de la
+       révélation qui occupe la place qu'elle laissait vide. */
     benefits.forEach((b, i) => {
-      const shown = easeOut(seg(p, 0.60 + i * 0.05, 0.76 + i * 0.05));
+      const shown = easeOut(seg(p, 0.60 + i * 0.06, 0.80 + i * 0.06));
       const direction = i % 2 === 0 ? -1 : 1;
       b.style.opacity = shown;
       b.style.transform = `translateX(${(1 - shown) * direction * 40}px)`;
     });
 
-    cue.style.opacity = easeOut(seg(p, 0.80, 0.90));
+    /* L'invite au défilement finit AVEC la course : c'est le dernier élément
+       à se poser, et le robot enchaîne dans la foulée. */
+    cue.style.opacity = easeOut(seg(p, 0.88, 1));
 
   });
 }
