@@ -24,6 +24,7 @@ export function initTemoignages(root){
      une fois : ce sont des constantes d'auteur, pas un état. */
   const reglages = getComputedStyle(root);
   const COURSE = (parseFloat(reglages.getPropertyValue('--survol-course')) || 60) / 100;
+  const AVANT  = (parseFloat(reglages.getPropertyValue('--survol-avant')) || 110) / 100;
   const OMBRE  = parseFloat(reglages.getPropertyValue('--survol-ombre'));
   const OPACITE_OMBRE = Number.isFinite(OMBRE) ? OMBRE : 0.30;
   if (!quotes.length) return;
@@ -50,7 +51,12 @@ export function initTemoignages(root){
        robot sort. */
     if (agent){
       const vh = window.innerHeight, vw = window.innerWidth;
-      const av = clamp01(-rect.top / (vh * COURSE));
+      /* Le vol commence AVANT que la section arrive : à --survol-avant écrans
+         au-dessus de la couture, le bureau occupe encore tout l'écran et c'est
+         là que le robot surgit, en haut à droite. Il enjambe ensuite la
+         frontière, et le contenu blanc se dévoile en défilant sous son
+         passage. */
+      const av = clamp01((AVANT * vh - rect.top) / ((AVANT + COURSE) * vh));
 
       /* La profondeur s'accélère : à distance égale parcourue, l'objet grossit
          de plus en plus vite. C'est ce qui donne le rapprochement plutôt
@@ -74,7 +80,7 @@ export function initTemoignages(root){
       agent.style.setProperty('--ombre',
         `drop-shadow(${dx.toFixed(0)}px ${dy.toFixed(0)}px ${flou.toFixed(0)}px rgba(10, 22, 40, ${OPACITE_OMBRE}))`);
 
-      survol.style.visibility = av >= 1 ? 'hidden' : 'visible';
+      survol.style.visibility = (av <= 0 || av >= 1) ? 'hidden' : 'visible';
     }
 
     /* 0 quand le haut de la section atteint le bas du viewport,

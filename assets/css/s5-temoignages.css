@@ -21,7 +21,8 @@
    déjà remonté hors cadre à la sortie du robot — mesuré à y = -97px lorsque
    les deux valeurs divergeaient. */
 .s-temoignages{
-  --survol-course: 60;   /* longueur de la traversée, en % de hauteur d'écran */
+  --survol-avant: 110;   /* anticipation AVANT la couture, en % de hauteur d'écran */
+  --survol-course: 60;   /* course APRÈS la couture, en % de hauteur d'écran */
   --survol-ombre: .30;   /* opacité de l'ombre portée */
 }
 
@@ -179,12 +180,15 @@
    bas et il n'y aurait rien à survoler.
    ============================================================ */
 .s-temoignages .survol{
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100dvh;
-  margin-bottom: -100vh;
-  margin-bottom: -100dvh;
+  /* FIXE, et non collée à la section. Le robot doit SURGIR sur l'écran du
+     bureau — fond sombre, plateau encore visible — et enjamber la couture. Une
+     couche collée à cette section ne peut rien peindre au-dessus de la
+     précédente : elle ne commence à exister qu'une fois la section arrivée,
+     donc sur du blanc. Fixée au viewport, elle passe par-dessus les deux.
+     Elle est masquée hors de la fenêtre de vol, sinon elle couvrirait la page
+     entière. */
+  position: fixed;
+  inset: 0;
   z-index: 30;
   pointer-events: none;
   /* La silhouette dépasse largement du cadre : sans ça elle allongerait la
