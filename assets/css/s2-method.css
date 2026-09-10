@@ -13,17 +13,22 @@
    papier entre le dégradé et la section sombre qui suit. */
 .s-method .wrap{ max-width: 1100px; padding-bottom: clamp(40px, 8vh, 90px); }
 
-/* ---- Le couloir du fil ----
-   Le fil conducteur descend au centre du .wrap sur TOUTE la hauteur de la
-   section — pas seulement le long du rail. Le chapô et la bascule doivent
-   donc lui laisser le même couloir vide que les cartes de la timeline, sans
-   quoi il passe par-dessus le titre. Mesuré : 12 échantillons de
-   chevauchement en desktop (dont « augmenté. »), 14 en mobile.
+/* ---- L'axe du fil ----
+   Le fil descend sur TOUTE la hauteur de la section, pas seulement le long
+   du rail : chapô et bascule doivent donc le laisser passer, sans quoi il
+   traverse le titre.
 
-   50% + 48px laisse exactement la largeur d'une colonne d'étape :
-   (1100 - 96) / 2 = 502px. Le texte est donc aligné sur les cartes. */
-.s-method .intro,
-.s-method .outro{ padding-right: calc(50% + 48px); }
+   Il ne passe PAS au centre. Le centre appartient au texte, qui garde sa
+   pleine largeur ; le fil longe sur le côté droit, dans la marge. Une
+   première version faisait l'inverse — fil au centre, texte réduit de moitié
+   — et le titre tombait à 4 lignes dont « De la » toute seule.
+
+   Un seul repère pour tout : le rail, les nœuds, le chapô et la bascule s'y
+   accrochent, donc rien ne peut se désaligner. */
+.s-method{ --axe: 83%; }
+
+/* Le texte s'arrête 48px avant l'axe — la moitié de la colonne des nœuds. */
+.s-method .intro{ padding-right: calc(100% - var(--axe) + 48px); }
 
 /* ---- Chapô ---- */
 .s-method .intro{
@@ -44,12 +49,9 @@
 .s-method .intro h2{
   font-family: var(--font-display);
   font-weight: 700;
-  /* Calée sur la colonne, pas sur le viewport : le chapô ne dispose plus que
-     de la moitié du wrap depuis que le fil a son couloir. À 7vw/80px le titre
-     cassait en quatre lignes dont « De la » toute seule. À cette taille il
-     tient en trois lignes propres — « De la friction / au bureau /
-     augmenté. » — le mot en dégradé isolé sur la sienne. */
-  font-size: clamp(32px, 4.4vw, 64px);
+  /* Pleine taille : le fil longeant la marge, le titre dispose de presque
+     toute la largeur et retrouve ses deux lignes. */
+  font-size: clamp(36px, 7vw, 80px);
   line-height: .96;
   letter-spacing: -.03em;
   margin-bottom: 20px;
@@ -80,7 +82,7 @@
 .s-method .line,
 .s-method .fill{
   position: absolute;
-  left: 50%;
+  left: var(--axe);
   transform: translateX(-50%);
   width: 2px;
   border-radius: 2px;
@@ -95,7 +97,8 @@
 .s-method .step{
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 96px 1fr;
+  /* La colonne du nœud est centrée sur l'axe : 48px de part et d'autre. */
+  grid-template-columns: calc(var(--axe) - 48px) 96px 1fr;
   align-items: center;
   min-height: 220px;
 }
@@ -147,11 +150,17 @@
 }
 .s-method .step.act .card{ opacity: 1; transform: translateY(0); }
 
-/* Étapes impaires à droite, paires à gauche — l'alternance visuelle du proto.
-   La carte partage la ligne du nœud : c'est ce qui garde le rail régulier. */
-.s-method .card{ grid-row: 1; }
-.s-method .step:nth-child(odd)  .card{ grid-column: 3; }
-.s-method .step:nth-child(even) .card{ grid-column: 1; text-align: right; justify-self: end; }
+/* Le rail longeant la marge droite, il n'y a plus qu'un côté disponible :
+   toutes les cartes se rangent à sa gauche et viennent s'y adosser.
+   L'alternance gauche/droite du proto supposait un rail centré ; elle n'a
+   plus de place ici. La carte partage la ligne du nœud : c'est ce qui garde
+   le rail régulier. */
+.s-method .card{
+  grid-row: 1;
+  grid-column: 1;
+  text-align: right;
+  justify-self: end;
+}
 
 .s-method .card h3{
   font-family: var(--font-display);
@@ -165,9 +174,26 @@
 .s-method .card p{ color: var(--fg-muted); line-height: 1.55; font-size: 15.5px; }
 
 /* ---- Bascule vers le workflow ----
-   Centrée dans le proto, mais le fil descend précisément là. On la range du
-   même côté que le chapô : le couloir reste libre jusqu'à la couture. */
-.s-method .outro{ text-align: left; padding-top: 20px; }
+   Centrée dans le proto, mais le fil descend précisément là.
+
+   C'est ici que le fil quitte l'axe de la méthode pour rejoindre celui du
+   workflow, resté au centre : sur cette hauteur il BALAIE toute la largeur
+   entre les deux. Adossée à l'axe comme les cartes, la bascule se faisait
+   traverser. Elle se range donc à gauche, assez courte pour rester hors du
+   balayage — le fil descend en diagonale à sa droite, et la flèche montre
+   où il va. */
+.s-method .outro{
+  text-align: left;
+  padding-top: 20px;
+  padding-right: 0;
+  /* PAS de ch ici : l'unité se résout contre le font-size de CE conteneur
+     (16px), pas contre celui du titre (44px) — 24ch donnait 192px et cassait
+     « Voyons un / agent / s'installer. » en trois lignes.
+     Le plafond en % garde la marge sous le balayage quand le wrap rétrécit :
+     le fil revient vers le centre du VIEWPORT, qui se rapproche du texte à
+     mesure que l'écran se réduit. */
+  max-width: min(460px, 44%);
+}
 .s-method .outro .cap{
   font-family: var(--font-mono);
   font-size: 12.5px;
@@ -179,6 +205,7 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(26px, 4.5vw, 44px);
+  line-height: 1.04;
   letter-spacing: -.02em;
 }
 .s-method .outro .arrow{
@@ -192,6 +219,8 @@
 
 /* ---- Replis mobiles ---- */
 @media (max-width: 720px){
+  /* En mobile l'axe repasse à gauche : à 390px de large, une marge droite
+     coûterait la lisibilité des cartes. Repli validé, on n'y touche pas. */
   .s-method .line,
   .s-method .fill{ left: 26px; }
 
@@ -201,8 +230,7 @@
     min-height: 150px;
   }
   .s-method .node{ grid-column: 1; width: 44px; height: 44px; font-size: 15px; }
-  .s-method .step:nth-child(odd)  .card,
-  .s-method .step:nth-child(even) .card{
+  .s-method .card{
     grid-column: 2;
     text-align: left;
     justify-self: start;
@@ -214,5 +242,5 @@
      colonne du nœud (52) plus sa gouttière (18), donc chapô et bascule
      s'alignent sur les cartes. */
   .s-method .intro,
-  .s-method .outro{ padding-right: 0; padding-left: 70px; }
+  .s-method .outro{ padding-right: 0; padding-left: 70px; max-width: none; }
 }
