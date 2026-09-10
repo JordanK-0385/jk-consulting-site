@@ -368,6 +368,11 @@
     <div class="papier">
     <div class="wrap">
 
+    <!-- LE BLOC SE POSE ET S'ARRÊTE. Il monte avec la page pendant toute la
+         traversée, puis se cale et tient — à l'instant précis où le robot
+         sort du cadre. -->
+    <div class="bloc">
+
       <div class="head">
         <p class="eyebrow">LA PREUVE</p>
         <h2 id="temoignages-title">Ils nous ont fait confiance.</h2>
@@ -411,6 +416,15 @@
           </figcaption>
         </figure>
       </div>
+
+    </div>
+
+    <!-- LA TENUE. Un élément collé ne se décale que de la place qui reste
+         après lui : sans ce vide le bloc remplissait exactement son parent et
+         n'avait aucune course, donc aucun arrêt. Cette hauteur est la durée de
+         l'arrêt, et elle est absorbée par le collage — l'écart jusqu'à la
+         F.A.Q. n'en dépend pas. -->
+    <div class="tenue" aria-hidden="true"></div>
 
     </div>
     </div>

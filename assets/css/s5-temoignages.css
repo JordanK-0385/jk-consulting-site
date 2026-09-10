@@ -24,6 +24,8 @@
   --survol-avant: 110;   /* anticipation AVANT la couture, en % de hauteur d'écran */
   --survol-course: 60;   /* course APRÈS la couture, en % de hauteur d'écran */
   --survol-ombre: .30;   /* opacité de l'ombre portée */
+  --calage: clamp(70px, 12vh, 130px);   /* où le bloc se pose, sous le bord haut */
+  --tenue: 45vh;         /* durée de l'arrêt du bloc, une fois posé */
 
   /* LA SECTION CHEVAUCHE LA PRÉCÉDENTE, d'exactement l'avance du robot.
      C'est ce qui rend la révélation en diagonale possible : le clair doit
@@ -45,11 +47,31 @@
 
 /* Le chevauchement est rendu par un retrait égal : la section commence
    --survol-avant écrans plus haut, son contenu descend d'autant. Position du
-   contenu et hauteur totale de la page inchangées, au pixel. */
+   contenu et hauteur totale de la page inchangées, au pixel.
+
+   Le retrait de tête vaut donc la traversée entière PLUS le calage final ;
+   c'est ce calage, et lui seul, que le bloc retrouve en s'arrêtant. */
 .s-temoignages .wrap{
-  padding-top: calc((var(--survol-avant) + var(--survol-course)) * 1vh + clamp(70px, 12vh, 130px));
+  padding-top: calc((var(--survol-avant) + var(--survol-course)) * 1vh + var(--calage));
   padding-bottom: clamp(70px, 12vh, 130px);
 }
+
+/* LE BLOC S'ARRÊTE QUAND LE ROBOT SORT — et pas avant.
+   Il montait avec la page sans jamais se poser : la composition juste ne
+   durait que le temps de la traverser (184px de défilement mesurés), après
+   quoi le titre sortait par le haut. Il se cale maintenant et tient.
+
+   L'instant du calage n'est pas réglé à la main, il tombe juste par
+   construction : le bloc commence à (traversée + calage) sous le bord de la
+   section, ce bord est remonté d'exactement une traversée quand le robot
+   quitte le cadre, il reste donc --calage — la valeur ci-dessous. Changer la
+   course du robot déplace les deux ensemble. */
+.s-temoignages .bloc{
+  position: sticky;
+  top: var(--calage);
+}
+
+.s-temoignages .tenue{ height: var(--tenue); }
 
 /* LE PAPIER. Découpé par la lame que porte le robot ; le module lui pose un
    clip-path polygonal à chaque frame. Sans module, il reste entier : un
