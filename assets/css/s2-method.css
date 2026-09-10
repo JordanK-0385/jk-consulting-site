@@ -13,13 +13,26 @@
    papier entre le dégradé et la section sombre qui suit. */
 .s-method .wrap{ max-width: 1100px; padding-bottom: clamp(40px, 8vh, 90px); }
 
+/* ---- Le couloir du fil ----
+   Le fil conducteur descend au centre du .wrap sur TOUTE la hauteur de la
+   section — pas seulement le long du rail. Le chapô et la bascule doivent
+   donc lui laisser le même couloir vide que les cartes de la timeline, sans
+   quoi il passe par-dessus le titre. Mesuré : 12 échantillons de
+   chevauchement en desktop (dont « augmenté. »), 14 en mobile.
+
+   50% + 48px laisse exactement la largeur d'une colonne d'étape :
+   (1100 - 96) / 2 = 502px. Le texte est donc aligné sur les cartes. */
+.s-method .intro,
+.s-method .outro{ padding-right: calc(50% + 48px); }
+
 /* ---- Chapô ---- */
 .s-method .intro{
   min-height: 64vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(70px, 12vh, 110px) 0 40px;
+  padding-top: clamp(70px, 12vh, 110px);
+  padding-bottom: 40px;
 }
 .s-method .eyebrow{
   font-family: var(--font-mono);
@@ -31,11 +44,15 @@
 .s-method .intro h2{
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(36px, 7vw, 80px);
+  /* Calée sur la colonne, pas sur le viewport : le chapô ne dispose plus que
+     de la moitié du wrap depuis que le fil a son couloir. À 7vw/80px le titre
+     cassait en quatre lignes dont « De la » toute seule. À cette taille il
+     tient en trois lignes propres — « De la friction / au bureau /
+     augmenté. » — le mot en dégradé isolé sur la sienne. */
+  font-size: clamp(32px, 4.4vw, 64px);
   line-height: .96;
   letter-spacing: -.03em;
   margin-bottom: 20px;
-  max-width: 16ch;
 }
 .s-method .intro h2 .grad{
   background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
@@ -147,8 +164,10 @@
 .s-method .step.act .card h3{ color: var(--accent-cyan); }
 .s-method .card p{ color: var(--fg-muted); line-height: 1.55; font-size: 15.5px; }
 
-/* ---- Bascule vers le workflow ---- */
-.s-method .outro{ text-align: center; padding: 20px 0 0; }
+/* ---- Bascule vers le workflow ----
+   Centrée dans le proto, mais le fil descend précisément là. On la range du
+   même côté que le chapô : le couloir reste libre jusqu'à la couture. */
+.s-method .outro{ text-align: left; padding-top: 20px; }
 .s-method .outro .cap{
   font-family: var(--font-mono);
   font-size: 12.5px;
@@ -190,4 +209,10 @@
     max-width: none;
   }
   .s-method .intro{ min-height: 0; }
+
+  /* Le rail passe à gauche (26px) : le couloir change de côté. 70px = la
+     colonne du nœud (52) plus sa gouttière (18), donc chapô et bascule
+     s'alignent sur les cartes. */
+  .s-method .intro,
+  .s-method .outro{ padding-right: 0; padding-left: 70px; }
 }
