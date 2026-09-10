@@ -76,10 +76,26 @@ export function initMethod(root){
        Au moment où la progression démarre, `rect.top + travelled` vaut
        exactement la médiane — le passage d'un régime à l'autre est donc
        continu, y compris avec l'oscillation d'accostage. */
-    const surLeRail = rect.bottom > middle;
-    const y = !surLeRail        ? middle          // rail passé : on attend le workflow
-            : progression <= 0  ? middle          // rail pas encore engagé : on l'attend
-            : rect.top + travelled;               // sur le rail, accostage compris
+    const sansRail = progression <= 0;
+    const brut = sansRail ? middle : rect.top + travelled;
+
+    /* Mais jamais SOUS l'extrémité du trait. Sans cette borne, le fil
+       franchissait le bout du rail après « Autonomie » et se figeait sur la
+       médiane pendant que la ligne s'échappait vers le haut : mesuré à 50px
+       sous le bout dès qu'il était passé, puis 1150px de scroll suspendu
+       dans le vide. Il finit maintenant la ligne, se pose sur sa pointe et
+       repart avec elle — le relais du workflow le récupère en route.
+
+       Le plancher garde le fil dans l'écran quand la pointe file vers le
+       haut : sans lui, il suivrait le trait hors du cadre.
+       En mobile, l'axe est à GAUCHE et le fil balaie vers le centre en
+       sortant : le laisser remonter lui ferait traverser la bascule. Le
+       plafond y vaut donc la médiane, ce qui rend exactement le comportement
+       figé et validé. Même point de bascule que le CSS (720px). */
+    const pointe = rect.bottom;
+    const etroit = window.innerWidth <= 720;
+    const plafond = etroit ? middle : window.innerHeight * 0.18;
+    const y = Math.max(Math.min(brut, pointe), plafond);
 
     /* Pulsation d'accostage : le nœud sous le fil se marque une fois. */
     let proximite = 0;
