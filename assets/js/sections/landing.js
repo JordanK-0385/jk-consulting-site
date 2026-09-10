@@ -45,6 +45,9 @@ const ECHELLE_FINALE = 0.014;
 
 const NEON = [127, 227, 255];
 
+/* Rayon de croisière du fil, celui qu'il prend une fois né. */
+const R_CROISIERE = 9;
+
 /* Maille isométrique du plateau 8×8 (valeurs du proto). */
 const iso = makeIso({ cx: 600, cy: 110 });
 
@@ -288,12 +291,13 @@ export function initLanding(root){
    * Mesuré une fois : la boîte ne dépend pas du scroll, seul le transform
    * change, et getScreenCTM() l'absorbe. Aucun coût par frame.
    */
-  let FOYER_X = PIVOT_X, FOYER_Y = PIVOT_Y;
+  let FOYER_X = PIVOT_X, FOYER_Y = PIVOT_Y, EMPREINTE = 0;
   try {
     const boite = sceneG.getBBox();
     if (boite.width > 0){
       FOYER_X = boite.x + boite.width / 2;
       FOYER_Y = boite.y + boite.height / 2;
+      EMPREINTE = boite.width;
     }
   } catch { /* getBBox indisponible : le pivot reste un repli correct */ }
 
@@ -360,13 +364,26 @@ export function initLanding(root){
       const retenue = seg(sortie, 0, 0.25);
       const y = foyer + (Math.max(foyer, mediane) - foyer) * retenue;
 
+      /* Largeur du bureau à l'écran, via la matrice : le rayon de naissance
+         est la moitié de cette empreinte. */
+      const rNaissance = EMPREINTE
+        ? Math.abs(ctm.a) * EMPREINTE / 2
+        : R_CROISIERE;
+
       claim({
         x: ctm.a * FOYER_X + ctm.c * FOYER_Y + ctm.e,
         y,
         weight: naissance * (1 - seg(sortie, 0.25, 0.85)),
-        /* L'étincelle naît à l'empreinte du point qu'était le bureau, puis
-           se resserre : la taille aussi est une continuité. */
-        radius: 13 - naissance * 4,
+        /* L'étincelle naît À LA TAILLE RÉELLE du bureau, puis rejoint son
+           rayon de croisière. Un rayon de naissance codé en dur (13px)
+           marchait à peu près en desktop, où le bureau finit à 19.9px de
+           large, mais pas en mobile où il finit à 7.3px : on y voyait un
+           grain de poussière au centre d'un gros disque. L'empreinte est
+           mesurée, l'échelle écran vient de la matrice — c'est donc juste
+           sur n'importe quel viewport, sans point de rupture.
+           La croissance n'est engagée qu'à mi-relais : à l'instant du
+           basculement, les deux ont exactement la même taille. */
+        radius: rNaissance + (R_CROISIERE - rNaissance) * seg(naissance, 0.5, 1),
         color: NEON,
         tail: naissance * 70,
       });
