@@ -2,21 +2,22 @@
  * SECTION 5 — TÉMOIGNAGES · preuve sociale.
  * Seule section sans prototype.
  *
- * Révélation en cascade des cartes à l'entrée dans le champ. Comme la
- * section méthode, tout est piloté par le scroll : rien ne bouge de
- * lui-même, donc rien à geler en mouvement réduit — la feuille de style
- * neutralise la transition et les cartes s'affichent d'emblée.
+ * LA COUTURE EST UN ÉCHANGE DE CALQUES, PAS UN DÉFILEMENT. Pendant toute la
+ * traversée, deux images sont à l'écran, complètes et immobiles : le bureau
+ * de la liaison, collé sur son palier final, et cette section, collée à sa
+ * position définitive. Le seul objet qui bouge est le robot, et la lame
+ * diagonale qu'il porte. Elle échange l'une contre l'autre.
+ *
+ * C'est pourquoi il n'y a plus AUCUNE animation d'entrée ici — ni cascade de
+ * cartes, ni texte qui monte. Tout mouvement du contenu pendant le passage
+ * creuse un vide : une zone d'où le contenu s'est écarté et que rien ne
+ * remplace encore. Le contenu est en place avant que le robot n'entre ;
+ * il est simplement caché par le calque du bureau jusqu'à ce que la lame
+ * le découvre.
  */
 
 import { register } from '../core/raf.js';
-import { clamp01, easeOut } from '../core/color.js';
-
-/* Décalage entre deux cartes, en fraction de la traversée. */
-const STAGGER = 0.12;
-
-/* La cascade ne commence qu'une fois la lame passée sur la première carte :
-   avant, elles sont sous le masque et l'animation serait perdue. */
-const DEPART = 0.30;
+import { clamp01 } from '../core/color.js';
 
 /* Jusqu'où le vol se prolonge après la traversée du cadre, en fraction de
    celle-ci. Il faut qu'il ait le temps de sortir entièrement ; au-delà, la
@@ -27,27 +28,20 @@ const DEBORD = 1.60;
 const FUITE = 4;
 
 export function initTemoignages(root){
-  const quotes = [...root.querySelectorAll('.quote')];
   const survol = root.querySelector('.survol');
   const agent  = survol && survol.querySelector('.agent-plein');
   const papier = root.querySelector('.papier');
 
-  /* Les deux réglages du survol vivent dans la feuille de style, où se trouve
-     aussi l'avance en tête de section qui doit valoir la même course. Relus
-     une fois : ce sont des constantes d'auteur, pas un état. */
-  const reglages = getComputedStyle(root);
-  const COURSE = (parseFloat(reglages.getPropertyValue('--survol-course')) || 60) / 100;
-  const AVANT  = (parseFloat(reglages.getPropertyValue('--survol-avant')) || 110) / 100;
-  const OMBRE  = parseFloat(reglages.getPropertyValue('--survol-ombre'));
+  /* Réglages d'auteur, relus une fois. La longueur de la traversée est un
+     jeton partagé avec la liaison : la même valeur y tient sa scène immobile
+     et ici décide du chevauchement. La lire au même endroit est ce qui
+     garantit que les deux calques sont fixes AU MÊME MOMENT. */
+  const OMBRE = parseFloat(getComputedStyle(root).getPropertyValue('--survol-ombre'));
   const OPACITE_OMBRE = Number.isFinite(OMBRE) ? OMBRE : 0.30;
-  if (!quotes.length) return;
-
-  /* L'état masqué est posé ici, pas dans la feuille de style : une carte en
-     opacity:0 que personne ne vient révéler serait un témoignage perdu. */
-  for (const quote of quotes){
-    quote.style.opacity = 0;
-    quote.style.transform = 'translateY(14px)';
-  }
+  const couture = () =>
+    (parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue('--couture')) || 170) / 100 * window.innerHeight;
+  if (!agent || !papier) return;
 
   /* Nommée, et jouée une fois avant l'enregistrement : la découpe du papier
      doit exister DÈS LA PREMIÈRE PEINTURE. register() ne réveille la boucle
@@ -56,30 +50,22 @@ export function initTemoignages(root){
      frame de papier plein par-dessus le bureau. */
   const rendre = () => {
     const rect = root.getBoundingClientRect();
-    /* AVANCEMENT DE LA TRAVERSÉE, calculé en premier : le survol, la découpe
-       ET l'arrivée des cartes en dépendent. La section chevauche la
-       précédente d'exactement --survol-avant : son bord haut est donc à ras du
-       viewport au départ du vol, et l'avancement se lit directement dessus. */
-    const brut = -rect.top / ((AVANT + COURSE) * window.innerHeight);
+    /* AVANCEMENT DE LA TRAVERSÉE. Le bord haut de la section atteint le
+       viewport à l'instant précis où la liaison achève son dézoom et entre
+       dans son palier immobile : l'avancement se lit donc directement dessus.
+       0 = les deux calques viennent de se mettre en place, 1 = l'échange est
+       fait. */
+    const brut = -rect.top / couture();
     const av = clamp01(brut);
 
     /* ---------- le survol ----------
-       Le robot traverse le champ : il entre par le coin haut droit, lointain
-       et petit, vient vers nous en diagonale et sort par le coin bas gauche
-       en crevant le cadre. Le contenu est déjà en place derrière lui — il le
-       masque le temps du passage, il ne le découvre pas.
-
-       La course et l'opacité de l'ombre se règlent dans s5-temoignages.css,
-       --survol-course et --survol-ombre. La course vaut aussi l'avance en tête
-       de section : le titre arrive à sa position naturelle au moment où le
-       robot sort. */
-    if (agent){
+       Le robot entre par le coin haut droit, lointain et petit, vient vers
+       nous en diagonale et sort par le coin bas gauche en crevant le cadre.
+       Il surgit sur l'écran du bureau : à cet instant la scène de la liaison
+       occupe encore tout l'écran, arrêtée sur son palier. L'opacité de son
+       ombre se règle dans s5-temoignages.css, --survol-ombre. */
+    {
       const vh = window.innerHeight, vw = window.innerWidth;
-      /* Le vol commence AVANT que la section arrive : à --survol-avant écrans
-         au-dessus de la couture, le bureau occupe encore tout l'écran et c'est
-         là que le robot surgit, en haut à droite. Il enjambe ensuite la
-         frontière, et le contenu blanc se dévoile en défilant sous son
-         passage. */
       /* IL FINIT SA LIGNE, il n'est pas coupé. La traversée du cadre s'achève
          à 1 — c'est là que le contenu se pose — mais à cet instant une arche
          de 190px de lui est encore à l'écran en 1440x900, et les trois quarts
@@ -139,7 +125,7 @@ export function initTemoignages(root){
       const ax = coursex / norme, ay = coursey / norme;   // vers l'avant
       const lx = -ay, ly = ax;                            // la lame
 
-      if (papier){
+      {
         if (av >= 1){
           /* Traversée finie : plus rien à découper. */
           papier.style.clipPath = '';
@@ -163,17 +149,6 @@ export function initTemoignages(root){
       }
     }
 
-    /* LES CARTES ARRIVENT AVEC LE ROBOT, et la dernière se pose quand il sort.
-       Leur cascade se réglait sur l'entrée de la section : elle était finie à
-       45 % de la traversée, c'est-à-dire entièrement sous le masque — le
-       contenu se découvrait déjà immobile. Réglée sur l'avancement du vol,
-       elle se joue dans le sillage de la lame, et le mouvement du contenu
-       s'arrête à l'instant exact où le robot quitte le cadre. */
-    quotes.forEach((quote, i) => {
-      const shown = easeOut(clamp01((av - DEPART - i * STAGGER) / ((1 - DEPART) - STAGGER * (quotes.length - 1) || 1)));
-      quote.style.opacity = shown;
-      quote.style.transform = `translateY(${(1 - shown) * 14}px)`;
-    });
   };
 
   rendre();

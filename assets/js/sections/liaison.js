@@ -189,8 +189,14 @@ export function initLiaison(root){
 
   /* ---------- boucle ---------- */
 
+  /* Longueur du palier final, lue une fois : c'est la même valeur que celle
+     dont les témoignages chevauchent cette section. */
+  const couture = () =>
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--couture'))
+      / 100 * window.innerHeight;
+
   register(root, () => {
-    const p = stickyProgress(root);
+    const p = stickyProgress(root, couture());
 
     /* L'agent arrive du workflow SOUS SA FORME D'AGENT. Le process y est
        déjà devenu « En service » ; le reprendre en bille pour le refaire

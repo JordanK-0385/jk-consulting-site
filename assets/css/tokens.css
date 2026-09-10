@@ -60,6 +60,14 @@
   --h-landing:  280vh;
   --h-workflow: 700vh;
   --h-liaison:  460vh;
+
+  /* LA COUTURE BUREAU -> TÉMOIGNAGES : longueur de la traversée du robot.
+     Elle sert aux DEUX sections et doit donc vivre ici. La liaison s'en sert
+     pour tenir sa scène immobile pendant tout le passage ; les témoignages
+     s'en servent pour chevaucher la liaison d'un écran plus cette longueur —
+     ce qui place les deux calques à l'écran, complets et fixes, avant que la
+     lame ne commence. */
+  --couture: 170vh;
 }
 
 /* Arbitrage A : sur mobile uniquement, on raccourcit le défilement.

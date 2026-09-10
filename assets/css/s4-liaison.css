@@ -8,7 +8,12 @@
    bénéfices s'écartent sur les côtés (SPECS §3).
    ============================================================ */
 
-.s-liaison{ --scroll-height: var(--h-liaison); }
+/* La hauteur de défilement porte l'animation PUIS la couture : --h-liaison
+   est la course du dézoom, --couture le palier immobile qui suit. Pendant ce
+   palier la scène est collée, complète et figée — c'est le calque du bas de
+   l'échange. Sans lui le bureau remontait pendant le passage du robot et
+   laissait du bleu vide derrière lui. */
+.s-liaison{ --scroll-height: calc(var(--h-liaison) + var(--couture)); }
 
 .s-liaison > .stage{
   background:
