@@ -14,7 +14,6 @@ import { mk, poly, roundPath, points, makeIso } from '../core/svg.js';
 import { rgba, shade, seg, easeOut, clamp01 } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
-import { claim } from '../core/thread.js';
 import { makeDock } from '../core/dock.js';
 import { dalle } from '../core/bureau.js';
 
@@ -43,7 +42,7 @@ const ETALE = 0.06;          // durée d'apparition d'une dalle
 const CAM_FIN = 0.52;        // le dézoom est terminé quand la 4e est posée
 
 /* Hauteur de chute du premier agent, en unités de viewBox. */
-const CHUTE = 320;
+const CHUTE = 240;
 
 const WHITE  = [220, 232, 246];
 const SCREEN = [111, 224, 255];
@@ -185,31 +184,15 @@ export function initLiaison(root){
   register(root, () => {
     const p = stickyProgress(root);
 
-    /* ---------- reprise du fil conducteur (COMMIT-7, fermeture) ----------
-       Le fil arrive du workflow, où il a repris vie en devenant l'agent
-       « En service ». Il se pose ici sur l'agent Front-office — dont la
-       couleur est, au triplet près, celle de l'étincelle née du bureau à la
-       landing. La boucle se referme sur sa couleur d'origine, et c'est le
-       mélange pondéré qui fait la bascule : aucune des deux sections ne
-       connaît l'autre. */
-    const ctm = scene.getScreenCTM();
-    if (ctm){
-      const mediane = window.innerHeight * 0.5;
-      const cible = ctm.b * focusX + ctm.d * focusY + ctm.f;
+    /* L'agent arrive du workflow SOUS SA FORME D'AGENT. Le process y est
+       déjà devenu « En service » ; le reprendre en bille pour le refaire
+       naître en robot faisait régresser le récit. On capitalise sur le robot
+       formé : il continue de descendre, entre dans le cadre pendant
+       l'approche et se pose sur la première dalle.
 
-      /* Pendant l'approche, l'ancre est encore loin sous l'écran : le fil
-         l'ATTEND sur la médiane au lieu de plonger. Une fois la scène
-         collée, il se pose dessus. Même retenue qu'à la passerelle. */
-      const pose = seg(p, 0, 0.05);
-      const arrivee = clamp01(1 - root.getBoundingClientRect().top / window.innerHeight);
-
-      claim({
-        x: ctm.a * focusX + ctm.c * focusY + ctm.e,
-        y: mediane + (cible - mediane) * pose,
-        weight: seg(arrivee, 0.15, 0.6) * (1 - seg(p, POSE[0], POSE[0] + ETALE)),
-        radius: 9, color: ZONES[3].color, tail: 60,
-      });
-    }
+       C'est pourquoi cette section ne revendique plus le fil : il n'y a plus
+       de point à revendiquer, il y a un agent. */
+    const arrivee = clamp01(1 - root.getBoundingClientRect().top / window.innerHeight);
 
     /* 0 = collé sur la première dalle, 1 = maquette entière. La caméra
        recule par paliers : le docking la fait passer exactement par chaque
@@ -241,12 +224,11 @@ export function initLiaison(root){
        ensuite : on pose l'espace de travail, puis celui qui l'occupe. */
     robots.forEach(({ g }, i) => {
       const t = POSE[rang[i]];
-      /* Le premier agent NAÎT du fil : fondu-enchaîné serré au même pixel,
-         dans la fenêtre exacte où le poids du fil retombe. Les suivants
-         arrivent APRÈS leur dalle — on pose l'espace de travail, puis celui
-         qui l'occupe. */
+      /* Le premier agent est visible DÈS L'APPROCHE : c'est lui qui descend,
+         il ne naît de rien. Les suivants arrivent APRÈS leur dalle — on pose
+         l'espace de travail, puis celui qui l'occupe. */
       g.style.opacity = rang[i] === 0
-        ? seg(p, t, t + ETALE)
+        ? seg(arrivee, 0.06, 0.18)
         : easeOut(seg(p, t + ETALE * 0.6, t + ETALE * 1.7));
     });
 
@@ -254,7 +236,13 @@ export function initLiaison(root){
        du cadre et se pose sur la première dalle ; le fil s'éteint pile à
        l'arrivée. C'est la reprise du relais : le point devient l'agent, comme
        le bureau était devenu le point à la landing. */
-    const chute = 1 - easeOut(seg(p, 0, POSE[0]));
+    /* La descente commence PENDANT l'approche, pas à l'entrée en scène :
+       l'agent du workflow sort par le haut avant que la liaison soit collée,
+       et un démarrage tardif laissait un trou d'un pas de scroll sans aucun
+       agent à l'écran. Les deux parts s'enchaînent sans rupture — l'approche
+       mène l'essentiel du trajet, le collage finit la pose. */
+    const avance = 0.74 * seg(arrivee, 0.08, 0.9) + 0.26 * seg(p, 0, POSE[0]);
+    const chute = 1 - easeOut(avance);
     robots[ORDRE[0]].enveloppe.setAttribute('transform', `translate(0 ${-CHUTE * chute})`);
 
     borders.forEach((b, i) => {
