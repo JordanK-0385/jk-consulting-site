@@ -58,7 +58,15 @@
      à 55% du parcours, il ne restait que ~430px de course pour ramasser tout
      le bureau en un point. */
   --h-landing:  280vh;
-  --h-workflow: 700vh;
+  /* 500vh et non 700 : sept jalons posés à intervalles égaux, c'était un
+     écran plein PAR JALON. Le mécanisme — on lit le canvas en défilant
+     latéralement — est compris au deuxième, et les cinq écrans du tronçon
+     horizontal sont la même composition. Mesuré : 6,9 % de mouvement moyen,
+     le plus bas de la page, et une densité d'encre plate à 14-16 % du cadre
+     du premier au dernier. À 500vh on tient 0,67 écran par jalon — encore un
+     tiers plus lent que le repli mobile, qui en fait 0,5 et qui est validé.
+     L'accostage garde chaque paragraphe à l'arrêt le temps d'être lu. */
+  --h-workflow: 500vh;
   --h-liaison:  460vh;
 
   /* LA COUTURE BUREAU -> TÉMOIGNAGES : longueur de la traversée du robot.
