@@ -321,9 +321,12 @@
       <!-- Tête, corps, yeux. Ni antenne ni halo : le halo était un flou gaussien
            d'une quarantaine d'unités, soit près de 450px à cette échelle — une
            tache bleue molle autour d'un geste qui doit être net.
-           Le viewBox est ajusté au contenu restant pour que la silhouette
-           occupe toute la hauteur de l'écran et non les deux tiers. -->
-      <svg class="agent-plein" viewBox="-46 -70 92 82" preserveAspectRatio="xMidYMid meet" focusable="false">
+           Le viewBox est ajusté au contenu restant, en hauteur ET en largeur :
+           en hauteur pour que la silhouette occupe tout l'écran, en largeur au
+           trait près de la tête (24 + 1.2 de contour) pour que le bord droit du
+           DESSIN soit le bord droit de l'élément — c'est lui qu'on aligne sur
+           la coupe. Deux unités d'air y laissaient 20px de jeu. -->
+      <svg class="agent-plein" viewBox="-25.4 -70 50.8 82" preserveAspectRatio="xMidYMid meet" focusable="false">
         <rect x="-20" y="-26" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>
         <circle cx="0" cy="-4" r="5.6" fill="#7FE3FF" stroke="#0C1A2E" stroke-width="1.4"/>
         <rect x="-24" y="-68" width="48" height="38" rx="19" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>

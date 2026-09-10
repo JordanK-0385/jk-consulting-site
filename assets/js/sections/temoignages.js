@@ -39,8 +39,12 @@ export function initTemoignages(root){
        remonté hors cadre au moment d'être révélé. */
     if (rideau){
       const decouvre = easeOut(clamp01(-rect.top / (window.innerHeight * 0.6)));
-      rideau.style.setProperty('--x', `${(1 - decouvre) * 100}%`);
-      rideau.style.opacity = 1 - clamp01((decouvre - 0.94) / 0.06);
+
+      /* 140 et non 100 : l'agent entre PAR LA DROITE, donc la course commence
+         hors cadre. À 0 il en est entièrement sorti par la gauche — son bord
+         droit étant la frontière, il n'y a rien à faire disparaître en fondu. */
+      rideau.style.setProperty('--x', `${(1 - decouvre) * 140}%`);
+      rideau.style.visibility = decouvre >= 1 ? 'hidden' : 'visible';
     }
 
     /* 0 quand le haut de la section atteint le bas du viewport,

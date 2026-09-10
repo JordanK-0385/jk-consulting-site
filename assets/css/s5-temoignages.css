@@ -196,25 +196,30 @@
   background-position: left top;
 }
 
-/* Attaque adoucie sur le bord qui avance : sans elle la coupe est nette et
-   l'on lit un rideau tiré, pas une révélation. */
-.s-temoignages .voile::after{
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0; right: 0;
-  width: clamp(70px, 10vw, 190px);
-  background: linear-gradient(90deg, transparent, var(--paper));
-}
-
-/* PLEINE HAUTEUR D'ÉCRAN. Le contour est sombre et non néon : l'agent
-   chevauche la frontière, moitié sur la nuit moitié sur le papier, et un
-   contour clair l'aurait effacé du côté clair. */
+/* AUCUN ADOUCISSEMENT. Une première version dégradait le bord sur 10vw : on
+   lisait un robot flottant devant un flou, pas un geste. La frontière est une
+   coupe franche, et elle tombe exactement sur le bord droit du dessin —
+   translateX(-100%) sur un viewBox resserré à la largeur du robot. Il pousse
+   la nuit devant lui au lieu de flotter dedans, et il sort entièrement du
+   cadre quand la course s'achève : pas de fondu de sortie non plus. */
 .s-temoignages .agent-plein{
   position: absolute;
   left: var(--x);
   top: 0;
   height: 100%;
   width: auto;
-  transform: translateX(-50%);
+  /* La règle globale img, svg { max-width: 100% } rabotait la silhouette dès
+     que sa largeur dépassait l'écran : le dessin se retrouvait mis en boîte
+     et ne faisait plus que 69% de la hauteur en mobile au lieu de 95%. */
+  max-width: none;
+  transform: translateX(-100%);
   overflow: visible;
+}
+
+/* Sur un écran étroit, une silhouette pleine hauteur serait plus large que
+   l'écran lui-même. On la contient un peu : elle déborde encore du côté
+   gauche — celui de la nuit, déjà rogné par le cadre — sans être mise en
+   boîte. */
+@media (max-width: 560px){
+  .s-temoignages .agent-plein{ height: 86%; top: 7%; }
 }
