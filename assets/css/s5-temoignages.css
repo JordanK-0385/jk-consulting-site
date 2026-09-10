@@ -194,6 +194,12 @@
   /* La silhouette dépasse largement du cadre : sans ça elle allongerait la
      page et le contrôle de débordement horizontal tomberait. */
   overflow: hidden;
+  /* MASQUÉE PAR DÉFAUT. C'est le module qui la montre pendant le vol — mais
+     il ne tourne qu'une fois la section observée. Tant qu'il n'a jamais
+     tourné, la couche gardait ses valeurs initiales : le robot, ancré en
+     (0,0) et haut de 130vh, s'étalait par-dessus la liaison. Une couche fixe
+     ne se cache pas toute seule en sortant du champ. */
+  visibility: hidden;
 }
 
 /* GÉANT ET DÉBORDANT. 130vh à l'échelle 1, et l'échelle monte jusqu'à 1.75 :
