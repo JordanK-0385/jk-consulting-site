@@ -356,9 +356,19 @@ export function initWorkflow(root){
        l'échelle mobile : c'est le seul pont fiable entre les repères. */
     const ctm = morph.getScreenCTM();
     if (ctm){
-      /* Puis le poids retombe : le blob est déjà là, le token se fond en lui
-         plutôt que de le doubler. */
-      const releve = 1 - seg(p, 0.02, 0.10);
+      /* Deux lobes, jamais simultanés.
+
+         À l'entrée le poids retombe : le blob est déjà là, le token se fond
+         en lui plutôt que de le doubler.
+
+         À la sortie il RENAÎT, exactement quand le morph devient l'agent
+         « En service » (asRobot commence à 0.88). Sans ce second lobe le fil
+         mourait à 10% d'une section de 700vh et ne revenait jamais : mesuré
+         à 0.000 d'opacité sur les 4000px suivants, soit la liaison, les
+         témoignages et la FAQ sans aucun fil. */
+      const entree = 1 - seg(p, 0.02, 0.10);
+      const retour = seg(p, 0.86, 0.98);
+      const releve = Math.max(entree, retour);
 
       /* Pendant l'approche, l'ancre est encore basse dans l'écran. Le token
          l'ATTEND sur la médiane au lieu de plonger à sa rencontre — sans
@@ -366,10 +376,23 @@ export function initWorkflow(root){
          Une fois la scène collée, les deux coïncident, et à la sortie le
          token suit l'ancre qui remonte. */
       const mediane = window.innerHeight * 0.5;
+
+      /* Et la retenue de sortie, même forme qu'à la landing : une fois la
+         scène décollée, l'ancre remonte hors de l'écran et le fil ne la suit
+         pas — il tient la médiane et attend que la liaison le reprenne. */
+      const bas = root.getBoundingClientRect().bottom;
+      const sortie = clamp01(1 - bas / window.innerHeight);
+      const attente = Math.min(ctm.f, mediane);
+      const y = attente + (Math.max(attente, mediane) - attente) * seg(sortie, 0, 0.25);
+
+      /* Le vert est celui du dernier jalon, « En service ». La liaison
+         revendiquera en cyan — celui de l'étincelle de la landing — et le
+         mélange pondéré fera la bascule tout seul : le fil se referme sur sa
+         couleur de naissance sans qu'aucune section ne connaisse l'autre. */
       claim({
-        x: ctm.e, y: Math.min(ctm.f, mediane),
-        weight: seg(arrivee, 0.10, 0.55) * releve,
-        radius: 9, color: CYAN, tail: 70,
+        x: ctm.e, y,
+        weight: seg(arrivee, 0.10, 0.55) * releve * (1 - seg(sortie, 0.35, 0.9)),
+        radius: 9, color: retour > 0 ? GREEN : CYAN, tail: 70,
       });
     }
 

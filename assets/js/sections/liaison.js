@@ -11,9 +11,10 @@
  */
 
 import { mk, poly, roundPath, points, makeIso } from '../core/svg.js';
-import { rgba, shade, seg, easeOut } from '../core/color.js';
+import { rgba, shade, seg, easeOut, clamp01 } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
+import { claim } from '../core/thread.js';
 
 /* Maille du plateau 4×4 — plus resserrée que la landing, l'origine diffère. */
 const iso = makeIso({ cx: 600, cy: 300 });
@@ -133,6 +134,32 @@ export function initLiaison(root){
 
   register(root, () => {
     const p = stickyProgress(root);
+
+    /* ---------- reprise du fil conducteur (COMMIT-7, fermeture) ----------
+       Le fil arrive du workflow, où il a repris vie en devenant l'agent
+       « En service ». Il se pose ici sur l'agent Front-office — dont la
+       couleur est, au triplet près, celle de l'étincelle née du bureau à la
+       landing. La boucle se referme sur sa couleur d'origine, et c'est le
+       mélange pondéré qui fait la bascule : aucune des deux sections ne
+       connaît l'autre. */
+    const ctm = scene.getScreenCTM();
+    if (ctm){
+      const mediane = window.innerHeight * 0.5;
+      const cible = ctm.b * focusX + ctm.d * focusY + ctm.f;
+
+      /* Pendant l'approche, l'ancre est encore loin sous l'écran : le fil
+         l'ATTEND sur la médiane au lieu de plonger. Une fois la scène
+         collée, il se pose dessus. Même retenue qu'à la passerelle. */
+      const pose = seg(p, 0, 0.05);
+      const arrivee = clamp01(1 - root.getBoundingClientRect().top / window.innerHeight);
+
+      claim({
+        x: ctm.a * focusX + ctm.c * focusY + ctm.e,
+        y: mediane + (cible - mediane) * pose,
+        weight: seg(arrivee, 0.15, 0.6) * (1 - seg(p, 0.05, 0.20)),
+        radius: 9, color: ZONES[3].color, tail: 60,
+      });
+    }
 
     /* 0 = collé sur l'agent, 1 = maquette entière. */
     const out = easeOut(seg(p, 0, 0.5));
