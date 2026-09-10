@@ -16,6 +16,7 @@ import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { claim } from '../core/thread.js';
 import { makeDock } from '../core/dock.js';
+import { dalle } from '../core/bureau.js';
 
 /* Maille du plateau 4×4 — plus resserrée que la landing, l'origine diffère. */
 const iso = makeIso({ cx: 600, cy: 300 });
@@ -84,21 +85,12 @@ export function initLiaison(root){
      pilotages parallèles pour un seul geste. */
   const dalles = [], borders = [];
   for (const { gx, gy, color } of ZONES){
-    const dalle = mk('g', {});
-    dalle.style.opacity = 0;
-    scene.appendChild(dalle);
-
-    roundPath(dalle,
-      [iso(gx + .2, gy + .2), iso(gx + 1.8, gy + .2), iso(gx + 1.8, gy + 1.8), iso(gx + .2, gy + 1.8)],
-      14, rgba(color, .12));
-
-    const border = roundPath(dalle,
-      [iso(gx, gy), iso(gx + 2, gy), iso(gx + 2, gy + 2), iso(gx, gy + 2)],
-      16, 'none', { stroke: rgba(color, .85), 'stroke-width': '2' });
-    border.style.filter = `drop-shadow(0 0 6px ${rgba(color, .7)})`;
+    const { g: espace, bord } = dalle(scene, iso, { gx, gy, taille: 2, color });
+    espace.style.opacity = 0;
+    const border = bord;
 
     /* bureau + écran allumé */
-    poly(dalle, shade(WHITE, 1.14), points(
+    poly(espace, shade(WHITE, 1.14), points(
       iso(gx + .6, gy + .55, .28), iso(gx + 1.4, gy + .55, .28),
       iso(gx + 1.4, gy + 1.05, .28), iso(gx + .6, gy + 1.05, .28)));
     const [sx, sy] = iso(gx + 1, gy + .65, .34);
@@ -107,14 +99,14 @@ export function initLiaison(root){
        x·tan(26°), soit près de 300 unités : les quatre tombaient sous leur
        bureau. Invisible tant que le plan s'affichait d'un bloc, flagrant dès
        que les dalles se posent une à une sur fond vide. */
-    dalle.appendChild(mk('rect', {
+    espace.appendChild(mk('rect', {
       x: sx - 9, y: sy - 13, width: 18, height: 12, rx: 3,
       fill: rgba(SCREEN, .9),
       transform: `translate(${sx} ${sy}) skewY(26) translate(${-sx} ${-sy})`,
       filter: `drop-shadow(0 0 4px ${rgba(SCREEN, .8)})`,
     }));
 
-    dalles.push(dalle);
+    dalles.push(espace);
     borders.push(border);
   }
 

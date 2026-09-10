@@ -12,6 +12,7 @@ import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
 import { claim } from '../core/thread.js';
+import { dalle } from '../core/bureau.js';
 
 /*
  * L'ORIGINE DU FIL (COMMIT-7.md, ouverture).
@@ -102,9 +103,13 @@ export function initLanding(root){
   const screen = (gx, gy) => {
     box(gx, gy, 0.14, 0.34, 0.34, DARK);
     const [x, y] = iso(gx + 0.07, gy + 0.17, 0.34);
+    /* Même correction qu'à la liaison : le penchement doit se faire autour de
+       l'écran, pas autour de l'origine du SVG, sinon chaque écran est décalé
+       de x·tan(26°) et tombe loin sous son bureau. */
     sceneG.appendChild(mk('rect', {
       x: x - 11, y: y - 16, width: 22, height: 14, rx: 3,
-      fill: rgba(SCREEN, .9), transform: 'skewY(26)',
+      fill: rgba(SCREEN, .9),
+      transform: `translate(${x} ${y}) skewY(26) translate(${-x} ${-y})`,
       filter: `drop-shadow(0 0 4px ${rgba(SCREEN, .9)})`,
     }));
   };
@@ -147,17 +152,10 @@ export function initLanding(root){
   poly(sceneG, shade(FLOOR_SIDE, .85), points(south, west, [west[0], west[1] + SLAB], [south[0], south[1] + SLAB]));
   roundPath(sceneG, [north, east, south, west], 28, rgb(FLOOR_TOP));
 
-  for (const zone of ZONES){
-    const { gx, gy, color } = zone;
-    roundPath(sceneG, [iso(gx + .3, gy + .3), iso(gx + 3.7, gy + .3), iso(gx + 3.7, gy + 3.7), iso(gx + .3, gy + 3.7)], 20, rgba(color, .12));
-    const border = roundPath(
-      sceneG,
-      [iso(gx, gy), iso(gx + 4, gy), iso(gx + 4, gy + 4), iso(gx, gy + 4)],
-      24, 'none',
-      { stroke: rgba(color, .95), 'stroke-width': '2.5', class: 'pulse' },
-    );
-    border.style.filter = `drop-shadow(0 0 7px ${rgba(color, .9)})`;
-  }
+  /* Les quatre espaces de travail, rendus par core/bureau.js — le même code
+     que la liaison. C'est ce qui garantit que l'ouverture et la fermeture
+     montrent le même bureau et non deux plans qui se ressemblent. */
+  for (const { gx, gy, color } of ZONES) dalle(sceneG, iso, { gx, gy, taille: 4, color });
 
   /* ---------- mobilier : le bureau est déjà installé ---------- */
 

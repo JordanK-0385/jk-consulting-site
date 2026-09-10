@@ -39,3 +39,12 @@
 /* Le raccord se place en bord de section : il ne doit pas hériter d'un
    fond de section qui l'écraserait. */
 .section > .seam{ position: relative; z-index: 1; }
+
+/* ============================================================
+   LA DALLE — respiration de la bordure néon.
+   Partagée par les deux plateaux : le bureau de l'ouverture et celui de la
+   fermeture doivent battre au même rythme, sinon on lit deux bureaux.
+   .reduced-motion coupe déjà toutes les animations, rien à ajouter ici.
+   ============================================================ */
+.dalle-neon{ animation: dalle-respire 3s ease-in-out infinite; }
+@keyframes dalle-respire{ 0%, 100%{ opacity: .5 } 50%{ opacity: 1 } }
