@@ -153,7 +153,6 @@ export function initWorkflow(root){
   const fitG    = root.querySelector('.scene-fit');
   const world   = root.querySelector('.world');
   const anchor  = root.querySelector('.anchor');
-  const packets = root.querySelector('.packets');
 
   const milestone  = root.querySelector('.milestone');
   const governance = root.querySelector('.governance');
@@ -181,7 +180,6 @@ export function initWorkflow(root){
     builtFor = key;
 
     world.replaceChildren();
-    packets.replaceChildren();
 
     const points = mobile ? PATH_MOBILE : PATH_LARGE;
     const NODE = mobile ? NODE_MOBILE : NODE_LARGE;
@@ -261,22 +259,11 @@ export function initWorkflow(root){
       return g;
     });
 
-    /* Paquets SMIL entre jalons — masqués par CSS en mouvement réduit.
-       Ils suivent le rail lui-même via mpath, bornés au tronçon voulu par
-       keyPoints : sur un parcours coudé, une droite ne convient plus. */
-    for (let i = 0; i < N - 1; i++){
-      const dot = mk('circle', { r: 3, fill: '#7FE3FF', filter: 'drop-shadow(0 0 4px #7FE3FF)' });
-      const motion = mk('animateMotion', {
-        dur: '1.4s', repeatCount: 'indefinite', calcMode: 'linear',
-        keyPoints: `${i / (N - 1)};${(i + 1) / (N - 1)}`, keyTimes: '0;1',
-      });
-      const mpath = mk('mpath', {});
-      mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#jk-workflow-path');
-      mpath.setAttribute('href', '#jk-workflow-path');
-      motion.appendChild(mpath);
-      dot.appendChild(motion);
-      packets.appendChild(dot);
-    }
+    /* Il n'y avait ici que les six paquets SMIL qui parcouraient le rail en
+       boucle. Retirés : un fil conducteur, un seul point. Comme leur boucle
+       ne dépendait pas du scroll, il y en avait presque toujours un juste
+       au-dessus de l'ancre et un autre sous le panneau de narration — on
+       lisait plusieurs billes concurrentes là où le récit n'en veut qu'une. */
   }
 
   buildWorld();
