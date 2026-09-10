@@ -227,7 +227,7 @@ export function initLiaison(root){
          il ne naît de rien. Les suivants arrivent APRÈS leur dalle — on pose
          l'espace de travail, puis celui qui l'occupe. */
       g.style.opacity = rang[i] === 0
-        ? seg(arrivee, 0.06, 0.18)
+        ? seg(arrivee, 0.475, 0.505)
         : easeOut(seg(p, t + ETALE * 0.6, t + ETALE * 1.7));
     });
 
@@ -240,7 +240,7 @@ export function initLiaison(root){
        et un démarrage tardif laissait un trou d'un pas de scroll sans aucun
        agent à l'écran. Les deux parts s'enchaînent sans rupture — l'approche
        mène l'essentiel du trajet, le collage finit la pose. */
-    const avance = 0.74 * seg(arrivee, 0.08, 0.9) + 0.26 * seg(p, 0, POSE[0]);
+    const avance = 0.74 * seg(arrivee, 0.36, 0.99) + 0.26 * seg(p, 0, POSE[0]);
     const chute = 1 - easeOut(avance);
     robots[ORDRE[0]].enveloppe.setAttribute('transform', `translate(0 ${-CHUTE * chute})`);
 
