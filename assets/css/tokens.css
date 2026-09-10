@@ -56,8 +56,13 @@
   /* La landing dépasse les 220vh du proto : la condensation du bureau en
      étincelle a besoin de place pour respirer. À 220vh, le héros s'effaçant
      à 55% du parcours, il ne restait que ~430px de course pour ramasser tout
-     le bureau en un point. */
-  --h-landing:  280vh;
+     le bureau en un point.
+
+     Ramenée de 280 à 210vh : la fin de section ne montrait plus rien. Mesuré,
+     0,7 écran à 0 % de mouvement sur un cadre uniforme à 54 % — un écran noir
+     avec un point. La condensation est adoucie, donc 93 % de son geste est
+     joué aux deux tiers de sa fenêtre ; le dernier tiers ne se voyait pas. */
+  --h-landing:  210vh;
   /* 500vh et non 700 : sept jalons posés à intervalles égaux, c'était un
      écran plein PAR JALON. Le mécanisme — on lit le canvas en défilant
      latéralement — est compris au deuxième, et les cinq écrans du tronçon

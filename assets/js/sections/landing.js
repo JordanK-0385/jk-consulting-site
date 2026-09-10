@@ -37,8 +37,15 @@ import { dalle } from '../core/bureau.js';
  *    point s'éteint pendant que la lueur s'allume, au même endroit et à la
  *    même taille. Une continuité, pas une superposition.
  */
-const CONDENSE = [0.40, 0.86];   // le bureau se ramasse jusqu'à un point
-const RELAIS   = [0.86, 0.95];   // le point devient lueur — fenêtre serrée
+/* Le ramassage est adouci : 93 % de son geste est joué aux deux tiers de sa
+   fenêtre. Étalé jusqu'à 0.86, son dernier tiers ne se voyait pas — 0,4 écran
+   d'écran noir immobile en fin de section, mesuré à 0 % de mouvement. La
+   fenêtre est ramenée là où le geste finit VRAIMENT, et le relais prend la
+   place laissée : le point devient lueur sur une course trois fois plus
+   longue au lieu de naître dans un coin de fenêtre. Ni l'une ni l'autre des
+   deux courbes ne change — c'est leur partage qui change. */
+const CONDENSE = [0.40, 0.74];   // le bureau se ramasse jusqu'à un point
+const RELAIS   = [0.74, 0.97];   // le point devient lueur
 
 /* Échelle finale du plateau : choisie pour que son empreinte à l'écran
    corresponde au diamètre de l'étincelle, condition du fondu-enchaîné. */
