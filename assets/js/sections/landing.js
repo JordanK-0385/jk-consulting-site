@@ -67,7 +67,7 @@ const ZONES = [
   { name: 'Front-office', color: [127, 227, 255], gx: 4, gy: 4 }, // cyan
 ];
 
-/* Bruit déterministe : les barres des panneaux holo et les motes ne doivent
+/* Bruit déterministe : les barres des panneaux holo ne doivent
    pas changer à chaque rechargement (comparaison de captures à la relecture). */
 function seeded(i){
   const v = Math.sin(i * 12.9898) * 43758.5453;
@@ -80,7 +80,6 @@ export function initLanding(root){
   const fitG   = svg.querySelector('.scene-fit');
   const sceneG = svg.querySelector('.scene');
   const holosG = svg.querySelector('.holos');
-  const motesG = svg.querySelector('.motes');
   const hero   = root.querySelector('.hero');
   const cue    = root.querySelector('.cue');
 
@@ -237,21 +236,6 @@ export function initLanding(root){
   holo(940, 150, 160, 96);
   holo(980, 430, 140, 80);
 
-  /* ---------- poussières lumineuses ---------- */
-
-  const motes = [];
-  for (let i = 0; i < 24; i++){
-    const el = mk('circle', { r: seeded(i + 100) * 1.3 + .4, fill: 'rgba(127,227,255,.5)' });
-    motesG.appendChild(el);
-    motes.push({
-      el,
-      x: seeded(i + 200) * 1200,
-      y: seeded(i + 300) * 760,
-      vy: -(0.06 + seeded(i + 400) * 0.1),
-      phase: seeded(i + 500) * 6.28,
-    });
-  }
-
   /* ---------- cadrage responsive ----------
      Le viewBox 1200×760 en « meet » se réduit à la largeur : sur un écran
      étroit et haut, la scène devenait minuscule entre deux bandes vides.
@@ -391,16 +375,5 @@ export function initLanding(root){
     hero.style.opacity = Math.max(0, 1 - p / 0.55);
     hero.style.transform = `translateY(${-p * 70}px)`;
     cue.style.opacity = Math.max(0, 1 - p / 0.3);
-
-    for (const mote of motes){
-      /* La dérive est un intégrateur : `ambientTime` ne suffit pas à
-         l'arrêter, il faut couper l'incrément lui-même. */
-      if (!still){
-        mote.y += mote.vy;
-        if (mote.y < -6){ mote.y = 766; mote.x = Math.random() * 1200; }
-      }
-      mote.el.setAttribute('cx', mote.x + Math.sin(t * 0.001 + mote.phase) * 6);
-      mote.el.setAttribute('cy', mote.y);
-    }
   });
 }
