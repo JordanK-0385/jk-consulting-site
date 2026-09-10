@@ -18,6 +18,7 @@ export function initTemoignages(root){
   const quotes = [...root.querySelectorAll('.quote')];
   const survol = root.querySelector('.survol');
   const agent  = survol && survol.querySelector('.agent-plein');
+  const papier = root.querySelector('.papier');
 
   /* Les deux réglages du survol vivent dans la feuille de style, où se trouve
      aussi l'avance en tête de section qui doit valoir la même course. Relus
@@ -36,7 +37,12 @@ export function initTemoignages(root){
     quote.style.transform = 'translateY(14px)';
   }
 
-  register(root, () => {
+  /* Nommée, et jouée une fois avant l'enregistrement : la découpe du papier
+     doit exister DÈS LA PREMIÈRE PEINTURE. register() ne réveille la boucle
+     qu'au premier passage de l'observateur, et un lecteur qui arrive déjà
+     positionné sur la couture — rechargement, lien profond — aurait vu une
+     frame de papier plein par-dessus le bureau. */
+  const rendre = () => {
     const rect = root.getBoundingClientRect();
 
     /* ---------- le survol ----------
@@ -56,7 +62,11 @@ export function initTemoignages(root){
          là que le robot surgit, en haut à droite. Il enjambe ensuite la
          frontière, et le contenu blanc se dévoile en défilant sous son
          passage. */
-      const av = clamp01((AVANT * vh - rect.top) / ((AVANT + COURSE) * vh));
+      /* La section chevauche la précédente d'exactement --survol-avant : son
+         bord haut est donc à ras du viewport au départ du vol, et l'avancement
+         se lit directement dessus. Même valeur qu'avant le chevauchement — le
+         retrait du contenu compense le débord au pixel. */
+      const av = clamp01(-rect.top / ((AVANT + COURSE) * vh));
 
       /* La profondeur s'accélère : à distance égale parcourue, l'objet grossit
          de plus en plus vite. C'est ce qui donne le rapprochement plutôt
@@ -81,16 +91,62 @@ export function initTemoignages(root){
         `drop-shadow(${dx.toFixed(0)}px ${dy.toFixed(0)}px ${flou.toFixed(0)}px rgba(10, 22, 40, ${OPACITE_OMBRE}))`);
 
       survol.style.visibility = (av <= 0 || av >= 1) ? 'hidden' : 'visible';
+
+      /* ---------- LA LAME ----------
+         Le clair n'est pas poussé par le bas : il est DÉCOUVERT DANS LE
+         SILLAGE DU ROBOT. Là où il est passé, le papier ; devant lui, la nuit
+         du bureau, toujours là. La séparation est une droite qu'il porte avec
+         lui, perpendiculaire à sa course — une raclette tenue en biais.
+
+         Son inclinaison est donc celle de sa trajectoire, jamais l'horizontale
+         ni la verticale : elle est prise sur la dérivée de la course, la seule
+         source de vérité de sa direction. Changer la trajectoire réoriente la
+         lame sans qu'on ait à y toucher.
+
+         Bord franc, sans adoucissement : c'est une coupe. */
+      const coursex = -1.60 * vw, coursey = 1.46 * vh;
+      const norme = Math.hypot(coursex, coursey);
+      const ax = coursex / norme, ay = coursey / norme;   // vers l'avant
+      const lx = -ay, ly = ax;                            // la lame
+
+      if (papier){
+        if (av >= 1){
+          /* Traversée finie : plus rien à découper. */
+          papier.style.clipPath = '';
+        } else {
+          /* Le demi-plan DERRIÈRE la lame — le sillage. Un rectangle démesuré
+             suffit : il n'a qu'à déborder du viewport de tous les côtés. */
+          const l = (vw + vh) * 2;
+          /* Le découpage se lit dans le repère du papier, pas dans celui de
+             la section : c'est lui qui porte le clip-path. */
+          const cadre = papier.getBoundingClientRect();
+          const px = x - cadre.left, py = y - cadre.top;
+          const coins = [
+            [px + lx * l,            py + ly * l],
+            [px - lx * l,            py - ly * l],
+            [px - lx * l - ax * l,   py - ly * l - ay * l],
+            [px + lx * l - ax * l,   py + ly * l - ay * l],
+          ];
+          papier.style.clipPath =
+            `polygon(${coins.map(([a, b]) => `${a.toFixed(0)}px ${b.toFixed(0)}px`).join(',')})`;
+        }
+      }
     }
 
-    /* 0 quand le haut de la section atteint le bas du viewport,
-       1 quand il a remonté d'un tiers d'écran. */
-    const entry = clamp01((window.innerHeight - rect.top) / (window.innerHeight * 0.66));
+    /* 0 quand le haut du CONTENU atteint le bas du viewport, 1 quand il a
+       remonté d'un tiers d'écran. On retranche le débord : le bord de la
+       section est remonté d'une avance entière, le contenu non — s'en servir
+       tel quel aurait grillé toute la cascade pendant la traversée. */
+    const haut = rect.top + AVANT * window.innerHeight;
+    const entry = clamp01((window.innerHeight - haut) / (window.innerHeight * 0.66));
 
     quotes.forEach((quote, i) => {
       const shown = easeOut(clamp01((entry - i * STAGGER) / (1 - STAGGER * (quotes.length - 1) || 1)));
       quote.style.opacity = shown;
       quote.style.transform = `translateY(${(1 - shown) * 14}px)`;
     });
-  });
+  };
+
+  rendre();
+  register(root, rendre);
 }

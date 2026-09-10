@@ -12,10 +12,17 @@
 
 .s-liaison > .stage{
   background:
+    /* Le fond de la scène rejoint celui de la page avant son propre bord bas.
+       Sans ça, le bord du stage traversait l'écran en ligne droite pendant la
+       traversée du robot : 13.4 de luminance au-dessus, 11.0 en dessous — un
+       écart d'un pour cent, mais net et sur toute la largeur, donc vu. La
+       seule frontière visible pendant cette couture doit être la diagonale.
+       Posé sous la scène SVG : le bureau lui-même n'est pas assombri. */
+    linear-gradient(180deg, transparent 58%, var(--bg-deep) 100%),
     radial-gradient(85% 60% at 50% 42%, rgba(79,168,240,.12), transparent 60%),
     radial-gradient(120% 120% at 50% 30%, var(--bg-high) 0%, var(--bg-mid) 46%, var(--bg-deep) 100%),
     radial-gradient(circle at 1px 1px, var(--grain) 1px, transparent 0);
-  background-size: auto, auto, 34px 34px;
+  background-size: auto, auto, auto, 34px 34px;
 }
 
 .s-liaison .scene-svg{

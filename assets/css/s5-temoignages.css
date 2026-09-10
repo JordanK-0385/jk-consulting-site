@@ -24,11 +24,42 @@
   --survol-avant: 110;   /* anticipation AVANT la couture, en % de hauteur d'écran */
   --survol-course: 60;   /* course APRÈS la couture, en % de hauteur d'écran */
   --survol-ombre: .30;   /* opacité de l'ombre portée */
+
+  /* LA SECTION CHEVAUCHE LA PRÉCÉDENTE, d'exactement l'avance du robot.
+     C'est ce qui rend la révélation en diagonale possible : le clair doit
+     pouvoir apparaître LÀ OÙ LE ROBOT EST PASSÉ, c'est-à-dire d'abord en haut
+     à droite, par-dessus le bureau. Une section qui commence à son bord ne
+     peut se dévoiler que par ce bord — une frontière horizontale qui monte du
+     bas, exactement ce qui est banni.
+
+     Calée sur --survol-avant, le haut de la section arrive à ras du viewport
+     au moment précis où le robot entre en scène : à partir de là elle couvre
+     tout l'écran, et seule la découpe décide de ce qu'on en voit.
+
+     Le fond est porté par .papier et non par la section : c'est lui qu'on
+     découpe, et une section au fond papier peindrait par-dessus le bureau
+     avant même que la lame ait commencé. */
+  margin-top: calc(var(--survol-avant) * -1vh);
+  background-color: transparent;
 }
 
+/* Le chevauchement est rendu par un retrait égal : la section commence
+   --survol-avant écrans plus haut, son contenu descend d'autant. Position du
+   contenu et hauteur totale de la page inchangées, au pixel. */
 .s-temoignages .wrap{
-  padding-top: calc(var(--survol-course) * 1vh + clamp(70px, 12vh, 130px));
+  padding-top: calc((var(--survol-avant) + var(--survol-course)) * 1vh + clamp(70px, 12vh, 130px));
   padding-bottom: clamp(70px, 12vh, 130px);
+}
+
+/* LE PAPIER. Découpé par la lame que porte le robot ; le module lui pose un
+   clip-path polygonal à chaque frame. Sans module, il reste entier : un
+   témoignage ne se perd jamais faute de JavaScript.
+
+   La hauteur minimale garantit qu'il couvre encore l'écran à la fin de la
+   traversée, quand son bord haut est remonté d'une course et demie. */
+.s-temoignages .papier{
+  background-color: var(--surface);
+  min-height: calc((var(--survol-avant) + var(--survol-course)) * 1vh + 100vh);
 }
 
 .s-temoignages .head{ max-width: 60ch; margin-bottom: clamp(28px, 4vh, 44px); }

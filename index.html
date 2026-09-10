@@ -330,10 +330,6 @@
        └──────────────────────────────────────────────────────────────────┘ -->
   <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
 
-    <!-- Raccord rétabli : sans le voile qui masquait la frontière, la bascule
-         nuit -> papier redevient visible et redemande son dégradé. -->
-    <div class="seam seam--to-light" aria-hidden="true"></div>
-
     <!-- LE SURVOL. Le robot ne balaie rien : il PASSE. Le contenu de la
          section est déjà en place derrière lui, il le masque de sa masse le
          temps de sa traversée puis le libère. Il entre par le coin haut
@@ -365,6 +361,11 @@
       </svg>
     </div>
 
+    <!-- LE PAPIER, et lui seul, porte la découpe. Pas la section : un
+         clip-path découpe TOUS ses descendants, y compris ceux en position
+         fixe — le robot du survol se serait fait raboter par sa propre
+         révélation. -->
+    <div class="papier">
     <div class="wrap">
 
       <div class="head">
@@ -411,6 +412,7 @@
         </figure>
       </div>
 
+    </div>
     </div>
   </section>
 
