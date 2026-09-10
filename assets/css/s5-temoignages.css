@@ -11,7 +11,15 @@
 /* Marges portées par .wrap et non par la section : le raccord en tête doit
    toucher le bord, sinon le padding intercale du papier entre la section
    sombre précédente et le dégradé. */
-.s-temoignages .wrap{ padding-block: clamp(70px, 12vh, 130px); }
+/* L'avance en tête vaut EXACTEMENT la course du rideau (60vh, voir plus bas
+   et temoignages.js) : le contenu défile pendant qu'on le découvre, donc sans
+   cette avance le titre serait déjà remonté hors cadre au moment d'être
+   révélé — mesuré à y = -97px alors que le voile couvrait encore 247px.
+   Avec elle, il arrive à sa position naturelle pile quand l'agent sort. */
+.s-temoignages .wrap{
+  padding-top: calc(60vh + clamp(70px, 12vh, 130px));
+  padding-bottom: clamp(70px, 12vh, 130px);
+}
 
 .s-temoignages .head{ max-width: 60ch; margin-bottom: clamp(28px, 4vh, 44px); }
 .s-temoignages .eyebrow{
@@ -147,4 +155,66 @@
 @media (max-width: 620px){
   .s-temoignages .quotes{ grid-template-columns: 1fr; }
   .s-temoignages .placeholder-flag{ font-size: 13px; }
+}
+
+/* ============================================================
+   LE RIDEAU — l'agent découvre la section.
+   Il recouvre le premier écran de la couleur de la nuit qui précède, puis se
+   retire vers la gauche, mené par l'agent en pleine hauteur. Derrière lui, le
+   contenu réel de la section, déjà en place : pas de fond intermédiaire.
+
+   margin-bottom négatif : le rideau n'occupe pas sa place dans le flux, il
+   recouvre. Sans cela il pousserait tout le contenu d'un écran vers le bas et
+   il n'y aurait justement rien à découvrir.
+   ============================================================ */
+.s-temoignages .rideau{
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  margin-bottom: -100vh;
+  margin-bottom: -100dvh;
+  z-index: 30;
+  pointer-events: none;
+  overflow: hidden;
+  --x: 100%;
+}
+
+.s-temoignages .voile{
+  position: absolute;
+  top: 0; bottom: 0;
+  left: -2px;                 /* pas de liseré clair au bord gauche */
+  width: var(--x);
+  /* La nuit de la liaison, à l'identique : la bascule d'une section à l'autre
+     ne doit pas se voir avant que l'agent ne passe. Le fond est dimensionné
+     sur l'écran et non sur le voile, sinon le dégradé s'écrase à mesure qu'il
+     se rétrécit. */
+  background:
+    radial-gradient(85% 60% at 50% 42%, rgba(79,168,240,.12), transparent 60%),
+    radial-gradient(120% 120% at 50% 30%, var(--bg-high) 0%, var(--bg-mid) 46%, var(--bg-deep) 100%);
+  background-size: 100vw 100vh;
+  background-position: left top;
+}
+
+/* Attaque adoucie sur le bord qui avance : sans elle la coupe est nette et
+   l'on lit un rideau tiré, pas une révélation. */
+.s-temoignages .voile::after{
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; right: 0;
+  width: clamp(70px, 10vw, 190px);
+  background: linear-gradient(90deg, transparent, var(--paper));
+}
+
+/* PLEINE HAUTEUR D'ÉCRAN. Le contour est sombre et non néon : l'agent
+   chevauche la frontière, moitié sur la nuit moitié sur le papier, et un
+   contour clair l'aurait effacé du côté clair. */
+.s-temoignages .agent-plein{
+  position: absolute;
+  left: var(--x);
+  top: 0;
+  height: 100%;
+  width: auto;
+  transform: translateX(-50%);
+  overflow: visible;
 }

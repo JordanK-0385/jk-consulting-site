@@ -290,26 +290,6 @@
 
       <div class="cue" aria-hidden="true"><span>ils nous ont fait confiance</span><span class="arrow">↓</span></div>
 
-      <!-- Le balayage vers les témoignages. L'agent, en pleine taille, entre
-           par la droite et traverse vers la gauche ; ce qu'il a dépassé est
-           déjà le papier de la section suivante. Le pont entre le bureau
-           reconstruit et la preuve sociale. -->
-      <div class="balayage" aria-hidden="true">
-        <svg class="agent-plein" viewBox="-44 -76 88 108" focusable="false">
-          <ellipse cx="0" cy="-24" rx="40" ry="40" fill="rgba(127,227,255,.14)" filter="url(#jk-soft)"/>
-          <rect x="-20" y="-26" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="rgba(127,227,255,.9)" stroke-width="2"/>
-          <circle cx="0" cy="-4" r="5.6" fill="rgba(127,227,255,.95)"/>
-          <rect x="-24" y="-68" width="48" height="38" rx="19" fill="url(#jk-bot-body)" stroke="rgba(127,227,255,.9)" stroke-width="2"/>
-          <rect x="-18" y="-62" width="36" height="24" rx="12" fill="#0C1A2E"/>
-          <g class="eye">
-            <ellipse cx="-8" cy="-50" rx="4" ry="5.4" fill="#7FE7FF"/>
-            <ellipse cx="8" cy="-50" rx="4" ry="5.4" fill="#7FE7FF"/>
-          </g>
-          <line x1="0" y1="-68" x2="0" y2="-82" stroke="rgba(127,227,255,.8)" stroke-width="2.4"/>
-          <circle cx="0" cy="-85" r="4" fill="#7FE3FF"/>
-        </svg>
-      </div>
-
     </div>
   </section>
 
@@ -330,9 +310,29 @@
        │ une citation attribuée mais inventée est le pire des cas.         │
        └──────────────────────────────────────────────────────────────────┘ -->
   <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
-    <!-- Pas de raccord ici : le balayage de la liaison a déjà amené le papier
-         sur tout l'écran. Une bande sombre -> clair réintroduirait la nuit
-         juste après l'avoir chassée. -->
+
+    <!-- Le rideau. Il recouvre le premier écran de la section, de la couleur
+         de la nuit qui précède, et se retire vers la gauche mené par l'agent.
+         Derrière lui : le contenu réel de la section, déjà en place — pas un
+         fond intermédiaire. Pas de raccord sombre -> clair ici, c'est le
+         rideau qui fait la bascule. -->
+    <div class="rideau" aria-hidden="true">
+      <div class="voile"></div>
+      <svg class="agent-plein" viewBox="-46 -96 92 122" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <ellipse cx="0" cy="-24" rx="42" ry="42" fill="rgba(127,227,255,.16)" filter="url(#jk-soft)"/>
+        <rect x="-20" y="-26" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>
+        <circle cx="0" cy="-4" r="5.6" fill="#7FE3FF" stroke="#0C1A2E" stroke-width="1.4"/>
+        <rect x="-24" y="-68" width="48" height="38" rx="19" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>
+        <rect x="-18" y="-62" width="36" height="24" rx="12" fill="#0C1A2E"/>
+        <g class="eye">
+          <ellipse cx="-8" cy="-50" rx="4" ry="5.4" fill="#7FE7FF"/>
+          <ellipse cx="8" cy="-50" rx="4" ry="5.4" fill="#7FE7FF"/>
+        </g>
+        <line x1="0" y1="-68" x2="0" y2="-84" stroke="#0C1A2E" stroke-width="2.6"/>
+        <circle cx="0" cy="-88" r="4.4" fill="#7FE3FF" stroke="#0C1A2E" stroke-width="1.4"/>
+      </svg>
+    </div>
+
     <div class="wrap">
 
       <div class="head">

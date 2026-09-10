@@ -16,6 +16,7 @@ const STAGGER = 0.12;
 
 export function initTemoignages(root){
   const quotes = [...root.querySelectorAll('.quote')];
+  const rideau = root.querySelector('.rideau');
   if (!quotes.length) return;
 
   /* L'état masqué est posé ici, pas dans la feuille de style : une carte en
@@ -27,6 +28,21 @@ export function initTemoignages(root){
 
   register(root, () => {
     const rect = root.getBoundingClientRect();
+
+    /* ---------- le rideau ----------
+       Il recouvre le premier écran, de la couleur de la nuit qui précède, et
+       se retire vers la gauche : ce que l'agent a dépassé montre le contenu
+       réel de la section, déjà en place derrière lui.
+
+       La course est courte — six dixièmes d'écran — parce que le contenu
+       défile PENDANT qu'on le découvre : plus longue, le titre serait déjà
+       remonté hors cadre au moment d'être révélé. */
+    if (rideau){
+      const decouvre = easeOut(clamp01(-rect.top / (window.innerHeight * 0.6)));
+      rideau.style.setProperty('--x', `${(1 - decouvre) * 100}%`);
+      rideau.style.opacity = 1 - clamp01((decouvre - 0.94) / 0.06);
+    }
+
     /* 0 quand le haut de la section atteint le bas du viewport,
        1 quand il a remonté d'un tiers d'écran. */
     const entry = clamp01((window.innerHeight - rect.top) / (window.innerHeight * 0.66));

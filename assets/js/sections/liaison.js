@@ -61,7 +61,6 @@ export function initLiaison(root){
   const scene  = root.querySelector('.scene');
   const central = root.querySelector('.central');
   const cue     = root.querySelector('.cue');
-  const balayage = root.querySelector('.balayage');
   const benefits = [...root.querySelectorAll('.benefit')];
 
   /* ---------- plateau ---------- */
@@ -269,13 +268,7 @@ export function initLiaison(root){
       b.style.transform = `translateX(${(1 - shown) * direction * 40}px)`;
     });
 
-    cue.style.opacity = easeOut(seg(p, 0.80, 0.88)) * (1 - seg(p, 0.86, 0.92));
+    cue.style.opacity = easeOut(seg(p, 0.80, 0.90));
 
-    /* Le balayage. L'agent traverse de droite à gauche et le papier des
-       témoignages remplit derrière lui. À la fin de la course l'écran entier
-       est clair : la section suivante enchaîne sans raccord.
-       Adouci pour que l'entrée soit franche et la sortie posée. */
-    const bal = easeOut(seg(p, 0.86, 1));
-    balayage.style.setProperty('--bal', `${100 - 118 * bal}%`);
   });
 }
