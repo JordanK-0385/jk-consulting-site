@@ -53,7 +53,10 @@
    c'est ce calage, et lui seul, que le bloc retrouve en s'arrêtant. */
 .s-temoignages .wrap{
   padding-top: calc((var(--survol-avant) + var(--survol-course)) * 1vh + var(--calage));
-  padding-bottom: clamp(70px, 12vh, 130px);
+  /* Resserré : l'enchaînement vers la F.A.Q. bâillait. 108px de retrait bas
+     ici et 90 de retrait haut là-bas, plus la hauteur de ligne du titre,
+     faisaient 260px de blanc entre la dernière carte et « F.A.Q ». */
+  padding-bottom: clamp(40px, 6vh, 72px);
 }
 
 /* LE BLOC S'ARRÊTE QUAND LE ROBOT SORT — et pas avant.

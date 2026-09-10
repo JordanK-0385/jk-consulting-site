@@ -9,7 +9,10 @@
    celles sur la sécurité et les secteurs réglementés.
    ============================================================ */
 
-.s-faq{ padding: clamp(60px, 10vh, 120px) 0 clamp(50px, 8vh, 90px); }
+/* Retrait de tête resserré lui aussi : la section précédente se termine sur
+   des cartes, pas sur du texte courant — il n'y a pas de respiration à
+   ménager en plus de la leur. */
+.s-faq{ padding: clamp(44px, 7vh, 84px) 0 clamp(50px, 8vh, 90px); }
 
 .s-faq .grid{
   display: grid;
