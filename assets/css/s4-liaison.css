@@ -131,6 +131,37 @@
 @keyframes liaison-bob  { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(5px) } }
 @keyframes liaison-blink{ 0%,92%,100%{ opacity: 1 } 95%{ opacity: .15 } }
 
+/* ---- La chute de l'agent ----
+   Fixée au viewport, donc au-dessus des DEUX sections. C'est la seule façon
+   qu'un objet traverse la frontière sans être raboté : les deux scènes sont
+   des SVG dans des stages en overflow:hidden, et un agent qui sort de l'une
+   disparaît avant d'entrer dans l'autre. C'est ce trou-là qu'on supprime.
+
+   La silhouette est dessinée à l'unité du repère isométrique ; le JavaScript
+   la place et la met à l'échelle entre les deux ancres réelles, lues sur les
+   matrices écran des deux agents de scène. */
+.s-liaison .chute{
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.s-liaison .agent-chute{
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;      /* 1 px = 1 unité du repère : le JS applique l'échelle */
+  height: 46px;
+  max-width: none;
+  overflow: visible;
+  transform-origin: 0 0;
+  transform: translate3d(var(--x, 0px), var(--y, 0px), 0) scale(var(--u, 1)) translate(-18px, -40px);
+  filter: drop-shadow(0 0 5px rgba(127, 227, 255, .6));
+}
+
 /* ---- Replis ---- */
 @media (max-width: 820px){
   .s-liaison .benefit{ max-width: 150px; }

@@ -290,6 +290,25 @@
 
       <div class="cue" aria-hidden="true"><span>ils nous ont fait confiance</span><span class="arrow">↓</span></div>
 
+      <!-- LA CHUTE. Un seul agent, peint sur une couche fixée au viewport donc
+           au-dessus des deux sections : il descend du nœud « En service »
+           jusqu'à sa dalle sans qu'aucun bord de scène ne le rabote. Les deux
+           agents de scène — celui du workflow, celui du bureau — s'effacent
+           pendant qu'il vole. -->
+      <div class="chute" aria-hidden="true">
+        <svg class="agent-chute" viewBox="-18 -40 36 46" focusable="false">
+          <ellipse cx="0" cy="-14" rx="17" ry="17" fill="rgba(127,227,255,.18)"/>
+          <rect x="-10" y="-15" width="20" height="18" rx="8" fill="url(#jk-bot-body)" stroke="rgba(127,227,255,.85)" stroke-width="1.2"/>
+          <circle cx="0" cy="-1" r="2.8" fill="rgba(127,227,255,.9)"/>
+          <rect x="-12" y="-36" width="24" height="19" rx="10" fill="url(#jk-bot-body)" stroke="rgba(127,227,255,.85)" stroke-width="1.2"/>
+          <rect x="-9" y="-33" width="18" height="12" rx="6" fill="#0C1A2E"/>
+          <g class="eye">
+            <ellipse cx="-4" cy="-27" rx="2" ry="2.7" fill="#7FE7FF"/>
+            <ellipse cx="4" cy="-27" rx="2" ry="2.7" fill="#7FE7FF"/>
+          </g>
+        </svg>
+      </div>
+
     </div>
   </section>
 

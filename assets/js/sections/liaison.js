@@ -16,6 +16,7 @@ import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { makeDock } from '../core/dock.js';
 import { dalle } from '../core/bureau.js';
+import { descente, ancre } from '../core/passage.js';
 
 /* Maille du plateau 4×4 — plus resserrée que la landing, l'origine diffère. */
 const iso = makeIso({ cx: 600, cy: 300 });
@@ -41,8 +42,6 @@ const POSE  = [0.05, 0.19, 0.33, 0.47];
 const ETALE = 0.06;          // durée d'apparition d'une dalle
 const CAM_FIN = 0.52;        // le dézoom est terminé quand la 4e est posée
 
-/* Hauteur de chute du premier agent, en unités de viewBox. */
-const CHUTE = 240;
 
 const WHITE  = [220, 232, 246];
 const SCREEN = [111, 224, 255];
@@ -61,6 +60,16 @@ export function initLiaison(root){
   const scene  = root.querySelector('.scene');
   const central = root.querySelector('.central');
   const cue     = root.querySelector('.cue');
+  const chute   = root.querySelector('.chute');
+  const agentChute = chute && chute.querySelector('.agent-chute');
+
+  /* L'agent du nœud « En service », dans la section précédente. On le lit pour
+     savoir OÙ commencer la chute : son ancre écran est le point de départ
+     exact, quels que soient le viewBox, l'échelle mobile et le décollage de la
+     scène. C'est la seule dépendance entre les deux sections, et elle est en
+     lecture seule. */
+  const agentService = document.querySelector('#workflow .agent-service');
+
   const benefits = [...root.querySelectorAll('.benefit')];
 
   /* ---------- plateau ---------- */
@@ -203,16 +212,16 @@ export function initLiaison(root){
     scene.setAttribute('transform',
       `translate(${VIEW_X * (1 - scale) + tx * scale} ${VIEW_Y * (1 - scale) + ty * scale}) scale(${scale})`);
 
-    /* AVANCEMENT DE LA CHUTE, calculé en premier : le sol en dépend.
-       Elle commence pendant l'approche — l'agent du workflow sort par le haut
-       avant que la liaison soit collée — et s'achève à la pose. */
-    const avance = 0.74 * seg(arrivee, 0.36, 0.99) + 0.26 * seg(p, 0, POSE[0]);
+    /* AVANCEMENT DE LA CHUTE, calculé en premier : le sol et les deux agents
+       de scène en dépendent. Il vient du module partagé, depuis notre propre
+       bord haut — qui est aussi le bas du workflow. */
+    const avance = descente(root.getBoundingClientRect().top, window.innerHeight);
 
     /* LE SOL SE DESSINE SOUS SES PIEDS. Il n'est pas posé quand l'agent
        arrive : il se construit pendant sa chute et prend forme juste à temps
        pour l'atterrissage. C'est l'agent qui fait apparaître le bureau, pas
        l'inverse. */
-    const solPose = easeOut(seg(avance, 0.14, 0.92));
+    const solPose = easeOut(seg(avance, 0.10, 0.94));
 
     /* Avancement de la pose de chaque zone, 0 à 1. Tout le reste en découle :
        la dalle, son agent, ses liens, et le sol qui monte dessous. */
@@ -237,7 +246,7 @@ export function initLiaison(root){
          il ne naît de rien. Les suivants arrivent APRÈS leur dalle — on pose
          l'espace de travail, puis celui qui l'occupe. */
       g.style.opacity = rang[i] === 0
-        ? seg(arrivee, 0.475, 0.505)
+        ? (avance >= 1 ? 1 : 0)
         : easeOut(seg(p, t + ETALE * 0.6, t + ETALE * 1.7));
     });
 
@@ -250,8 +259,36 @@ export function initLiaison(root){
        et un démarrage tardif laissait un trou d'un pas de scroll sans aucun
        agent à l'écran. Les deux parts s'enchaînent sans rupture — l'approche
        mène l'essentiel du trajet, le collage finit la pose. */
-    const chute = 1 - easeOut(avance);
-    robots[ORDRE[0]].enveloppe.setAttribute('transform', `translate(0 ${-CHUTE * chute})`);
+    /* LA CHUTE, sur la couche FIXÉE AU VIEWPORT — le seul endroit d'où un
+       objet peut traverser la frontière. Les deux stages sont découpés
+       (overflow: hidden) : tout ce qui dépasse d'une section s'y fait raboter,
+       et c'est pour ça que l'agent disparaissait. Ici il n'y a plus de relais
+       entre deux instances, il y a UN agent peint par-dessus les deux
+       sections, du détachement à l'atterrissage.
+
+       Ses deux bornes sont les ancres réelles, lues sur leurs matrices écran :
+       rien n'est codé en dur. Le départ est exactement là où le nœud s'efface,
+       l'arrivée exactement là où le robot de la dalle apparaît. */
+    if (agentChute){
+      const enVol = avance > 0 && avance < 1;
+      chute.style.visibility = enVol ? 'visible' : 'hidden';
+      if (enVol){
+        const a = ancre(agentService);
+        const b = ancre(robots[ORDRE[0]].g);
+        if (a && b){
+          /* UNE SEULE LOI pour la position ET la taille : la chute accélère.
+             Deux lois différentes auraient fait grossir l'agent avant qu'il
+             ne bouge. Ici il part lentement, prend de la vitesse, grandit en
+             se rapprochant, et arrive exactement sur l'ancre de sa dalle —
+             mêmes pixels, même échelle : le passage de la couche fixe au
+             robot de scène ne se voit pas. */
+          const k = avance * avance;
+          agentChute.style.setProperty('--x', `${(a.x + (b.x - a.x) * k).toFixed(1)}px`);
+          agentChute.style.setProperty('--y', `${(a.y + (b.y - a.y) * k).toFixed(1)}px`);
+          agentChute.style.setProperty('--u', (a.u + (b.u - a.u) * k).toFixed(3));
+        }
+      }
+    }
 
     borders.forEach((b, i) => {
       b.setAttribute('stroke', rgba(ZONES[i].color, 0.5 + 0.45 * posee[i]));

@@ -15,24 +15,13 @@ import { claim } from '../core/thread.js';
 import { makeDock, dockNearness } from '../core/dock.js';
 import { clamp01 } from '../core/color.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
+import { descente } from '../core/passage.js';
 
 const BLUE   = [ 79, 168, 240];
 const INDIGO = [110, 123, 242];
 const TEAL   = [ 63, 214, 200];
 const CYAN   = [127, 227, 255];
 const GREEN  = [110, 220, 150];
-
-/* De combien l'agent « En service » glisse vers le bas de l'image en quittant
-   la section, EN PLUS de la compensation du décollage. Zéro le laisserait
-   immobile à l'écran ; cette valeur le fait tomber vers la liaison. */
-const CHUTE_SORTIE = 150;
-
-/* Zoom de la caméra de la liaison au moment où elle reprend l'agent : il doit
-   y arriver à cette échelle, sinon il change de taille en franchissant. */
-const ZOOM_LIAISON = 3;
-
-/* Centre visuel de l'agent, dans son propre repère (il s'étend de -36 à +3). */
-const PIVOT_BOT = -16.5;
 const ORANGE = [242, 150,  78];
 
 /* Couleurs de la métamorphose, dans l'ordre de SPECS §2 : orange brut,
@@ -319,16 +308,20 @@ export function initWorkflow(root){
   });
 
   /* L'agent en service : l'aboutissement de la métamorphose. */
-  const bot = mk('g', {});
+  const bot = mk('g', { class: 'agent-service' });
   bot.style.opacity = 0;
   morph.appendChild(bot);
-  /* Géométrie du diorama (liaison.js, robot()), à l'attribut près : c'est le
-     MÊME agent qui tombera dans le bureau, il ne peut pas changer de gabarit
-     en franchissant la couture. Le modèle précédent était 1.17x plus grand et
-     d'un autre rapport de forme. */
+  /* Géométrie du diorama (liaison.js, robot()), pièce pour pièce et dans le
+     même ordre : c'est le MÊME agent qui tombera dans le bureau, il ne peut
+     pas changer de gabarit en franchissant la couture. Il manquait ici le
+     halo et le témoin de poitrine — 24 unités de large contre 34 pour les
+     deux autres instances : au détachement, l'agent grandissait d'un coup de
+     42 %. Un modèle, trois endroits. */
+  const botHalo = mk('ellipse', { cx: 0, cy: -14, rx: 17, ry: 17 });
   const botBody = mk('rect', { x: -10, y: -15, width: 20, height: 18, rx: 8, fill: 'url(#jk-bot-body)' });
+  const botCore = mk('circle', { cx: 0, cy: -1, r: 2.8 });
   const botHead = mk('rect', { x: -12, y: -36, width: 24, height: 19, rx: 10, fill: 'url(#jk-bot-body)' });
-  bot.append(botBody, botHead);
+  bot.append(botHalo, botBody, botCore, botHead);
   bot.appendChild(mk('rect', { x: -9, y: -33, width: 18, height: 12, rx: 6, fill: '#0C1A2E' }));
   const eyes = mk('g', { class: 'eye' });
   for (const ex of [-4, 4]){
@@ -462,36 +455,20 @@ export function initWorkflow(root){
     /* L'agent prend la place de la forme. */
     bot.style.opacity = asRobot;
 
-    /* PUIS IL SE DÉTACHE DU NŒUD ET TOMBE.
-
-       Sans cela il remontait avec la scène qui se décolle — mesuré de y=429 à
-       y=9 — pendant qu'un SECOND agent apparaissait déjà en bas dans la
-       liaison : quatre échantillons de scroll avec deux robots à l'écran, l'un
-       montant, l'autre posé. On lisait un respawn, pas une continuité.
-
-       Il descend donc à contre-courant du décollage. La scène monte d'un écran
-       pendant la sortie ; on le translate d'autant, plus la chute voulue, ce
-       qui le maintient puis le fait glisser vers le bas de l'image. Il passe
-       sous le bord supérieur de la liaison, qui recouvre la section — et c'est
-       exactement là que son agent le reprend, au même pixel. */
-    if (ctm && ctm.d){
-      const bas = root.getBoundingClientRect().bottom;
-      const sortie = clamp01(1 - bas / window.innerHeight);
-      const glisse = sortie * (window.innerHeight + CHUTE_SORTIE);
-
-      /* Et il GROSSIT en tombant. La liaison le reprend sous une caméra
-         zoomée 3x sur la première dalle : sans cette croissance il passait de
-         33x53 à 121x139 d'un échantillon à l'autre. Il rejoint donc l'échelle
-         de la liaison avant d'atteindre la frontière. Le pivot est son centre
-         visuel, sinon la mise à l'échelle le décalerait. */
-      const grossit = 1 + (ZOOM_LIAISON - 1) * seg(sortie, 0, 0.46);
-      bot.setAttribute('transform',
-        `translate(0 ${(glisse / ctm.d).toFixed(1)}) translate(0 ${PIVOT_BOT}) scale(${grossit.toFixed(3)}) translate(0 ${-PIVOT_BOT})`);
+    /* PUIS IL SE DÉTACHE. À partir de cet instant ce n'est plus ce bot-ci
+       qui est à l'écran : la couche de chute, fixée au viewport, prend le
+       relais au même pixel et à la même taille, et le porte jusqu'au bureau
+       sans qu'aucun bord de section ne le rabote. L'échange est net et se
+       fait alors que l'objet est en pleine vue — pas sur une frontière. */
+    if (descente(root.getBoundingClientRect().bottom, window.innerHeight) > 0){
+      bot.style.opacity = 0;
     }
     for (const part of [botBody, botHead]){
       part.setAttribute('stroke', rgba(tint, 0.9));
       part.setAttribute('stroke-width', '1.3');
     }
+    botHalo.setAttribute('fill', rgba(tint, 0.18 * asRobot));
+    botCore.setAttribute('fill', rgba(tint, 0.9));
 
     /* Le filtre est coûteux à recalculer : on n'écrit que s'il change. */
     const glow = `drop-shadow(0 0 ${11 + asRobot * 4}px ${rgba(tint, 0.8 * eveil)})`;
