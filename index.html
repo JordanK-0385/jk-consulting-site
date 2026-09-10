@@ -311,21 +311,17 @@
        └──────────────────────────────────────────────────────────────────┘ -->
   <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
 
-    <!-- Le rideau. Il recouvre le premier écran de la section, de la couleur
-         de la nuit qui précède, et se retire vers la gauche mené par l'agent.
-         Derrière lui : le contenu réel de la section, déjà en place — pas un
-         fond intermédiaire. Pas de raccord sombre -> clair ici, c'est le
-         rideau qui fait la bascule. -->
-    <div class="rideau" aria-hidden="true">
-      <div class="voile"></div>
-      <!-- Tête, corps, yeux. Ni antenne ni halo : le halo était un flou gaussien
-           d'une quarantaine d'unités, soit près de 450px à cette échelle — une
-           tache bleue molle autour d'un geste qui doit être net.
-           Le viewBox est ajusté au contenu restant, en hauteur ET en largeur :
-           en hauteur pour que la silhouette occupe tout l'écran, en largeur au
-           trait près de la tête (24 + 1.2 de contour) pour que le bord droit du
-           DESSIN soit le bord droit de l'élément — c'est lui qu'on aligne sur
-           la coupe. Deux unités d'air y laissaient 20px de jeu. -->
+    <!-- Raccord rétabli : sans le voile qui masquait la frontière, la bascule
+         nuit -> papier redevient visible et redemande son dégradé. -->
+    <div class="seam seam--to-light" aria-hidden="true"></div>
+
+    <!-- LE SURVOL. Le robot ne balaie rien : il PASSE. Le contenu de la
+         section est déjà en place derrière lui, il le masque de sa masse le
+         temps de sa traversée puis le libère. Il entre par le coin haut
+         droit, lointain et petit, grossit en venant vers nous et sort par le
+         coin bas gauche en crevant le cadre. Son ombre portée le fait planer
+         au-dessus de la page au lieu d'y être collé. -->
+    <div class="survol" aria-hidden="true">
       <svg class="agent-plein" viewBox="-25.4 -70 50.8 82" preserveAspectRatio="xMidYMid meet" focusable="false">
         <rect x="-20" y="-26" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>
         <circle cx="0" cy="-4" r="5.6" fill="#7FE3FF" stroke="#0C1A2E" stroke-width="1.4"/>

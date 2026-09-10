@@ -158,16 +158,18 @@
 }
 
 /* ============================================================
-   LE RIDEAU — l'agent découvre la section.
-   Il recouvre le premier écran de la couleur de la nuit qui précède, puis se
-   retire vers la gauche, mené par l'agent en pleine hauteur. Derrière lui, le
-   contenu réel de la section, déjà en place : pas de fond intermédiaire.
+   LE SURVOL — le robot passe au-dessus de la section.
 
-   margin-bottom négatif : le rideau n'occupe pas sa place dans le flux, il
-   recouvre. Sans cela il pousserait tout le contenu d'un écran vers le bas et
-   il n'y aurait justement rien à découvrir.
+   Ce n'est PAS un rideau. Une première version poussait un voile sombre à
+   bord net devant lui : c'est l'exact contraire du geste, un volet et non un
+   objet qui traverse le champ. Ici le contenu est déjà en place, visible, et
+   le robot passe DEVANT — il le masque de sa masse le temps du passage.
+
+   margin-bottom négatif : la couche n'occupe pas sa place dans le flux, elle
+   se superpose. Sans cela elle pousserait tout le contenu d'un écran vers le
+   bas et il n'y aurait rien à survoler.
    ============================================================ */
-.s-temoignages .rideau{
+.s-temoignages .survol{
   position: sticky;
   top: 0;
   height: 100vh;
@@ -176,50 +178,36 @@
   margin-bottom: -100dvh;
   z-index: 30;
   pointer-events: none;
+  /* La silhouette dépasse largement du cadre : sans ça elle allongerait la
+     page et le contrôle de débordement horizontal tomberait. */
   overflow: hidden;
-  --x: 100%;
 }
 
-.s-temoignages .voile{
-  position: absolute;
-  top: 0; bottom: 0;
-  left: -2px;                 /* pas de liseré clair au bord gauche */
-  width: var(--x);
-  /* La nuit de la liaison, à l'identique : la bascule d'une section à l'autre
-     ne doit pas se voir avant que l'agent ne passe. Le fond est dimensionné
-     sur l'écran et non sur le voile, sinon le dégradé s'écrase à mesure qu'il
-     se rétrécit. */
-  background:
-    radial-gradient(85% 60% at 50% 42%, rgba(79,168,240,.12), transparent 60%),
-    radial-gradient(120% 120% at 50% 30%, var(--bg-high) 0%, var(--bg-mid) 46%, var(--bg-deep) 100%);
-  background-size: 100vw 100vh;
-  background-position: left top;
-}
+/* GÉANT ET DÉBORDANT. 130vh à l'échelle 1, et l'échelle monte jusqu'à 1.75 :
+   au plus près il fait plus de deux écrans de haut. Il ne tient pas dans le
+   cadre, c'est le propos.
 
-/* AUCUN ADOUCISSEMENT. Une première version dégradait le bord sur 10vw : on
-   lisait un robot flottant devant un flou, pas un geste. La frontière est une
-   coupe franche, et elle tombe exactement sur le bord droit du dessin —
-   translateX(-100%) sur un viewBox resserré à la largeur du robot. Il pousse
-   la nuit devant lui au lieu de flotter dedans, et il sort entièrement du
-   cadre quand la course s'achève : pas de fondu de sortie non plus. */
+   L'ombre portée est le point qui fait planer l'objet plutôt que de le coller
+   à la page. Elle est décalée, floue, semi-transparente, et son décalage suit
+   la position du robot comme si la lumière venait du haut de l'écran : plus
+   il s'éloigne de cette source, plus l'ombre s'écarte de lui. */
 .s-temoignages .agent-plein{
   position: absolute;
-  left: var(--x);
+  left: 0;
   top: 0;
-  height: 100%;
+  height: 130vh;
   width: auto;
-  /* La règle globale img, svg { max-width: 100% } rabotait la silhouette dès
-     que sa largeur dépassait l'écran : le dessin se retrouvait mis en boîte
-     et ne faisait plus que 69% de la hauteur en mobile au lieu de 95%. */
   max-width: none;
-  transform: translateX(-100%);
   overflow: visible;
+  transform:
+    translate3d(var(--x, 0px), var(--y, 0px), 0)
+    translate(-50%, -50%)
+    rotate(var(--r, 0deg))
+    scale(var(--s, 1));
+  filter: var(--ombre, none);
+  will-change: transform;
 }
 
-/* Sur un écran étroit, une silhouette pleine hauteur serait plus large que
-   l'écran lui-même. On la contient un peu : elle déborde encore du côté
-   gauche — celui de la nuit, déjà rogné par le cadre — sans être mise en
-   boîte. */
 @media (max-width: 560px){
-  .s-temoignages .agent-plein{ height: 86%; top: 7%; }
+  .s-temoignages .agent-plein{ height: 105vh; }
 }
