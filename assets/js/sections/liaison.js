@@ -203,12 +203,22 @@ export function initLiaison(root){
     scene.setAttribute('transform',
       `translate(${VIEW_X * (1 - scale) + tx * scale} ${VIEW_Y * (1 - scale) + ty * scale}) scale(${scale})`);
 
+    /* AVANCEMENT DE LA CHUTE, calculé en premier : le sol en dépend.
+       Elle commence pendant l'approche — l'agent du workflow sort par le haut
+       avant que la liaison soit collée — et s'achève à la pose. */
+    const avance = 0.74 * seg(arrivee, 0.36, 0.99) + 0.26 * seg(p, 0, POSE[0]);
+
+    /* LE SOL SE DESSINE SOUS SES PIEDS. Il n'est pas posé quand l'agent
+       arrive : il se construit pendant sa chute et prend forme juste à temps
+       pour l'atterrissage. C'est l'agent qui fait apparaître le bureau, pas
+       l'inverse. */
+    const solPose = easeOut(seg(avance, 0.14, 0.92));
+
     /* Avancement de la pose de chaque zone, 0 à 1. Tout le reste en découle :
        la dalle, son agent, ses liens, et le sol qui monte dessous. */
     const posee = ZONES.map((_, i) => {
-      /* La première est là au premier pixel : c'est l'espace de travail sur
-         lequel l'agent vient se poser. Sans elle, il tomberait dans le vide. */
-      if (rang[i] === 0) return 1;
+      /* La première se dessine pendant la chute, au rythme de l'agent. */
+      if (rang[i] === 0) return solPose;
       const t = POSE[rang[i]];
       return easeOut(seg(p, t, t + ETALE));
     });
@@ -217,7 +227,7 @@ export function initLiaison(root){
 
     /* Le sol suit le nombre de dalles posées, sans jamais partir de zéro :
        une dalle seule sur du vide flotterait. */
-    plateau.style.opacity = 0.32 + 0.68 * easeOut(seg(p, POSE[0], POSE[3] + ETALE));
+    plateau.style.opacity = solPose * (0.32 + 0.68 * easeOut(seg(p, POSE[0], POSE[3] + ETALE)));
 
     /* Chaque agent arrive juste après sa dalle — la dalle d'abord, l'agent
        ensuite : on pose l'espace de travail, puis celui qui l'occupe. */
@@ -240,7 +250,6 @@ export function initLiaison(root){
        et un démarrage tardif laissait un trou d'un pas de scroll sans aucun
        agent à l'écran. Les deux parts s'enchaînent sans rupture — l'approche
        mène l'essentiel du trajet, le collage finit la pose. */
-    const avance = 0.74 * seg(arrivee, 0.36, 0.99) + 0.26 * seg(p, 0, POSE[0]);
     const chute = 1 - easeOut(avance);
     robots[ORDRE[0]].enveloppe.setAttribute('transform', `translate(0 ${-CHUTE * chute})`);
 
