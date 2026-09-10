@@ -322,14 +322,26 @@
          coin bas gauche en crevant le cadre. Son ombre portée le fait planer
          au-dessus de la page au lieu d'y être collé. -->
     <div class="survol" aria-hidden="true">
-      <svg class="agent-plein" viewBox="-25.4 -70 50.8 82" preserveAspectRatio="xMidYMid meet" focusable="false">
-        <rect x="-20" y="-26" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>
-        <circle cx="0" cy="-4" r="5.6" fill="#7FE3FF" stroke="#0C1A2E" stroke-width="1.4"/>
-        <rect x="-24" y="-68" width="48" height="38" rx="19" fill="url(#jk-bot-body)" stroke="#0C1A2E" stroke-width="2.4"/>
-        <rect x="-18" y="-62" width="36" height="24" rx="12" fill="#0C1A2E"/>
+      <!-- MÊME MODÈLE que les agents du diorama (liaison.js, robot()) : la
+           géométrie est la leur au facteur 2 près — corps 20x18 rx 8, tête
+           24x19 rx 10, visière 18x12 rx 6, yeux rx 2 / ry 2.7 à ±4, trait 1.2.
+           Un agent devient un bureau, puis survole vers les témoignages : ce
+           doit être le même.
+
+           Seul le contour change de valeur, et suivant la règle du site et non
+           une invention : le diorama trace en cyan néon sur la nuit, ce qui
+           donne 11.89:1 là-bas mais 1.37:1 sur le papier — la silhouette
+           disparaîtrait. C'est le cyan assombri de .on-light qui prend le
+           relais, #1779A3, 4.55:1, celui-là même qui sert au fil conducteur
+           et à tous les accents des sections claires. -->
+      <svg class="agent-plein" viewBox="-25.2 -73.2 50.4 80.4" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <rect x="-20" y="-30" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="#1779A3" stroke-width="2.4"/>
+        <circle cx="0" cy="-2" r="5.6" fill="#7FE3FF" stroke="#1779A3" stroke-width="1.4"/>
+        <rect x="-24" y="-72" width="48" height="38" rx="20" fill="url(#jk-bot-body)" stroke="#1779A3" stroke-width="2.4"/>
+        <rect x="-18" y="-66" width="36" height="24" rx="12" fill="#0C1A2E"/>
         <g class="eye">
-          <ellipse cx="-8" cy="-50" rx="4" ry="5.4" fill="#7FE7FF"/>
-          <ellipse cx="8" cy="-50" rx="4" ry="5.4" fill="#7FE7FF"/>
+          <ellipse cx="-8" cy="-54" rx="4" ry="5.4" fill="#7FE7FF"/>
+          <ellipse cx="8" cy="-54" rx="4" ry="5.4" fill="#7FE7FF"/>
         </g>
       </svg>
     </div>

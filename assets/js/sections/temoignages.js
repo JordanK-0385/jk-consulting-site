@@ -18,6 +18,14 @@ export function initTemoignages(root){
   const quotes = [...root.querySelectorAll('.quote')];
   const survol = root.querySelector('.survol');
   const agent  = survol && survol.querySelector('.agent-plein');
+
+  /* Les deux réglages du survol vivent dans la feuille de style, où se trouve
+     aussi l'avance en tête de section qui doit valoir la même course. Relus
+     une fois : ce sont des constantes d'auteur, pas un état. */
+  const reglages = getComputedStyle(root);
+  const COURSE = (parseFloat(reglages.getPropertyValue('--survol-course')) || 60) / 100;
+  const OMBRE  = parseFloat(reglages.getPropertyValue('--survol-ombre'));
+  const OPACITE_OMBRE = Number.isFinite(OMBRE) ? OMBRE : 0.30;
   if (!quotes.length) return;
 
   /* L'état masqué est posé ici, pas dans la feuille de style : une carte en
@@ -36,12 +44,13 @@ export function initTemoignages(root){
        en crevant le cadre. Le contenu est déjà en place derrière lui — il le
        masque le temps du passage, il ne le découvre pas.
 
-       La course est courte (six dixièmes d'écran) et l'avance en tête de
-       section vaut exactement la même chose : le titre arrive à sa position
-       naturelle au moment où le robot sort. */
+       La course et l'opacité de l'ombre se règlent dans s5-temoignages.css,
+       --survol-course et --survol-ombre. La course vaut aussi l'avance en tête
+       de section : le titre arrive à sa position naturelle au moment où le
+       robot sort. */
     if (agent){
       const vh = window.innerHeight, vw = window.innerWidth;
-      const av = clamp01(-rect.top / (vh * 0.6));
+      const av = clamp01(-rect.top / (vh * COURSE));
 
       /* La profondeur s'accélère : à distance égale parcourue, l'objet grossit
          de plus en plus vite. C'est ce qui donne le rapprochement plutôt
@@ -63,7 +72,7 @@ export function initTemoignages(root){
       const dy = (y - vh * 0.08) * 0.075 + 12;
       const flou = 14 + 30 * prof;
       agent.style.setProperty('--ombre',
-        `drop-shadow(${dx.toFixed(0)}px ${dy.toFixed(0)}px ${flou.toFixed(0)}px rgba(10, 22, 40, .30))`);
+        `drop-shadow(${dx.toFixed(0)}px ${dy.toFixed(0)}px ${flou.toFixed(0)}px rgba(10, 22, 40, ${OPACITE_OMBRE}))`);
 
       survol.style.visibility = av >= 1 ? 'hidden' : 'visible';
     }

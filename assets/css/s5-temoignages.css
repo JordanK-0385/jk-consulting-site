@@ -11,13 +11,22 @@
 /* Marges portées par .wrap et non par la section : le raccord en tête doit
    toucher le bord, sinon le padding intercale du papier entre la section
    sombre précédente et le dégradé. */
-/* L'avance en tête vaut EXACTEMENT la course du rideau (60vh, voir plus bas
-   et temoignages.js) : le contenu défile pendant qu'on le découvre, donc sans
-   cette avance le titre serait déjà remonté hors cadre au moment d'être
-   révélé — mesuré à y = -97px alors que le voile couvrait encore 247px.
-   Avec elle, il arrive à sa position naturelle pile quand l'agent sort. */
+/* ---- Réglages du survol ----
+   Les deux valeurs à ajuster à la marge, en un seul endroit. temoignages.js
+   les relit au démarrage : rien à modifier en double.
+
+   --survol-course sert À LA FOIS à la trajectoire et à l'avance en tête de
+   section, et c'est pourquoi elle doit être unique. Le contenu défile pendant
+   que le robot le survole ; sans une avance égale à la course, le titre serait
+   déjà remonté hors cadre à la sortie du robot — mesuré à y = -97px lorsque
+   les deux valeurs divergeaient. */
+.s-temoignages{
+  --survol-course: 60;   /* longueur de la traversée, en % de hauteur d'écran */
+  --survol-ombre: .30;   /* opacité de l'ombre portée */
+}
+
 .s-temoignages .wrap{
-  padding-top: calc(60vh + clamp(70px, 12vh, 130px));
+  padding-top: calc(var(--survol-course) * 1vh + clamp(70px, 12vh, 130px));
   padding-bottom: clamp(70px, 12vh, 130px);
 }
 
