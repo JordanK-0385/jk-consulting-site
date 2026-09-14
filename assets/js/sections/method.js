@@ -12,6 +12,7 @@ import { register } from '../core/raf.js';
 import { claim } from '../core/thread.js';
 import { clamp01, seg } from '../core/color.js';
 import { makeDock, dockNearness } from '../core/dock.js';
+import { ancrageEtincelle } from '../core/naissance.js';
 
 /* Cyan assombri du contexte clair : sur papier, le néon disparaît. */
 const TOKEN_LIGHT = [23, 121, 163];
@@ -64,7 +65,22 @@ export function initMethod(root){
        plafond EST la médiane, le retard est nul et le comportement validé
        est rendu à l'identique. */
     const etroit = window.innerWidth <= 720;
-    const plafond = etroit ? middle : window.innerHeight * 0.18;
+
+    /* LE FIL ATTEND LÀ OÙ IL EST NÉ, pas sur la médiane. C'est la même ancre
+       que le landing revendique en s'éteignant : le mélange des deux
+       revendications est donc un no-op, en X comme en Y, pendant tout le
+       recouvrement. Auparavant le fil naissait à 414, était rabattu à 450 —
+       un palier de 290px de défilement — puis remontait de 288px : trois
+       changements de direction pour une descente. */
+    const ancre = ancrageEtincelle();
+    const repos = ancre ? ancre.y : middle;
+
+    /* Et le plafond ne peut pas se trouver SOUS ce point, sinon le fil y
+       serait rabattu dès son arrivée — le creux qu'on vient de supprimer.
+       En 1440x900 min(162, 414) laisse 162, inchangé ; en 390x844 le plafond
+       valait la médiane à 422 alors que le fil naît à 374, au-dessus : il
+       descend à 374 et le repli mobile garde une descente sans creux. */
+    const plafond = Math.min(etroit ? middle : window.innerHeight * 0.18, repos);
     const retard = middle - plafond;
     const course = Math.max(1, rect.height - retard);
     const progression = clamp01((middle - retard - rect.top) / course);
@@ -94,7 +110,7 @@ export function initMethod(root){
        exactement la médiane — le passage d'un régime à l'autre est donc
        continu, y compris avec l'oscillation d'accostage. */
     const sansRail = progression <= 0;
-    const brut = sansRail ? Math.min(rect.top, middle) : rect.top + travelled;
+    const brut = sansRail ? Math.min(rect.top, repos) : rect.top + travelled;
 
     /* Mais jamais SOUS l'extrémité du trait. Sans cette borne, le fil
        franchissait le bout du rail après « Autonomie » et se figeait sur la
