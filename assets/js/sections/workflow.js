@@ -16,11 +16,14 @@ import { makeDock, dockNearness } from '../core/dock.js';
 import { clamp01 } from '../core/color.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
 import { descente } from '../core/passage.js';
+import { ancreProcess, DEBUT_WORKFLOW, SOMBRE } from '../core/entree-process.js';
 
 const BLUE   = [ 79, 168, 240];
 const INDIGO = [110, 123, 242];
 const TEAL   = [ 63, 214, 200];
-const CYAN   = [127, 227, 255];
+/* Le néon de la section EST la teinte sombre de la couture d'entrée : une
+   seule définition, lue là où les deux sections en ont besoin. */
+const CYAN   = SOMBRE;
 const GREEN  = [110, 220, 150];
 const ORANGE = [242, 150,  78];
 
@@ -271,7 +274,13 @@ export function initWorkflow(root){
 
   /* ---------- l'ancre : le process qui se métamorphose ---------- */
 
-  const morph = mk('g', { transform: `translate(${AXIS_X} ${ANCHOR_Y})` });
+  /* L'ancre porte une classe : c'est la cible que la couture d'entrée fait
+     lire aux DEUX sections. Sans elle il fallait passer par le parent de
+     .agent-service — un chemin qui casse au premier remaniement. */
+  const morph = mk('g', {
+    class: 'ancre-process',
+    transform: `translate(${AXIS_X} ${ANCHOR_Y})`,
+  });
   anchor.appendChild(morph);
 
   const halo = mk('circle', { cx: 0, cy: 0, r: 36 });
@@ -360,11 +369,11 @@ export function initWorkflow(root){
 
     /* ---------- revendication du fil conducteur ----------
        Le token arrive du rail de la méthode et se pose exactement sur
-       l'ancre du process, où le blob prend le relais. getScreenCTM() rend
-       la position écran de l'ancre quels que soient le viewBox et
-       l'échelle mobile : c'est le seul pont fiable entre les repères. */
-    const ctm = morph.getScreenCTM();
-    if (ctm){
+       l'ancre du process, où le blob prend le relais. La position écran de
+       l'ancre est rendue par le module de couture, qui la lit sur la matrice
+       écran : c'est le seul pont fiable entre les repères, quels que soient
+       le viewBox et l'échelle mobile. */
+    {
       /* Le poids retombe : le blob est déjà là, le token se fond en lui
          plutôt que de le doubler.
 
@@ -380,11 +389,16 @@ export function initWorkflow(root){
          l'ATTEND sur la médiane au lieu de plonger à sa rencontre — sans
          quoi la couture montre un saut de plusieurs centaines de pixels.
          Une fois la scène collée, les deux coïncident, et à la sortie le
-         token suit l'ancre qui remonte. */
-      const mediane = window.innerHeight * 0.5;
-      claim({
-        x: ctm.e, y: Math.min(ctm.f, mediane),
-        weight: seg(arrivee, 0.10, 0.55) * releve,
+         token suit l'ancre qui remonte.
+
+         Cette cible et l'instant où elle est reprise viennent du module de
+         couture : la méthode y conduit le fil par un arc explicite et l'y a
+         déjà posé quand cette revendication s'ouvre. Les deux visant le même
+         point, le mélange ne déplace rien. */
+      const cible = ancreProcess(window.innerHeight);
+      if (cible) claim({
+        x: cible.x, y: cible.y,
+        weight: seg(arrivee, DEBUT_WORKFLOW, 0.55) * releve,
         radius: 9, color: CYAN, tail: 70,
       });
     }
