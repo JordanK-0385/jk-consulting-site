@@ -10,12 +10,11 @@
 
 import { register } from '../core/raf.js';
 import { claim } from '../core/thread.js';
-import { clamp01, seg } from '../core/color.js';
-import { makeDock, dockNearness } from '../core/dock.js';
+import { clamp01, seg, lerp } from '../core/color.js';
+import { makeDock, dockNearness, smoother } from '../core/dock.js';
 import { ancrageEtincelle } from '../core/naissance.js';
+import { ancreProcess, DEBUT_WORKFLOW, CLAIR, SOMBRE } from '../core/entree-process.js';
 
-/* Cyan assombri du contexte clair : sur papier, le néon disparaît. */
-const TOKEN_LIGHT = [23, 121, 163];
 
 /* Une étape s'allume un peu avant d'atteindre la ligne médiane : sinon elle
    se déclenche pile sous le regard, ce qui se voit. (Valeur du proto.) */
@@ -30,6 +29,17 @@ export function initMethod(root){
   const line  = root.querySelector('.line');
   const steps = [...root.querySelectorAll('.step')];
   const nodes = steps.map(s => s.querySelector('.node'));
+  /* Les deux repères de la sortie : la carte du dernier jalon, qui occupe le
+     couloir que l'arc doit traverser, et la bande de raccord, sur laquelle se
+     lit la bascule de couleur. */
+  const derniereCarte = steps.length ? steps[steps.length - 1].querySelector('.card') : null;
+  const bande = root.querySelector('.seam--to-dark');
+
+  /* Origine de l'arc de sortie, figée au dégagement du couloir et relâchée si
+     l'on remonte. Un objet qui quitte le rail ne suit plus ce que le rail
+     fait ensuite : c'est cette origine fixe qui rend la trajectoire monotone.
+     Vivant hors de la boucle, comme le point de détachement de la liaison. */
+  let quai = null;
 
   /* Positions des nœuds, en fractions de la hauteur du rail. Relevées dans
      le DOM plutôt que codées en dur : elles suivent la mise en page, y
@@ -157,10 +167,55 @@ export function initMethod(root){
        entre les deux chiffres du nœud, qui restent lisibles — un point de
        taille pleine en masquait le milieu. Il ne disparaît pas pour autant :
        le rayon descend de 6 à 3.4px, jamais à zéro. */
+    /* ---------- L'ARC DE SORTIE ----------
+       Le fil ne dérive plus : il quitte le rail par une trajectoire écrite,
+       pilotée par la seule progression de cette sortie. Auparavant le trajet
+       rail -> process était le sous-produit du recouvrement de deux poids —
+       450px de dérive en diagonale, avec un creux en Y de 435 à 315 avant de
+       remonter à 450.
+
+       DÉPART : l'instant où le couloir se dégage, c'est-à-dire où la carte du
+       dernier jalon est remontée au-dessus du fil. C'est le critère de
+       collision lui-même, donc il s'ajuste seul à n'importe quelle mise en
+       page : partir à l'accostage de 05 aurait fait voler le fil à travers
+       son propre texte, mesuré de 3003 à 3138 en 1440x900 et de 2216 à 2318
+       en 390x844.
+
+       ARRIVÉE : l'instant où le workflow prend le fil, DEBUT_WORKFLOW, lu
+       dans le module de couture par les deux sections. La méthode y a donc
+       déjà posé le fil sur la cible quand l'autre revendication s'ouvre : le
+       recouvrement ne déplace rien.
+
+       LA COURBE : Bézier quadratique de contrôle (quai.x, cible.y). Le fil
+       quitte le rail DANS SON AXE puis s'infléchit vers le centre — tangente
+       verticale au départ, horizontale à l'arrivée. Monotone en X et en Y par
+       construction, le polygone de contrôle l'étant. Le lissage de Perlin
+       annule les deux dérivées aux bornes : départ et arrivée à l'arrêt,
+       comme la glissade d'entrée. */
+    const cible = ancreProcess(window.innerHeight);
+    if (derniereCarte){
+      const carte = derniereCarte.getBoundingClientRect();
+      if (carte.bottom < y){ if (!quai) quai = { x: railX, y, front: section.bottom }; }
+      else quai = null;
+    }
+    const fin = (1 - DEBUT_WORKFLOW) * window.innerHeight;
+    const vol = quai ? quai.front - fin : 0;
+    const k = smoother(vol > 0 ? clamp01((quai.front - section.bottom) / vol) : 0);
+    const fx = (quai && cible) ? quai.x + (cible.x - quai.x) * k * k : railX;
+    const fy = (quai && cible) ? quai.y + (cible.y - quai.y) * (1 - (1 - k) * (1 - k)) : y;
+
+    /* LA BASCULE DE COULEUR SE LIT SUR LA BANDE DE RACCORD, pas sur les poids.
+       Le fil vire au néon en traversant le dégradé nuit et l'atteint pur à son
+       bord bas — le plein sombre. Avant, la bascule finissait là par
+       coïncidence du recouvrement des poids : elle dépendait de la hauteur de
+       la bande et de --h-workflow, sans que rien ne le dise. */
+    const raccord = bande ? bande.getBoundingClientRect() : null;
+    const teinte = raccord ? lerp(CLAIR, SOMBRE, seg(fy, raccord.top, raccord.bottom)) : CLAIR;
+
     claim({
-      x: railX, y, weight: poids,
+      x: fx, y: fy, weight: poids,
       radius: 6 - 2.6 * proximite,
-      color: TOKEN_LIGHT, tail: 90,
+      color: teinte, tail: 90,
     });
 
     /* Une étape s'allume au PASSAGE DU FIL, pas à une hauteur d'écran fixe.
