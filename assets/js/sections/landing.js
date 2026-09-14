@@ -13,6 +13,8 @@ import { stickyProgress } from '../core/scroll.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
 import { claim } from '../core/thread.js';
 import { dalle } from '../core/bureau.js';
+import { ancrageEtincelle } from '../core/naissance.js';
+import { smoother } from '../core/dock.js';
 
 /*
  * L'ORIGINE DU FIL (COMMIT-7.md, ouverture).
@@ -44,8 +46,16 @@ import { dalle } from '../core/bureau.js';
    place laissée : le point devient lueur sur une course trois fois plus
    longue au lieu de naître dans un coin de fenêtre. Ni l'une ni l'autre des
    deux courbes ne change — c'est leur partage qui change. */
-const CONDENSE = [0.40, 0.74];   // le bureau se ramasse jusqu'à un point
-const RELAIS   = [0.74, 0.97];   // le point devient lueur
+/* SÉQUENTIEL, JAMAIS SIMULTANÉ — et maintenant sur un seul axe.
+   Le bureau meurt sur le rail, l'étincelle y naît : delta latéral nul entre
+   les deux, en desktop comme en mobile. Le fondu-enchaîné disparaît, il ne
+   pouvait pas survivre au déplacement de l'ancre — deux points allumés à deux
+   endroits en même temps. On y gagne la métamorphose : le bureau se contracte
+   EN GLISSANT sur l'axe du fil, puis s'allume. */
+const CONDENSE   = [0.40, 0.74];   // le bureau se ramasse jusqu'à un point
+const DERIVE     = [0.62, 0.87];   // le point glisse du foyer jusqu'à l'axe du rail
+const EXTINCTION = [0.74, 0.87];   // il s'éteint, en fin de glissade
+const NAISSANCE  = [0.87, 0.97];   // PUIS l'étincelle s'allume, sur le rail
 
 /* Échelle finale du plateau : choisie pour que son empreinte à l'écran
    corresponde au diamètre de l'étincelle, condition du fondu-enchaîné. */
@@ -249,6 +259,11 @@ export function initLanding(root){
      étroit et haut, la scène devenait minuscule entre deux bandes vides.
      On agrandit et on remonte le plateau, le héros s'assoit dessous. */
 
+  /* Conversion horizontale unités de scène <-> pixels écran, prise sur le
+     cadrage. Elle ne dépend que du viewport — mesurée constante de p=0.50 à
+     p=0.87 — donc relue ici seulement, et au redimensionnement. */
+  let cadreA = 0, cadreE = 0;
+
   function fit(){
     const narrow = stage.clientWidth < 720;
     const scale = narrow ? 1.34 : 1;
@@ -257,6 +272,8 @@ export function initLanding(root){
       'transform',
       `translate(0 ${lift}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${scale}) translate(${-PIVOT_X} ${-PIVOT_Y})`,
     );
+    const m = fitG.getScreenCTM();
+    if (m){ cadreA = m.a; cadreE = m.e; }
   }
   fit();
   addEventListener('resize', fit, { passive: true });
@@ -325,11 +342,33 @@ export function initLanding(root){
 
     const ax = (Math.sin(t * 0.0004) * 7 + mx * 34) * calme;
     const ay = (Math.cos(t * 0.0005) * 4 + my * 18) * calme - p * 60;
+
+    /* LE BUREAU MEURT SUR LE RAIL. Son dernier état — un point de 20px de
+       large en 1440x900, 7px en 390x844 — glisse du foyer jusqu'à l'axe du
+       fil, pour que l'étincelle s'allume exactement là où il s'est éteint.
+       Sans cette glissade, le bureau mourant au centre et l'étincelle naissant
+       sur le rail, l'œil sautait de 450px (148 en mobile).
+
+       C'est la SCÈNE qui se déplace, pas le token : celui-ci n'est pas encore
+       revendiqué pendant cette fenêtre, donc il n'y a jamais deux abscisses à
+       mélanger et aucune diagonale à recréer.
+
+       La translation vit dans le slot que .scene porte déjà ; le cadrage
+       (.scene-fit) n'est pas touché, et le foyer mesuré non plus. On vise
+       l'abscisse de scène qui pose le foyer PILE sur le rail, et on y va par
+       un lissage qui part et arrive à l'arrêt. */
+    const ancre = ancrageEtincelle();
+    let axVu = ax;
+    if (ancre && cadreA){
+      const cible = (ancre.x - cadreE) / cadreA - PIVOT_X - (FOYER_X - PIVOT_X) * echelle;
+      axVu = ax + (cible - ax) * smoother(seg(p, DERIVE[0], DERIVE[1]));
+    }
+
     sceneG.setAttribute('transform',
-      `translate(${ax} ${ay}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${echelle}) translate(${-PIVOT_X} ${-PIVOT_Y})`);
+      `translate(${axVu} ${ay}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${echelle}) translate(${-PIVOT_X} ${-PIVOT_Y})`);
     /* Le bureau ne s'efface QUE pendant le relais : tant qu'il reste
        quelque chose à lire, il est à pleine opacité. */
-    sceneG.style.opacity = 1 - seg(p, RELAIS[0], RELAIS[1]);
+    sceneG.style.opacity = 1 - seg(p, EXTINCTION[0], EXTINCTION[1]);
 
     holosG.setAttribute('transform', `translate(${mx * -20} ${my * -12 - p * 30})`);
     holosG.style.opacity = 1 - seg(p, 0.42, 0.62);
@@ -342,32 +381,30 @@ export function initLanding(root){
     if (ctm){
       /* Linéaire et non adouci : sur une fenêtre aussi courte, un
          adoucissement retarderait l'allumage et rouvrirait la superposition. */
-      const naissance = seg(p, RELAIS[0], RELAIS[1]);
-      const mediane = window.innerHeight * 0.5;
+      const naissance = seg(p, NAISSANCE[0], NAISSANCE[1]);
 
-      /* Sortie de la section : sert à la fois de retenue du fil et de
-         décroissance de son poids, exactement dans la fenêtre où celui de la
-         méthode monte — le même passage de relais que sur la couture
-         méthode -> workflow. Vaut 0 pendant tout le relais. */
+      /* Sortie de la section : la décroissance du poids du fil, exactement
+         dans la fenêtre où celui de la méthode monte — le même passage de
+         relais que sur la couture méthode -> workflow. Vaut 0 pendant toute
+         la naissance. */
       const bas = root.getBoundingClientRect().bottom;
       const sortie = clamp01(1 - bas / window.innerHeight);
 
-      /* Le foyer, projeté à l'écran par la matrice de la scène : le fil est
-         donc posé sur le point, quels que soient le cadrage et l'échelle. */
-      const foyer = ctm.b * FOYER_X + ctm.d * FOYER_Y + ctm.f;
+      /* L'ANCRE EST PARTAGÉE AVEC LA MÉTHODE, et le fil ne bouge plus qu'en
+         Y. L'abscisse est l'axe du rail, celle que la méthode revendique
+         aussi : le mélange des deux revendications est donc un no-op en X, par
+         construction. L'ordonnée est celle où le bureau vient de s'éteindre,
+         et c'est là que la méthode attend le fil — même valeur des deux côtés,
+         donc no-op en Y aussi pendant tout le recouvrement.
 
-      /* Une fois la section décollée, la scène remonte et sort de l'écran.
-         Le fil ne la suit pas : il se tient sur la médiane et attend que la
-         méthode le reprenne. Sans cette retenue, il partait à y=-101 puis
-         revenait d'un bond de 554px.
-         Mais elle ne s'arme QU'À la sortie. Une première version la posait
-         sans condition : pendant tout le relais, l'étincelle se retrouvait
-         plaquée sur la médiane, 25px SOUS le point où le bureau finissait sa
-         contraction — on lisait deux objets empilés, pas une transformation.
-         Tant que la section est collée, le fil est EXACTEMENT sur le point :
-         c'est la condition de la superposition. */
-      const retenue = seg(sortie, 0, 0.25);
-      const y = foyer + (Math.max(foyer, mediane) - foyer) * retenue;
+         La retenue vers la médiane a disparu avec la raison qui l'imposait :
+         elle rattrapait une scène qui filait vers le haut, au prix d'un palier
+         de 290px de défilement sur la médiane puis d'une remontée de 288px.
+         L'ancre partagée, corrigée du décollage du stage, est stable sans ça.
+
+         Repli si la méthode n'est pas dans le document : le foyer projeté,
+         c'est-à-dire exactement le comportement d'avant. */
+      const foyer = ctm.b * FOYER_X + ctm.d * FOYER_Y + ctm.f;
 
       /* Largeur du bureau à l'écran, via la matrice : le rayon de naissance
          est la moitié de cette empreinte. */
@@ -376,8 +413,8 @@ export function initLanding(root){
         : R_CROISIERE;
 
       claim({
-        x: ctm.a * FOYER_X + ctm.c * FOYER_Y + ctm.e,
-        y,
+        x: ancre ? ancre.x : ctm.a * FOYER_X + ctm.c * FOYER_Y + ctm.e,
+        y: ancre ? ancre.y : foyer,
         weight: naissance * (1 - seg(sortie, 0.25, 0.85)),
         /* L'étincelle naît À LA TAILLE RÉELLE du bureau, puis rejoint son
            rayon de croisière. Un rayon de naissance codé en dur (13px)
