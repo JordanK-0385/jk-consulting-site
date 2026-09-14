@@ -14,8 +14,10 @@
 import { clamp01 } from './color.js';
 
 /* Lissage de Perlin : dérivée nulle aux deux extrémités, donc arrivée et
-   départ progressifs de part et d'autre de chaque nœud. */
-const smoother = t => t * t * t * (t * (t * 6 - 15) + 10);
+   départ progressifs de part et d'autre de chaque nœud.
+   Exporté : le landing s'en sert pour la glissade du bureau vers le rail, qui
+   doit elle aussi partir et arriver à l'arrêt. Une courbe, un endroit. */
+export const smoother = t => t * t * t * (t * (t * 6 - 15) + 10);
 
 /**
  * Fabrique une fonction de docking.
