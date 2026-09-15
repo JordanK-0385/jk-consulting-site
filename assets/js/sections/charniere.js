@@ -19,15 +19,14 @@
  */
 
 import { registerAfter } from '../core/raf.js';
+import { prefersReducedMotion } from '../core/motion.js';
 import { stickyProgress } from '../core/scroll.js';
-import { clamp01, seg, lerp, rgb } from '../core/color.js';
-import { smoother } from '../core/dock.js';
-import { CLAIR, SOMBRE } from '../core/entree-process.js';
+import { clamp01, seg, rgb } from '../core/color.js';
+import { SOMBRE } from '../core/entree-process.js';
 import { ancragePoint, POINT_DX, POINT_DY, ECRITURE, RATTRAPE } from '../core/interrogation.js';
 
-/* Le néon de la nuit et le cyan assombri du papier — les deux teintes du fil,
-   reprises telles quelles. Le titre et le fil sont alors rigoureusement de la
-   même couleur à chaque instant, ce qui est le but. */
+/* Le néon de la nuit, repris tel quel au fil. Le titre vivant sur le stage
+   sombre du début à la fin, c'est sa seule couleur. */
 const NEON = SOMBRE;
 
 /* La boucle se referme sur la bille APRÈS qu'elle se soit posée : le meneur
@@ -35,45 +34,27 @@ const NEON = SOMBRE;
    Ce court retard est le geste de fermeture, pas un rattrapage. */
 const FERMETURE = 0.95;
 
-/* Le titre s'efface quand le chapô de la méthode monte le rejoindre. Critère
-   géométrique et non fenêtre de défilement : il s'ajuste seul à la mise en
-   page, comme le dégagement du couloir en sortie de section. */
-const GARDE = 160;
-
-/* VARIANTE B — LA REMONTÉE. Le titre s'écrit à la hauteur de la bille, puis
-   monte se figer dans le sombre pendant qu'elle descend. Les deux mouvements
-   sont opposés et pilotés par LA MÊME grandeur : la descente de la bille
-   elle-même, lue sur le fil déjà rendu. Pas deux horloges, pas de poids
-   concurrents — le titre monte exactement de ce que la bille descend, à
-   l'échelle près.
-   HAUTEUR : où le titre se fige, en fraction d'écran. COURSE : de combien la
-   bille doit descendre pour que la remontée soit achevée. */
-/* OÙ LE TITRE SE FIGE. Pas une simple fraction d'écran : sur un téléphone le
-   titre fait trois lignes, et une fraction qui convient au desktop l'y ferait
-   sortir par le haut. La cible est donc « aussi haut que le bloc le permet,
-   sans jamais dépasser 22% de l'écran » — MARGE_HAUT sous le bord, ou le
-   plafond, le plus bas des deux.
-   Mesuré : le desktop est inchangé (le plafond gagne partout au-dessus de
-   720px), et la remontée passe de 92 à 163px en 390x844, de 103 à 205px en
-   430x932. En 390x667 elle plafonne à 64px — le bloc y occupe presque toute
-   la hauteur disponible au-dessus de l'ancre, et réduire le corps du titre
-   pour gagner quelques pixels coûterait plus en lisibilité que ça ne
-   rapporterait en mouvement. */
-const MARGE_HAUT = 44;
-const PLAFOND    = 0.22;
-const COURSE  = 420;
-const MARGE   = 300;
-
 export function initCharniere(root){
   const bloc  = root.querySelector('.charniere');
   const titre = bloc && bloc.querySelector('.titre-charniere');
   const mots  = titre ? [...titre.querySelectorAll('.mot')] : [];
   const glyphe = bloc && bloc.querySelector('.q svg');
-  const bande = root.querySelector('.seam--to-light');
-  const chapo = root.querySelector('.intro h2');
   const landing = document.querySelector('#landing');
+  const stage = landing && landing.querySelector('.stage');
   const scene = landing && landing.querySelector('.scene');
   if (!bloc || !titre || !mots.length || !glyphe || !landing) return;
+
+  /* LE TITRE EMBARQUE SUR LE STAGE. Il cesse d'être une couche autonome pour
+     devenir un passager, comme le logo et le bouton : immobile tant que le
+     stage est collé, puis emporté vers le haut à la vitesse du défilement.
+     C'est ce qui règle d'un coup les deux défauts des versions précédentes —
+     il ne rencontre jamais le fond clair, et rien de la méthode ne passe
+     dessous, puisqu'il est sorti bien avant qu'elle n'arrive.
+
+     Pas en mouvement réduit : le balisage reste alors dans la méthode, où il
+     se lit en flux normal, entier et immobile. C'est la raison pour laquelle
+     le déménagement est ici et non dans index.html. */
+  if (stage && !prefersReducedMotion()) stage.appendChild(bloc);
 
   /* GÉOMÉTRIE DE LECTURE, relevée une fois sur la mise en page nue.
      Pour chaque mot, son début et sa fin le long du chemin de lecture ; et la
@@ -161,8 +142,6 @@ export function initCharniere(root){
       mots[i].style.clipPath = `inset(0 ${(100 * (1 - part)).toFixed(2)}% 0 0)`;
     }
 
-    const r0 = bande ? bande.getBoundingClientRect() : null;
-
     /* LA POSE, puis LA REMONTÉE. En X rien ne bouge jamais : le point reste
        sur l'ancre, donc sur l'axe du rail, donc le delta X de la descente est
        intact. En Y le titre part de l'ancre — la bille est son point — puis
@@ -172,44 +151,24 @@ export function initCharniere(root){
        thread.js s'exécute avant cette passe. Un seul nombre commande les deux
        sens, il n'y a donc rien à synchroniser. Le titre se fige quand la
        course est faite, et n'en bouge plus. */
-    /* CE QUI COMMANDE LA REMONTÉE : l'arrivée du jour, c'est-à-dire le haut
-       de la bande de raccord qui monte vers le titre. Le titre lui cède la
-       place en remontant dans la nuit.
-
-       Ce n'est PAS la descente de la bille, bien qu'on l'ait cru : le fil
-       « descend le rail » dans le document mais REMONTE à l'écran, puisque
-       la page défile sous lui — mesuré, il va de 414 à 162. Piloter la
-       remontée par ce déplacement l'aurait déclenchée après que le titre se
-       soit déjà effacé, et dans le même sens que la bille au lieu du sens
-       opposé. La bande, elle, monte franchement et tôt. */
-    const bande0 = r0 ? r0.top : Infinity;
-    const montee = smoother(clamp01((ancre.y + MARGE - bande0) / COURSE));
-    const haut = Math.max(MARGE_HAUT + plan.oy, window.innerHeight * PLAFOND);
-    const posY = ancre.y + (haut - ancre.y) * montee;
-
+    /* LA POSE, et rien d'autre. Le titre ne remonte plus par lui-même : il se
+       pose sur l'ancre — la même que le landing et la méthode revendiquent —
+       et n'en bouge pas. C'est le stage qui monte sous lui. Un mouvement de
+       moins, et le point reste sur l'axe du rail tant qu'il est là. */
     titre.style.transform =
-      `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(posY - plan.oy).toFixed(2)}px)`;
+      `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(ancre.y - plan.oy).toFixed(2)}px)`;
 
-    /* LA TEINTE SE LIT SUR LA GÉOMÉTRIE DE LA BANDE, pas sur une fenêtre de
-       défilement. Au-dessus de la bande on est sur la nuit : néon. En dessous
-       on est sur le papier : cyan assombri, le seul des deux qui passe le
-       contraste AA sur fond clair (4.52:1 contre 1.35:1). La bascule suit donc
-       exactement celle du fil, et pour la même raison qu'en sortie de section. */
-    const r = r0;
-    /* VARIANTE B — la teinte se lit à la position COURANTE du point, pas à
-       l'ancre : le titre remonte, donc son rapport à la bande change aussi
-       par son propre mouvement. Lire l'ancre donnerait la couleur d'un endroit
-       où le titre n'est plus. */
-    const teinte = r ? lerp(NEON, CLAIR, seg(posY, r.top, r.bottom)) : NEON;
-    bloc.style.color = rgb(teinte);
+    /* NÉON CONSTANT. Le titre ne quitte jamais la nuit du stage : il n'y a
+       plus de bande à traverser, donc plus de fond qui change sous l'encre.
+       Mesuré sur toute sa trajectoire et sur les deux viewports, 12.2 à
+       12.7:1. Le défaut de contraste des versions précédentes n'est pas
+       rattrapé — il a cessé d'exister. */
+    bloc.style.color = rgb(NEON);
 
-    /* Présent dès que l'écriture commence, effacé quand le chapô de la méthode
-       monte le rejoindre : les deux ne se superposent jamais. Critère
-       géométrique, donc juste quelle que soit la mise en page. */
-    const entree = seg(p, ECRITURE[0] - 0.03, ECRITURE[0] + 0.02);
-    const bt = titre.getBoundingClientRect().bottom;
-    const margeJour = r ? r.top - bt : Infinity;
-    const margeChapo = chapo ? chapo.getBoundingClientRect().top - bt : Infinity;
-    bloc.style.opacity = (entree * seg(Math.min(margeJour, margeChapo), 0, GARDE)).toFixed(3);
+    /* PLUS D'EFFACEMENT. Le titre est présent dès que la scène le porte, et
+       c'est la sortie du stage qui l'emporte, pas un fondu. Le volet des mots
+       suffit à le rendre invisible avant l'écriture : un seul mécanisme au
+       lieu de deux. */
+    bloc.style.opacity = '1';
   });
 }
