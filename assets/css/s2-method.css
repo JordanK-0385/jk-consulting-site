@@ -286,4 +286,22 @@
      s'alignent sur les cartes. */
   .s-method .intro,
   .s-method .outro{ padding-right: 0; padding-left: 70px; max-width: none; }
+
+  /* LE COULOIR DE SORTIE. En desktop la bascule est rangée à gauche, assez
+     courte pour rester hors du balayage du fil — c'est ce que fait le
+     max-width plus haut. Ici elle reprend toute la largeur et traverse l'axe
+     de plongée : le fil doit donc attendre qu'elle soit remontée au-dessus de
+     lui, et il faut que cette attente laisse encore de quoi voler.
+
+     Sans cette hauteur, le couloir se dégage 40px APRÈS le passage de main :
+     l'arc n'a plus de course (vol négatif), la méthode tient le fil sur son
+     rail jusqu'au bout, et les 148px qu'on croit voir ne sont que la dérive
+     du mélange des poids — la diagonale subie que la couture a supprimée.
+     280px rendent l'arc réel, à 0,82px latéral par pixel de scroll, dans la
+     famille des gestes validés du site.
+
+     En bande de raccord et non en marge blanche : c'est sur elle que se lit
+     la bascule clair -> sombre, l'arc et le virage de couleur se font donc
+     ensemble au lieu de se suivre. L'espace travaille. */
+  #methode .seam--to-dark{ height: clamp(300px, 45vh, 420px); }
 }
