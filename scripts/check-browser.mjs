@@ -140,6 +140,23 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]){
         if (!el.textContent.trim() || el.children.length) continue;
         const cs = getComputedStyle(el);
         if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+        /* Ce contrôle résout le fond en remontant les ANCÊTRES DOM. C'est juste
+           pour du texte en flux, faux pour une couche détachée : le titre de
+           charnière est en position:fixed au-dessus du landing, son fond réel
+           n'a rien à voir avec la section qui le contient. Le mesurer ici
+           donnerait un chiffre inventé — il l'est ailleurs, sur le fond
+           réellement photographié derrière son encre.
+           Idem pour ce qui est transparent : un texte invisible n'a pas de
+           contraste à tenir. Même raison que l'opacité cumulée du contrôle
+           des croisements. */
+        if (+cs.opacity < 0.15) continue;
+        let detache = false;
+        for (let n = el; n && n !== document.body; n = n.parentElement){
+          const pos = getComputedStyle(n).position;
+          if (pos === 'fixed'){ detache = true; break; }
+          if (+getComputedStyle(n).opacity < 0.15){ detache = true; break; }
+        }
+        if (detache) continue;
         const taille = parseFloat(cs.fontSize);
         const grand = taille >= 24 || (taille >= 18.66 && +cs.fontWeight >= 700);
         const r = ratio(cs.color, fond(el));
