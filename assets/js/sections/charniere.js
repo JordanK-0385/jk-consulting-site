@@ -21,6 +21,7 @@
 import { registerAfter } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
 import { clamp01, seg, lerp, rgb } from '../core/color.js';
+import { smoother } from '../core/dock.js';
 import { CLAIR, SOMBRE } from '../core/entree-process.js';
 import { ancragePoint, POINT_DX, POINT_DY, ECRITURE, RATTRAPE } from '../core/interrogation.js';
 
@@ -38,6 +39,18 @@ const FERMETURE = 0.95;
    géométrique et non fenêtre de défilement : il s'ajuste seul à la mise en
    page, comme le dégagement du couloir en sortie de section. */
 const GARDE = 160;
+
+/* VARIANTE B — LA REMONTÉE. Le titre s'écrit à la hauteur de la bille, puis
+   monte se figer dans le sombre pendant qu'elle descend. Les deux mouvements
+   sont opposés et pilotés par LA MÊME grandeur : la descente de la bille
+   elle-même, lue sur le fil déjà rendu. Pas deux horloges, pas de poids
+   concurrents — le titre monte exactement de ce que la bille descend, à
+   l'échelle près.
+   HAUTEUR : où le titre se fige, en fraction d'écran. COURSE : de combien la
+   bille doit descendre pour que la remontée soit achevée. */
+const HAUTEUR = { large: 0.22, etroit: 0.34 };
+const COURSE  = 420;
+const MARGE   = 300;
 
 export function initCharniere(root){
   const bloc  = root.querySelector('.charniere');
@@ -136,28 +149,55 @@ export function initCharniere(root){
       mots[i].style.clipPath = `inset(0 ${(100 * (1 - part)).toFixed(2)}% 0 0)`;
     }
 
-    /* LA POSE. On amène le centre du point sur l'ancre — celle-là même que le
-       landing et la méthode revendiquent. Aucun réglage : le décalage est la
-       différence entre l'ancre et l'offset mesuré du point dans le bloc. */
+    const r0 = bande ? bande.getBoundingClientRect() : null;
+
+    /* LA POSE, puis LA REMONTÉE. En X rien ne bouge jamais : le point reste
+       sur l'ancre, donc sur l'axe du rail, donc le delta X de la descente est
+       intact. En Y le titre part de l'ancre — la bille est son point — puis
+       s'en détache vers le haut À MESURE QUE LA BILLE DESCEND.
+
+       La progression est la descente elle-même, lue sur le fil déjà rendu :
+       thread.js s'exécute avant cette passe. Un seul nombre commande les deux
+       sens, il n'y a donc rien à synchroniser. Le titre se fige quand la
+       course est faite, et n'en bouge plus. */
+    /* CE QUI COMMANDE LA REMONTÉE : l'arrivée du jour, c'est-à-dire le haut
+       de la bande de raccord qui monte vers le titre. Le titre lui cède la
+       place en remontant dans la nuit.
+
+       Ce n'est PAS la descente de la bille, bien qu'on l'ait cru : le fil
+       « descend le rail » dans le document mais REMONTE à l'écran, puisque
+       la page défile sous lui — mesuré, il va de 414 à 162. Piloter la
+       remontée par ce déplacement l'aurait déclenchée après que le titre se
+       soit déjà effacé, et dans le même sens que la bille au lieu du sens
+       opposé. La bande, elle, monte franchement et tôt. */
+    const bande0 = r0 ? r0.top : Infinity;
+    const montee = smoother(clamp01((ancre.y + MARGE - bande0) / COURSE));
+    const haut = window.innerHeight * (plan.etroit ? HAUTEUR.etroit : HAUTEUR.large);
+    const posY = ancre.y + (haut - ancre.y) * montee;
+
     titre.style.transform =
-      `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(ancre.y - plan.oy).toFixed(2)}px)`;
+      `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(posY - plan.oy).toFixed(2)}px)`;
 
     /* LA TEINTE SE LIT SUR LA GÉOMÉTRIE DE LA BANDE, pas sur une fenêtre de
        défilement. Au-dessus de la bande on est sur la nuit : néon. En dessous
        on est sur le papier : cyan assombri, le seul des deux qui passe le
        contraste AA sur fond clair (4.52:1 contre 1.35:1). La bascule suit donc
        exactement celle du fil, et pour la même raison qu'en sortie de section. */
-    const r = bande ? bande.getBoundingClientRect() : null;
-    const teinte = r ? lerp(NEON, CLAIR, seg(ancre.y, r.top, r.bottom)) : NEON;
+    const r = r0;
+    /* VARIANTE B — la teinte se lit à la position COURANTE du point, pas à
+       l'ancre : le titre remonte, donc son rapport à la bande change aussi
+       par son propre mouvement. Lire l'ancre donnerait la couleur d'un endroit
+       où le titre n'est plus. */
+    const teinte = r ? lerp(NEON, CLAIR, seg(posY, r.top, r.bottom)) : NEON;
     bloc.style.color = rgb(teinte);
 
     /* Présent dès que l'écriture commence, effacé quand le chapô de la méthode
        monte le rejoindre : les deux ne se superposent jamais. Critère
        géométrique, donc juste quelle que soit la mise en page. */
     const entree = seg(p, ECRITURE[0] - 0.03, ECRITURE[0] + 0.02);
-    const marge = chapo
-      ? chapo.getBoundingClientRect().top - titre.getBoundingClientRect().bottom
-      : Infinity;
-    bloc.style.opacity = (entree * seg(marge, 0, GARDE)).toFixed(3);
+    const bt = titre.getBoundingClientRect().bottom;
+    const margeJour = r ? r.top - bt : Infinity;
+    const margeChapo = chapo ? chapo.getBoundingClientRect().top - bt : Infinity;
+    bloc.style.opacity = (entree * seg(Math.min(margeJour, margeChapo), 0, GARDE)).toFixed(3);
   });
 }
