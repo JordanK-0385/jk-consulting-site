@@ -27,6 +27,74 @@
    accrochent, donc rien ne peut se désaligner. */
 .s-method{ --texte: 48%; }
 
+/* ---- La charnière : « Comment on fait ? » ----
+   COUCHE FIXE, et non collée. Un bloc sticky aurait demandé un conteneur
+   d'épinglage, donc de la longueur ; et en repli mobile, où .parcours passe
+   en display:block, il aurait recouvert les cartes qui défilent dans le même
+   flux — mesuré : jusqu'à 5 cartes à la fois, 116px chacune.
+
+   Fixe, le titre ne suit pas le défilement : « se figer en haut » est obtenu
+   sans lui ajouter le moindre mouvement. C'est la bille qui s'en va, vers le
+   bas. Et l'écran est libre pour l'accueillir : au moment de la pose il n'y a
+   que la bille seule sur fond sombre, sur 600px de défilement en desktop et
+   1000px en repli.
+
+   Le module de pose ouvre l'opacité et place le bloc ; sans script, il reste
+   invisible et la section se lit comme avant. */
+.s-method .charniere{
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.02;
+}
+/* Posé par transform depuis le coin haut-gauche : le module calcule le
+   décalage qui amène le centre du point sur l'ancre. */
+.s-method .titre-charniere{
+  position: absolute;
+  top: 0; left: 0;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 80px;
+}
+/* L'ÉCRITURE EST UN DÉVOILEMENT DIRECTIONNEL, pas un fondu : chaque mot est
+   découvert de la gauche vers la droite par son propre volet, tous pilotés
+   par la même progression. Valeur de départ 100% : rien n'est écrit tant que
+   le module n'a pas parlé. */
+.s-method .charniere .mot{
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+.s-method .charniere .mot + .mot{ margin-left: .28em; }
+/* Le « ? » : la chasse et la hauteur du glyphe, en em, pour que le bloc se
+   compose exactement comme du texte. */
+.s-method .charniere .q{ margin-left: .10em; }
+.s-method .charniere .q svg{
+  display: block;
+  width: .578em;
+  height: .728em;
+  overflow: visible;
+}
+.s-method .charniere .boucle{ fill: currentColor; }
+/* Le point appartient à la bille. Il n'est dessiné que dans le repli. */
+.s-method .charniere .point{ fill: currentColor; opacity: 0; }
+
+/* Repli sans mouvement : le titre est là, entier, immobile, point compris.
+   Il reprend le flux pour ne rien recouvrir, puisque rien ne défile. */
+.reduced-motion .s-method .charniere{
+  position: static;
+  opacity: 1;
+  padding: clamp(60px, 12vh, 140px) var(--gutter) 0;
+}
+.reduced-motion .s-method .titre-charniere{ position: static; }
+.reduced-motion .s-method .charniere .mot{ clip-path: none; }
+.reduced-motion .s-method .charniere .point{ opacity: 1; }
+
 /* ---- Le parcours : texte fixe, étapes qui défilent ----
    Le chapô et la timeline partagent une grille. C'est ce qui rend le sticky
    possible : collé dans SA colonne, le texte ne peut pas chevaucher les
@@ -286,6 +354,17 @@
      s'alignent sur les cartes. */
   .s-method .intro,
   .s-method .outro{ padding-right: 0; padding-left: 70px; max-width: none; }
+
+  /* TROIS LIGNES, le « ? » seul sur la dernière. Il se loge alors dans la
+     gouttière du rail — la colonne des nœuds — et se lit comme un nœud 00.
+     C'est voulu : c'est là que la bille attend.
+     Corps 68px : le point du glyphe y fait 12.9px, la bille au repos 12.8px.
+     Elles coïncident sans qu'on ait à forcer le rayon. Mesuré : au-delà de
+     76px la ligne « Comment » déborde du cadre de 350px. */
+  .s-method .titre-charniere{ font-size: 68px; white-space: normal; }
+  .s-method .charniere .mot{ display: block; }
+  .s-method .charniere .mot + .mot{ margin-left: 0; }
+  .s-method .charniere .q{ margin-left: 0; }
 
   /* LE COULOIR DE SORTIE. En desktop la bascule est rangée à gauche, assez
      courte pour rester hors du balayage du fil — c'est ce que fait le
