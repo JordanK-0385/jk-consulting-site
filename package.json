@@ -5,10 +5,11 @@
   "description": "Site vitrine JK Consulting — page unique, sans étape de build.",
   "type": "module",
   "scripts": {
-    "check": "npm run check:static && npm run check:browser && npm run check:fil",
+    "check": "npm run check:static && npm run check:browser && npm run check:fil && npm run check:axe",
     "check:static": "node scripts/check-static.mjs",
     "check:browser": "node scripts/check-browser.mjs",
     "check:fil": "node scripts/check-fil.mjs",
+    "check:axe": "node scripts/check-axe.mjs",
     "dev": "node scripts/serve.mjs"
   },
   "devDependencies": {
