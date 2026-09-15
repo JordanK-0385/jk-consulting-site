@@ -17,6 +17,7 @@ import './core/motion.js'; // pose .reduced-motion sur <html> dès le chargement
 import './core/thread.js';
 import { initLanding } from './sections/landing.js';
 import { initMethod } from './sections/method.js';
+import { initCharniere } from './sections/charniere.js';
 import { initWorkflow } from './sections/workflow.js';
 import { initLiaison } from './sections/liaison.js';
 import { initTemoignages } from './sections/temoignages.js';
@@ -25,6 +26,9 @@ import { initTemoignages } from './sections/temoignages.js';
 const sections = [
   ['#landing', initLanding],
   ['#methode', initMethod],
+  /* La charnière reçoit la même racine, mais ne s'enregistre pas comme une
+     section : c'est une couche de page, rendue en passe post-sections. */
+  ['#methode', initCharniere],
   ['#workflow', initWorkflow],
   ['#liaison', initLiaison],
   ['#temoignages', initTemoignages],
