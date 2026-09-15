@@ -29,10 +29,20 @@ export function initMethod(root){
   const line  = root.querySelector('.line');
   const steps = [...root.querySelectorAll('.step')];
   const nodes = steps.map(s => s.querySelector('.node'));
-  /* Les deux repères de la sortie : la carte du dernier jalon, qui occupe le
-     couloir que l'arc doit traverser, et la bande de raccord, sur laquelle se
-     lit la bascule de couleur. */
-  const derniereCarte = steps.length ? steps[steps.length - 1].querySelector('.card') : null;
+  /* Les repères de la sortie : ce qui occupe le couloir que l'arc doit
+     traverser, et la bande de raccord, sur laquelle se lit la bascule de
+     couleur.
+
+     TOUT CE QUI PEUT SE TROUVER DANS LE COULOIR, pas seulement la carte du
+     dernier jalon. Le bloc de bascule vit hors de .parcours : le test ne le
+     voyait pas, et l'arc mobile lui passait au travers — la bille tombait en
+     plein sur « Voyons un agent s'installer », 12px de recouvrement sur
+     96px de défilement en 390x844. Requête structurelle plutôt que deux
+     références en dur, pour que le prochain élément posé dans ce couloir soit
+     compté sans qu'on ait à y penser. Le décoratif est écarté comme il l'est
+     du harnais de contrôle : une flèche en aria-hidden n'est pas un obstacle. */
+  const obstacles = [...root.querySelectorAll('.card, .outro > *')]
+    .filter(el => !el.closest('[aria-hidden="true"]'));
   const bande = root.querySelector('.seam--to-dark');
 
   /* Origine de l'arc de sortie, figée au dégagement du couloir et relâchée si
@@ -174,12 +184,12 @@ export function initMethod(root){
        450px de dérive en diagonale, avec un creux en Y de 435 à 315 avant de
        remonter à 450.
 
-       DÉPART : l'instant où le couloir se dégage, c'est-à-dire où la carte du
-       dernier jalon est remontée au-dessus du fil. C'est le critère de
-       collision lui-même, donc il s'ajuste seul à n'importe quelle mise en
-       page : partir à l'accostage de 05 aurait fait voler le fil à travers
-       son propre texte, mesuré de 3003 à 3138 en 1440x900 et de 2216 à 2318
-       en 390x844.
+       DÉPART : l'instant où le couloir se dégage, c'est-à-dire où le plus bas
+       des obstacles qui s'y trouvent est remonté au-dessus du fil. C'est le
+       critère de collision lui-même, donc il s'ajuste seul à n'importe quelle
+       mise en page : partir à l'accostage de 05 aurait fait voler le fil à
+       travers son propre texte, mesuré de 3003 à 3138 en 1440x900 et de 2216
+       à 2318 en 390x844.
 
        ARRIVÉE : l'instant où le workflow prend le fil, DEBUT_WORKFLOW, lu
        dans le module de couture par les deux sections. La méthode y a donc
@@ -193,9 +203,25 @@ export function initMethod(root){
        annule les deux dérivées aux bornes : départ et arrivée à l'arrêt,
        comme la glissade d'entrée. */
     const cible = ancreProcess(window.innerHeight);
-    if (derniereCarte){
-      const carte = derniereCarte.getBoundingClientRect();
-      if (carte.bottom < y){ if (!quai) quai = { x: railX, y, front: section.bottom }; }
+    /* UN OBSTACLE NE COMPTE QUE S'IL EST DANS LE COULOIR QUE LE FIL VA
+       BALAYER — l'intervalle [railX, cible.x], et non le seul axe d'arrivée.
+       La nuance n'est pas cosmétique : filtrer sur l'axe seul excluait la
+       carte 05 en desktop, qui tient x 756..1122 quand l'axe est à 720. Le
+       quai se figeait alors immédiatement et l'arc partait 450px de scroll
+       trop tôt. Avec le couloir, le desktop retrouve son gating au pixel près
+       (quai.front=978, vol=303) et le bloc de bascule, rangé à gauche par la
+       CSS, y reste inerte — c'est le repli mobile, qui lui rend toute la
+       largeur, qui le fait entrer dans le couloir. */
+    {
+      const gauche = Math.min(railX, cible ? cible.x : railX) - 6;
+      const droite = Math.max(railX, cible ? cible.x : railX) + 6;
+      let bas = -Infinity;
+      for (const el of obstacles){
+        const r = el.getBoundingClientRect();
+        if (r.right < gauche || r.left > droite) continue;
+        if (r.bottom > bas) bas = r.bottom;
+      }
+      if (bas < y){ if (!quai) quai = { x: railX, y, front: section.bottom }; }
       else quai = null;
     }
     const fin = (1 - DEBUT_WORKFLOW) * window.innerHeight;
