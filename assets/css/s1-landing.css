@@ -182,3 +182,86 @@
   .s-landing .hero .lede{ font-size: 14.5px; margin: 14px 0 20px; }
   .s-landing .cta-row a{ padding: 12px 20px; font-size: 14px; }
 }
+
+/* ---- La charnière : « Comment on fait ? » ----
+   DÉLIBÉRÉMENT NON SCOPÉ, contrairement au reste de ce fichier. Le bloc
+   VOYAGE : son balisage vit dans la méthode — c'est là qu'il se lit quand le
+   mouvement est réduit — et le script l'embarque sur ce stage quand le
+   mouvement est permis. Un sélecteur ancré sur une section le dépouillerait
+   de ses règles à l'arrivée. Le scope général de ce fichier existe parce que
+   .a/.ctas/.eyebrow/.cue se retrouvaient dans trois protos ; .charniere est
+   unique au projet, la raison ne s'applique pas ici.
+
+   ABSOLU DANS LE STAGE, et non fixe. Tant que le stage est collé, un enfant
+   absolu y a exactement le repère du viewport : la pose du « ? » sur l'ancre
+   ne change pas d'une ligne. Puis le stage se décolle et emporte le titre
+   vers le haut, à la vitesse du défilement — celle du logo, mesurée au pixel.
+   L'overflow:hidden du stage découpe la sortie : pas de masque à ajouter.
+
+   z-index 12 : au-dessus de la scène et de la vignette (11), SOUS le bandeau,
+   le hero et l'indice (20). Le titre ne PEUT donc pas couvrir le logo ni le
+   bouton — ce n'est plus une mesure qui le dit, c'est l'ordre d'empilement. */
+.charniere{
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  opacity: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.02;
+}
+/* Posé par transform depuis le coin haut-gauche : le module calcule le
+   décalage qui amène le centre du point sur l'ancre. */
+.titre-charniere{
+  position: absolute;
+  top: 0; left: 0;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 80px;
+}
+/* L'ÉCRITURE EST UN DÉVOILEMENT DIRECTIONNEL, pas un fondu : chaque mot est
+   découvert de la gauche vers la droite par son propre volet, tous pilotés
+   par la même progression. Valeur de départ 100% : rien n'est écrit tant que
+   le module n'a pas parlé — c'est aussi ce qui rend tout fondu d'entrée
+   inutile. */
+.charniere .mot{
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+.charniere .mot + .mot{ margin-left: .28em; }
+/* Le « ? » : la chasse et la hauteur du glyphe, en em, pour que le bloc se
+   compose exactement comme du texte. */
+.charniere .q{ margin-left: .10em; }
+.charniere .q svg{
+  display: block;
+  width: .578em;
+  height: .728em;
+  overflow: visible;
+}
+.charniere .boucle{ fill: currentColor; }
+/* Le point appartient à la bille. Il n'est dessiné que dans le repli. */
+.charniere .point{ fill: currentColor; opacity: 0; }
+
+@media (max-width: 720px){
+  /* Trois lignes, le « ? » seul sur la dernière. Il se loge dans la gouttière
+     du rail — la colonne des nœuds — et se lit comme un nœud 00. Corps 68px :
+     le point du glyphe y fait 12.9px, la bille au repos 12.8px. */
+  .titre-charniere{ font-size: 68px; white-space: normal; }
+  .charniere .mot{ display: block; }
+  .charniere .mot + .mot{ margin-left: 0; }
+  .charniere .q{ margin-left: 0; }
+}
+
+/* Repli sans mouvement : le script n'embarque pas le titre, il reste donc
+   dans le flux de la méthode — entier, immobile, point compris. */
+.reduced-motion .charniere{
+  position: static;
+  opacity: 1;
+  padding: clamp(60px, 12vh, 140px) var(--gutter) 0;
+}
+.reduced-motion .titre-charniere{ position: static; }
+.reduced-motion .charniere .mot{ clip-path: none; }
+.reduced-motion .charniere .point{ opacity: 1; }
