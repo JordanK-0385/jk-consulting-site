@@ -361,6 +361,13 @@
      Corps 68px : le point du glyphe y fait 12.9px, la bille au repos 12.8px.
      Elles coïncident sans qu'on ait à forcer le rayon. Mesuré : au-delà de
      76px la ligne « Comment » déborde du cadre de 350px. */
+  /* DE LA PLACE POUR QUE LA CHARNIÈRE AILLE AU BOUT. Le chapô montait
+     rejoindre le titre pendant que la bascule de couleur se jouait encore :
+     mesuré, le titre tombait à 0.17 d'opacité alors que la teinte était à
+     mi-chemin. Le desktop n'a pas ce problème, son palier vide fait 600px de
+     défilement ; le repli n'en a que ce que la mise en page lui laisse. */
+  .s-method .parcours{ padding-top: 350px; }
+
   .s-method .titre-charniere{ font-size: 68px; white-space: normal; }
   .s-method .charniere .mot{ display: block; }
   .s-method .charniere .mot + .mot{ margin-left: 0; }
