@@ -54,7 +54,16 @@ export function initCharniere(root){
      Pas en mouvement réduit : le balisage reste alors dans la méthode, où il
      se lit en flux normal, entier et immobile. C'est la raison pour laquelle
      le déménagement est ici et non dans index.html. */
-  if (stage && !prefersReducedMotion()) stage.appendChild(bloc);
+  /* MOUVEMENT RÉDUIT : le module s'arrête ici, et c'est tout le correctif.
+     Il ne suffit pas de sauter le déménagement : tant que la boucle tourne,
+     elle écrit clip-path, transform et color EN LIGNE sur les éléments, et le
+     style en ligne l'emporte sur la feuille. Les règles de repli étaient donc
+     sans effet — vérifié, le titre restait invisible, volets fermés, et son
+     transform le faisait chevaucher le chapô de 71px en desktop, 104px en
+     repli. En ne peignant rien, la feuille reprend la main : statique dans le
+     flux de la méthode, entier, point dessiné. */
+  if (prefersReducedMotion()) return;
+  if (stage) stage.appendChild(bloc);
 
   /* GÉOMÉTRIE DE LECTURE, relevée une fois sur la mise en page nue.
      Pour chaque mot, son début et sa fin le long du chemin de lecture ; et la
