@@ -86,6 +86,11 @@ for (const vp of VIEWPORTS){
         if (el.children.length) continue;               // feuilles seulement
         if (!el.textContent.trim()) continue;
         if (el.closest('[aria-hidden="true"]')) continue;
+        /* Le fil est CENSÉ toucher ce texte : il est le point du « ? » de la
+           charnière, et c'est tout le geste. Une exemption nommée, portée par
+           le balisage, plutôt qu'une géométrie qui l'éviterait par hasard —
+           le contrôle reste ainsi vrai partout ailleurs. */
+        if (el.closest('[data-fil-contact]')) continue;
         /* Opacité CUMULÉE : un parent effacé rend la feuille invisible même si
            sa propre opacité vaut 1. Sans ça on signale du faux — le .hero de
            la landing, effacé par son conteneur pendant la condensation. */
