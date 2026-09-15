@@ -20,8 +20,8 @@
 
 import { registerAfter } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
-import { clamp01, seg, lerp, rgb } from '../core/color.js';
-import { CLAIR, SOMBRE } from '../core/entree-process.js';
+import { clamp01, seg, rgb } from '../core/color.js';
+import { SOMBRE } from '../core/entree-process.js';
 import { ancragePoint, POINT_DX, POINT_DY, ECRITURE, RATTRAPE } from '../core/interrogation.js';
 
 /* Le néon de la nuit et le cyan assombri du papier — les deux teintes du fil,
@@ -142,22 +142,26 @@ export function initCharniere(root){
     titre.style.transform =
       `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(ancre.y - plan.oy).toFixed(2)}px)`;
 
-    /* LA TEINTE SE LIT SUR LA GÉOMÉTRIE DE LA BANDE, pas sur une fenêtre de
-       défilement. Au-dessus de la bande on est sur la nuit : néon. En dessous
-       on est sur le papier : cyan assombri, le seul des deux qui passe le
-       contraste AA sur fond clair (4.52:1 contre 1.35:1). La bascule suit donc
-       exactement celle du fil, et pour la même raison qu'en sortie de section. */
+    /* VARIANTE A — PLUS DE BASCULE DE TEINTE. L'ancre est remontée dans le
+       sombre et le titre n'en sort jamais : il n'y a plus de bande à
+       traverser, donc plus de fond qui change sous l'encre. Le problème de
+       contraste disparaît par construction, il n'est pas rattrapé. */
+    bloc.style.color = rgb(NEON);
     const r = bande ? bande.getBoundingClientRect() : null;
-    const teinte = r ? lerp(NEON, CLAIR, seg(ancre.y, r.top, r.bottom)) : NEON;
-    bloc.style.color = rgb(teinte);
 
-    /* Présent dès que l'écriture commence, effacé quand le chapô de la méthode
-       monte le rejoindre : les deux ne se superposent jamais. Critère
-       géométrique, donc juste quelle que soit la mise en page. */
+    /* Présent dès que l'écriture commence, effacé par le premier des deux qui
+       monte le rejoindre : le jour — le haut de la bande de raccord — ou le
+       chapô de la méthode. Deux critères géométriques, donc justes quelle que
+       soit la mise en page et quelle que soit la hauteur du titre.
+
+       Le chapô seul ne suffisait pas : une fois collé en haut de sa colonne il
+       ne bouge plus, et un titre posé haut restait indéfiniment à mi-opacité
+       au-dessus du papier. C'est la bande qui dit quand la nuit finit. */
     const entree = seg(p, ECRITURE[0] - 0.03, ECRITURE[0] + 0.02);
-    const marge = chapo
-      ? chapo.getBoundingClientRect().top - titre.getBoundingClientRect().bottom
-      : Infinity;
+    const bt = titre.getBoundingClientRect().bottom;
+    const margeJour = r ? r.top - bt : Infinity;
+    const margeChapo = chapo ? chapo.getBoundingClientRect().top - bt : Infinity;
+    const marge = Math.min(margeJour, margeChapo);
     bloc.style.opacity = (entree * seg(marge, 0, GARDE)).toFixed(3);
   });
 }

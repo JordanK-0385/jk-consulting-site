@@ -56,8 +56,20 @@ export function ancrageEtincelle(){
   const stage = scene.closest('.stage');
   const haut = stage ? stage.getBoundingClientRect().top : 0;
 
+  /* VARIANTE A — LE POINT DE RENCONTRE MONTE DANS LE SOMBRE.
+     Le titre de charnière s'écrit autour de ce point : le laisser à mi-écran
+     le mettait à cheval sur la bande de raccord, moitié sur la nuit moitié
+     sur le papier. Ici les trois gestes remontent ENSEMBLE — le bureau y
+     meurt, l'étincelle y naît, le titre s'y écrit — et le titre ne rencontre
+     jamais la bande.
+     Deux hauteurs parce que le titre n'a pas la même forme : une ligne en
+     desktop, trois en repli, le « ? » sur la dernière. Plus haut en repli et
+     les deux premières lignes sortiraient par le haut. */
+  const etroit = window.innerWidth <= 720;
+  const plafond = window.innerHeight * (etroit ? 0.34 : 0.22);
+
   return {
     x: r.left + r.width / 2,
-    y: m.b * foyer.x + m.d * foyer.y + m.f - haut,
+    y: Math.min(m.b * foyer.x + m.d * foyer.y + m.f - haut, plafond),
   };
 }

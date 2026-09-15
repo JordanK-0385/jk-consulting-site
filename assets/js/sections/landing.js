@@ -262,7 +262,7 @@ export function initLanding(root){
   /* Conversion horizontale unités de scène <-> pixels écran, prise sur le
      cadrage. Elle ne dépend que du viewport — mesurée constante de p=0.50 à
      p=0.87 — donc relue ici seulement, et au redimensionnement. */
-  let cadreA = 0, cadreE = 0;
+  let cadreA = 0, cadreE = 0, cadreD = 0, cadreF = 0;
 
   function fit(){
     const narrow = stage.clientWidth < 720;
@@ -273,7 +273,7 @@ export function initLanding(root){
       `translate(0 ${lift}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${scale}) translate(${-PIVOT_X} ${-PIVOT_Y})`,
     );
     const m = fitG.getScreenCTM();
-    if (m){ cadreA = m.a; cadreE = m.e; }
+    if (m){ cadreA = m.a; cadreE = m.e; cadreD = m.d; cadreF = m.f; }
   }
   fit();
   addEventListener('resize', fit, { passive: true });
@@ -358,14 +358,23 @@ export function initLanding(root){
        l'abscisse de scène qui pose le foyer PILE sur le rail, et on y va par
        un lissage qui part et arrive à l'arrêt. */
     const ancre = ancrageEtincelle();
-    let axVu = ax;
+    let axVu = ax, ayVu = ay;
     if (ancre && cadreA){
       const cible = (ancre.x - cadreE) / cadreA - PIVOT_X - (FOYER_X - PIVOT_X) * echelle;
       axVu = ax + (cible - ax) * smoother(seg(p, DERIVE[0], DERIVE[1]));
     }
+    /* VARIANTE A — la glissade a maintenant DEUX composantes. L'ancre étant
+       remontée dans le sombre, viser la seule abscisse ferait mourir le bureau
+       230px sous l'étincelle qui s'allume : le saut que la glissade en X avait
+       justement supprimé, reparu dans l'autre axe. Même expression, même
+       lissage, même fenêtre. */
+    if (ancre && cadreD){
+      const cibleY = (ancre.y - cadreF) / cadreD - PIVOT_Y - (FOYER_Y - PIVOT_Y) * echelle;
+      ayVu = ay + (cibleY - ay) * smoother(seg(p, DERIVE[0], DERIVE[1]));
+    }
 
     sceneG.setAttribute('transform',
-      `translate(${axVu} ${ay}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${echelle}) translate(${-PIVOT_X} ${-PIVOT_Y})`);
+      `translate(${axVu} ${ayVu}) translate(${PIVOT_X} ${PIVOT_Y}) scale(${echelle}) translate(${-PIVOT_X} ${-PIVOT_Y})`);
     /* Le bureau ne s'efface QUE pendant le relais : tant qu'il reste
        quelque chose à lire, il est à pleine opacité. */
     sceneG.style.opacity = 1 - seg(p, EXTINCTION[0], EXTINCTION[1]);
