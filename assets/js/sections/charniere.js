@@ -48,7 +48,19 @@ const GARDE = 160;
    l'échelle près.
    HAUTEUR : où le titre se fige, en fraction d'écran. COURSE : de combien la
    bille doit descendre pour que la remontée soit achevée. */
-const HAUTEUR = { large: 0.22, etroit: 0.34 };
+/* OÙ LE TITRE SE FIGE. Pas une simple fraction d'écran : sur un téléphone le
+   titre fait trois lignes, et une fraction qui convient au desktop l'y ferait
+   sortir par le haut. La cible est donc « aussi haut que le bloc le permet,
+   sans jamais dépasser 22% de l'écran » — MARGE_HAUT sous le bord, ou le
+   plafond, le plus bas des deux.
+   Mesuré : le desktop est inchangé (le plafond gagne partout au-dessus de
+   720px), et la remontée passe de 92 à 163px en 390x844, de 103 à 205px en
+   430x932. En 390x667 elle plafonne à 64px — le bloc y occupe presque toute
+   la hauteur disponible au-dessus de l'ancre, et réduire le corps du titre
+   pour gagner quelques pixels coûterait plus en lisibilité que ça ne
+   rapporterait en mouvement. */
+const MARGE_HAUT = 44;
+const PLAFOND    = 0.22;
 const COURSE  = 420;
 const MARGE   = 300;
 
@@ -172,7 +184,7 @@ export function initCharniere(root){
        opposé. La bande, elle, monte franchement et tôt. */
     const bande0 = r0 ? r0.top : Infinity;
     const montee = smoother(clamp01((ancre.y + MARGE - bande0) / COURSE));
-    const haut = window.innerHeight * (plan.etroit ? HAUTEUR.etroit : HAUTEUR.large);
+    const haut = Math.max(MARGE_HAUT + plan.oy, window.innerHeight * PLAFOND);
     const posY = ancre.y + (haut - ancre.y) * montee;
 
     titre.style.transform =
