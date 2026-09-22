@@ -58,11 +58,25 @@
      à 55% du parcours, il ne restait que ~430px de course pour ramasser tout
      le bureau en un point.
 
-     Ramenée de 280 à 210vh : la fin de section ne montrait plus rien. Mesuré,
-     0,7 écran à 0 % de mouvement sur un cadre uniforme à 54 % — un écran noir
-     avec un point. La condensation est adoucie, donc 93 % de son geste est
-     joué aux deux tiers de sa fenêtre ; le dernier tiers ne se voyait pas. */
-  --h-landing:  210vh;
+     Ramenée de 280 à 210vh, puis reportée à 310. La coupe était juste à
+     l'époque : la fin de section ne montrait plus rien — 0,7 écran à 0 % de
+     mouvement sur un cadre uniforme à 54 %, un écran noir avec un point. Ce
+     qui a changé depuis, c'est que cette queue n'est plus vide : la charnière
+     l'occupe. Le titre s'y écrit de 0,40 à 0,87 de la course et la bille y
+     naît de 0,87 à 0,97 — il ne reste plus un tiers inerte à rogner.
+
+     Toutes les fenêtres du landing étant des fractions de la progression
+     (CONDENSE, DERIVE, EXTINCTION, NAISSANCE dans landing.js, ECRITURE dans
+     core/interrogation.js), cette seule valeur les étire ensemble sans en
+     toucher une. Vérifié : le rapport écriture/course reste à 0,54 de 210 à
+     360vh, et l'écriture du titre passe de 0,59 à 1,14 écran de défilement en
+     1440x900, de 0,44 à 0,94 en 390x844. L'entrée était trop rapide pour se
+     voir ; elle dure maintenant un écran.
+
+     Conséquence assumée : l'étirement est uniforme, donc l'ouverture avant la
+     condensation passe elle aussi de 0,46 à 0,86 écran. C'est le temps de
+     lecture du hero, qui s'efface sur 0,55 de la course. */
+  --h-landing:  310vh;
   /* 500vh et non 700 : sept jalons posés à intervalles égaux, c'était un
      écran plein PAR JALON. Le mécanisme — on lit le canvas en défilant
      latéralement — est compris au deuxième, et les cinq écrans du tronçon
@@ -87,7 +101,9 @@
    Le récit reste entier, le pouce souffre moins. Desktop inchangé. */
 @media (max-width: 720px){
   :root{
-    --h-landing:  180vh;
+    /* 270 et non 310 : le repli garde son abattement, comme pour les deux
+       autres sections. La même fraction d'écriture y donne 0,94 écran. */
+    --h-landing:  270vh;
     --h-workflow: 400vh;
     --h-liaison:  300vh;
   }
