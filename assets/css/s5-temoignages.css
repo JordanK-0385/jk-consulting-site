@@ -173,24 +173,11 @@
 }
 
 .s-temoignages figcaption{
-  display: flex;
-  align-items: center;
-  gap: 13px;
+  /* Plus de rond d'initiales : la légende n'est qu'une pile de deux lignes.
+     Un `flex` y laisserait une gouttière orpheline, alors que le flux normal
+     empile déjà `.who` et `.role` — tous deux en `block`. */
   margin-top: auto;
   padding-top: 4px;
-}
-.s-temoignages .avatar{
-  flex: none;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #EDF1F6;
-  border: 1px solid var(--hairline);
-  color: var(--fg-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: .04em;
 }
 .s-temoignages .who{
   display: block;
