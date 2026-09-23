@@ -103,37 +103,23 @@
   max-width: 52ch;
 }
 
-/* ---- Bandeau d'alerte ----
-   À SUPPRIMER en même temps que les emplacements réservés, une fois les
-   vrais témoignages en place. */
-.s-temoignages .placeholder-flag{
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  margin-bottom: clamp(24px, 4vh, 40px);
-  padding: 14px 18px;
-  border-radius: 10px;
-  background: #8A3E00;          /* blanc sur ce fond : 7.58:1 */
-  color: #FFFFFF;
-  font-size: 14px;
-  line-height: 1.45;
-}
-.s-temoignages .placeholder-flag strong{
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: .14em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.16);
-  white-space: nowrap;
-}
-
 /* ---- Grille de témoignages ---- */
 .s-temoignages .quotes{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* DEUX témoignages, deux colonnes — définitivement. `repeat(3, 1fr)`
+     laissait 367px de vide à droite en 1440 et 314px en 1024 : deux cartes
+     serrées à gauche et un trou, dans une grille taillée pour un troisième
+     qui n'existera pas.
+
+     `minmax(0, 1fr)` et non `1fr` : une citation longue pousserait sinon sa
+     colonne au-delà de sa part et les deux cartes cesseraient d'être égales.
+
+     Aucune borne de largeur, aucun centrage : la mesure du site plafonne
+     déjà la grille à 1076px, les cartes ne dépassent donc pas 525px, et
+     elles restent alignées au pixel sur le chapô — comme tout le reste de
+     la page. Borner puis centrer aurait décollé le bloc de 105px du bord
+     gauche du titre pour rien. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(16px, 2vw, 26px);
 }
 
@@ -151,14 +137,6 @@
      passage aurait creusé un vide derrière chaque carte en mouvement. */
 }
 
-/* Un emplacement réservé se signale aussi hors du bandeau : si celui-ci
-   saute, la carte reste identifiable comme non réelle. */
-.s-temoignages .quote[data-placeholder]{
-  border-style: dashed;
-  border-color: rgba(138,62,0,.38);
-  background: #FFFDFA;
-}
-
 .s-temoignages blockquote{ margin: 0; }
 .s-temoignages blockquote p{
   font-family: var(--font-display);
@@ -166,10 +144,6 @@
   font-size: clamp(16px, 1.7vw, 18.5px);
   line-height: 1.5;
   color: var(--fg);
-}
-.s-temoignages .quote[data-placeholder] blockquote p{
-  color: var(--fg-muted);
-  font-style: italic;
 }
 
 .s-temoignages figcaption{
@@ -194,12 +168,11 @@
 }
 
 /* ---- Replis ---- */
-@media (max-width: 900px){
-  .s-temoignages .quotes{ grid-template-columns: 1fr 1fr; }
-}
+/* Plus de palier à 900px : la grille de base est déjà à deux colonnes.
+   Il ne reste que la bascule en colonne unique, quand deux cartes côte à
+   côte deviennent trop étroites pour porter une citation. */
 @media (max-width: 620px){
   .s-temoignages .quotes{ grid-template-columns: 1fr; }
-  .s-temoignages .placeholder-flag{ font-size: 13px; }
 }
 
 /* ============================================================
