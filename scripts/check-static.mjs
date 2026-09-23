@@ -82,11 +82,35 @@ const verifier = (titre, condition, detail = '') =>
     !!conf && (!besoinGoogleFonts || (csp.includes('fonts.googleapis.com') && csp.includes('fonts.gstatic.com'))));
 }
 
-/* 9. Les destinations de CTA encore à fournir sont signalées, pas oubliées. */
+/* 9. Aucun CTA à destination externe ne reste sans destination.
+ *
+ * La version précédente comptait TOUTES les ancres `#contact` et exigeait, dès
+ * qu'il en restait une, qu'au moins un CTA soit marqué « à fournir ». Elle
+ * confondait deux choses : un bouton censé sortir de la page mais qui ne sait
+ * pas où aller, et un lien de navigation vers la section `#contact`, qui existe
+ * bel et bien. Une fois les trois boutons branchés, elle tombait à cause de la
+ * topbar et du hero — deux liens parfaitement sains.
+ *
+ * Le porteur de la propriété, c'est `data-cta-destination` : seuls les liens
+ * qui le portent sont des CTA à destination externe. On leur demande deux
+ * choses, et la seconde compte autant que la première : que plus aucun ne soit
+ * « à fournir », et que l'attribut dise la vérité sur le `href`. Sans ce second
+ * point l'attribut ne serait qu'un commentaire, et la règle ne contrôlerait
+ * qu'une chaîne de documentation au lieu du lien réellement servi. */
 {
-  const marques = (html.match(/data-cta-destination="à fournir"/g) || []).length;
-  const ancresContact = (html.match(/href="#contact"/g) || []).length;
-  verifier(`${marques} CTA marqué(s) « destination à fournir »`, marques > 0 || ancresContact === 0);
+  const cta = [...html.matchAll(/<a\b[^>]*\bdata-cta-destination="[^"]*"[^>]*>/g)]
+    .map(m => ({
+      dest: (m[0].match(/\bdata-cta-destination="([^"]*)"/) || [, ''])[1],
+      href: (m[0].match(/\bhref="([^"]*)"/) || [, ''])[1],
+    }));
+  const sansDestination = cta.filter(c => c.dest === 'à fournir' || !c.dest);
+  verifier(`${cta.length} CTA à destination externe, aucun « à fournir »`,
+    cta.length > 0 && !sansDestination.length,
+    cta.length ? `${sansDestination.length} sans destination` : 'aucun CTA trouvé');
+
+  const menteurs = cta.filter(c => c.href !== c.dest);
+  verifier('chaque CTA mène bien où son attribut annonce', !menteurs.length,
+    menteurs.map(c => `href="${c.href}" annoncé "${c.dest}"`).join(', '));
 }
 
 console.log('Contrôles statiques\n');
