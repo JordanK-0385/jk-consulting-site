@@ -77,6 +77,13 @@
      condensation passe elle aussi de 0,46 à 0,86 écran. C'est le temps de
      lecture du hero, qui s'efface sur 0,55 de la course. */
   --h-landing:  310vh;
+  /* LE REPOS DE LA CHARNIÈRE : défilement pendant lequel le landing, achevé,
+     reste collé — « Comment on fait ? » complet, la bille en guise de point.
+     Sans lui, le « ? » entier n'était visible que sur ~95px de défilement en
+     1440x900 : le décrochage passait inaperçu. Ajouté à la hauteur du landing
+     (s1-landing.css) et passé en palier à stickyProgress, comme --couture pour
+     la liaison. La fin de ce repos porte le décrochage (charniere.js). */
+  --repos-charniere: 60vh;
   /* 500vh et non 700 : sept jalons posés à intervalles égaux, c'était un
      écran plein PAR JALON. Le mécanisme — on lit le canvas en défilant
      latéralement — est compris au deuxième, et les cinq écrans du tronçon
@@ -104,6 +111,7 @@
     /* 270 et non 310 : le repli garde son abattement, comme pour les deux
        autres sections. La même fraction d'écriture y donne 0,94 écran. */
     --h-landing:  270vh;
+    --repos-charniere: 45vh;
     --h-workflow: 400vh;
     --h-liaison:  300vh;
   }
@@ -163,3 +171,6 @@
   color: var(--fg);
   background-color: var(--surface);
 }
+
+/* Sans mouvement, rien ne se joue pendant le repos : il est supprimé. */
+.reduced-motion{ --repos-charniere: 0vh; }

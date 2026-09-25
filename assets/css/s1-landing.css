@@ -5,7 +5,7 @@
    entraient en collision avec la FAQ et la section méthode.
    ============================================================ */
 
-.s-landing{ --scroll-height: var(--h-landing); }
+.s-landing{ --scroll-height: calc(var(--h-landing) + var(--repos-charniere)); }
 
 .s-landing > .stage{
   background:

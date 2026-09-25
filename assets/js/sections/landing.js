@@ -10,6 +10,7 @@ import { mk, poly, roundPath, points, makeIso } from '../core/svg.js';
 import { rgb, rgba, shade, seg, easeOut, clamp01 } from '../core/color.js';
 import { register } from '../core/raf.js';
 import { stickyProgress } from '../core/scroll.js';
+import { reposCharniere } from '../core/interrogation.js';
 import { ambientTime, prefersReducedMotion } from '../core/motion.js';
 import { claim } from '../core/thread.js';
 import { dalle } from '../core/bureau.js';
@@ -324,7 +325,7 @@ export function initLanding(root){
   } catch { /* getBBox indisponible : le pivot reste un repli correct */ }
 
   register(root, now => {
-    const p = stickyProgress(root);
+    const p = stickyProgress(landing, reposCharniere());
     const t = ambientTime(now);
     const still = prefersReducedMotion();
 

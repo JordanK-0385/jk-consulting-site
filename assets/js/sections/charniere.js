@@ -23,7 +23,7 @@ import { prefersReducedMotion } from '../core/motion.js';
 import { stickyProgress } from '../core/scroll.js';
 import { clamp01, seg, rgb } from '../core/color.js';
 import { SOMBRE } from '../core/entree-process.js';
-import { ancragePoint, POINT_DX, POINT_DY, ECRITURE, RATTRAPE } from '../core/interrogation.js';
+import { ancragePoint, reposCharniere, POINT_DX, POINT_DY, ECRITURE, RATTRAPE } from '../core/interrogation.js';
 
 /* Le néon de la nuit, repris tel quel au fil. Le titre vivant sur le stage
    sombre du début à la fin, c'est sa seule couleur. */
@@ -33,6 +33,15 @@ const NEON = SOMBRE;
    s'arrête sur l'axe, et il reste 0.3 em de glyphe à découvrir à sa droite.
    Ce court retard est le geste de fermeture, pas un rattrapage. */
 const FERMETURE = 0.95;
+
+/* LE DÉCROCHAGE, dans la fin du repos (--repos-charniere). Le titre commence
+   à monter pendant que la bille, elle, ne bouge pas : le point se détache de
+   la boucle sous les yeux, lentement, au lieu d'être arraché d'un coup quand
+   le stage décolle. Course en em pour tenir sur les deux corps. Courbe
+   cubique : la vitesse d'arrivée (~0.9 px par px de défilement en 1440x900)
+   rejoint celle du stage qui prend le relais — pas d'à-coup à la reprise. */
+const DECROCHE = [0.55, 1];
+const DECROCHE_EM = 0.9;
 
 export function initCharniere(root){
   const bloc  = root.querySelector('.charniere');
@@ -89,7 +98,7 @@ export function initCharniere(root){
       ? bornes[bornes.length - 1][0] + POINT_DX * corps
       : (g.left - b.left) + POINT_DX * corps;
     plan = {
-      etroit, bornes, total, surChemin,
+      etroit, bornes, total, surChemin, corps,
       /* Décalage du centre du point par rapport au coin haut-gauche du bloc :
          c'est lui qui sert à poser le titre sur l'ancre. */
       ox: (g.left - b.left) + POINT_DX * corps,
@@ -105,6 +114,15 @@ export function initCharniere(root){
   }
   remesurer();
   addEventListener('resize', remesurer, { passive: true });
+  /* LA POLICE ARRIVE APRÈS LA MESURE. Space Grotesk est servie par le réseau :
+     au premier passage, les mots sont composés dans la police de repli
+     (system-ui), plus étroite sur macOS. Le décalage du « ? » relevé alors
+     était faux, et la boucle se posait à côté de la bille — mesuré à 102px en
+     simulant 800ms de latence. On remesure dès que la vraie police est là. */
+  if (document.fonts){
+    document.fonts.ready.then(remesurer);
+    document.fonts.addEventListener('loadingdone', remesurer);
+  }
 
   /* PASSE POST-SECTIONS, comme le fil conducteur — et non une section de plus.
      Deux raisons. La charnière est une couche de page, pas une scène : elle ne
@@ -115,7 +133,13 @@ export function initCharniere(root){
   registerAfter(() => {
     const ancre = ancragePoint();
     if (!ancre || !plan){ bloc.style.opacity = '0'; return; }
-    const p = stickyProgress(landing);
+    const repos = reposCharniere();
+    const p = stickyProgress(landing, repos);
+    /* Avancée dans le repos : 0 à son entrée, 1 quand le stage décolle. */
+    const course = landing.offsetHeight - window.innerHeight - repos;
+    const tenue = repos > 0
+      ? clamp01((-landing.getBoundingClientRect().top - course) / repos)
+      : 0;
 
     /* LE BORD D'ÉCRITURE. En desktop il rattrape l'abscisse écran du bureau
        puis la suit exactement : le texte s'écrit derrière le meneur et n'est
@@ -164,8 +188,10 @@ export function initCharniere(root){
        pose sur l'ancre — la même que le landing et la méthode revendiquent —
        et n'en bouge pas. C'est le stage qui monte sous lui. Un mouvement de
        moins, et le point reste sur l'axe du rail tant qu'il est là. */
+    const d = seg(tenue, DECROCHE[0], DECROCHE[1]);
+    const leve = DECROCHE_EM * plan.corps * d * d * d;
     titre.style.transform =
-      `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(ancre.y - plan.oy).toFixed(2)}px)`;
+      `translate(${(ancre.x - plan.ox).toFixed(2)}px, ${(ancre.y - plan.oy - leve).toFixed(2)}px)`;
 
     /* NÉON CONSTANT. Le titre ne quitte jamais la nuit du stage : il n'y a
        plus de bande à traverser, donc plus de fond qui change sous l'encre.

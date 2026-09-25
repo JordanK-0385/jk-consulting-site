@@ -67,3 +67,14 @@ export const RATTRAPE = 0.62;
 export function ancragePoint(){
   return ancrageEtincelle();
 }
+
+/**
+ * Le repos de la charnière, en pixels : palier de fin du landing pendant
+ * lequel le titre complet et sa bille restent à l'écran (cf. tokens.css).
+ * Lu comme --couture : une seule valeur, en vh, partagée par le CSS et le JS.
+ */
+export function reposCharniere(){
+  const v = parseFloat(getComputedStyle(document.documentElement)
+    .getPropertyValue('--repos-charniere'));
+  return (Number.isFinite(v) ? v : 0) / 100 * window.innerHeight;
+}
