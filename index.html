@@ -194,7 +194,7 @@
 
   <!-- 3 · LE WORKFLOW — la métamorphose · SOMBRE -->
   <section id="workflow" class="section section--sticky s-workflow on-dark" aria-labelledby="workflow-title">
-    <h2 id="workflow-title" class="visually-hidden">Le workflow, étape par étape.</h2>
+    <h2 id="workflow-title" class="visually-hidden">Exemple : le parcours d'une facture, étape par étape.</h2>
 
     <!-- Source de vérité des sept jalons.
          La scène n'affiche qu'un jalon à la fois : sans cette liste, un
@@ -206,37 +206,37 @@
         <li data-tag="entrée">
           <h3>Réception</h3>
           <p class="lead">Le process entre</p>
-          <p class="detail">Webhook, planification ou appel : le workflow démarre. On décode l'entrée, on vérifie sa légitimité — signature, token — et on va chercher le contenu complet. Entrées validées, credentials jamais exposés.</p>
+          <p class="detail">Une facture fournisseur arrive, en PDF ou scannée. On vérifie d'abord qu'elle vient bien de qui elle prétend. Vos accès ne sont jamais exposés.</p>
         </li>
         <li data-tag="qualité">
           <h3>Nettoyage</h3>
           <p class="lead">Rien de sale n'entre</p>
-          <p class="detail">On contrôle la structure, on écarte le vide, le malformé, le hors-scope, et les doublons par clé métier. Le traitement ne voit qu'une donnée propre, conforme au schéma.</p>
+          <p class="detail">Doublons, pièces illisibles, hors-sujet : écartés. L'agent ne travaille que sur un document exploitable.</p>
         </li>
         <li data-tag="le cœur">
           <h3>Traitement</h3>
           <p class="lead">Le cœur intelligent</p>
-          <p class="detail">Transformation, règles métier, routage conditionnel, branches parallèles : chaque cas part au bon endroit. Modularisé en sous-workflows, idempotent, avec validation humaine sur les actions sensibles.</p>
+          <p class="detail">L'IA lit la facture comme un collaborateur : fournisseur, lignes, montants, échéance. Sur un document sensible, la lecture reste en local.</p>
         </li>
         <li data-tag="valeur">
           <h3>Enrichissement</h3>
           <p class="lead">On ajoute de la valeur</p>
-          <p class="detail">Appel LLM, croisement de bases, scoring. On respecte les plafonds d'API et le budget : rate limiting, mise en cache, retry avec backoff sur les erreurs transitoires.</p>
+          <p class="detail">La somme des lignes doit égaler le total, la facture doit correspondre à une commande. Au moindre écart, elle attend votre feu vert.</p>
         </li>
         <li data-tag="sortie">
           <h3>Écriture</h3>
           <p class="lead">On écrit le résultat</p>
-          <p class="detail">Insert ou update dans Airtable, une base, un fichier. En transactionnel : soit tout réussit, soit on annule proprement — jamais d'état incohérent.</p>
+          <p class="detail">Elle s'inscrit dans votre compta ou votre base. Tout ou rien : jamais une saisie à moitié faite.</p>
         </li>
         <li data-tag="la boucle">
           <h3>Notification</h3>
           <p class="lead">La boucle se ferme</p>
-          <p class="detail">On informe les humains et les systèmes, on répond à l'appelant, on marque la donnée comme traitée. Proprement, de bout en bout.</p>
+          <p class="detail">La bonne personne est prévenue, l'échéance est posée, la facture est marquée traitée.</p>
         </li>
         <li data-tag="l'agent tourne">
           <h3>En service</h3>
-          <p class="lead">Et ça tourne — même la nuit</p>
-          <p class="detail">Observabilité, logs, monitoring et alertes veillent en continu. Audit trail et conformité RGPD/HDS pour vos secteurs réglementés, transparence IA de bout en bout. Vous êtes couvert, pas juste automatisé.</p>
+          <p class="lead">Et ça tourne, sous contrôle</p>
+          <p class="detail">Chaque action est tracée et surveillée. Une anomalie déclenche une alerte, chez vous et chez nous. RGPD, et HDS quand vos données de santé l'exigent. Vous êtes couvert, pas juste automatisé.</p>
         </li>
     </ol>
 
@@ -253,7 +253,7 @@
       <div class="hud" aria-hidden="true">
         <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
       </div>
-      <p class="readout" aria-hidden="true">PROCESS · <b>0%</b></p>
+      <p class="readout" aria-hidden="true">EXEMPLE · UNE FACTURE · <b>0%</b></p>
 
       <div class="milestone" aria-hidden="true">
         <p class="step-no">ÉTAPE 01 / 07 · entrée</p>
@@ -262,7 +262,7 @@
 
       <div class="governance" aria-hidden="true">
         <p class="lead">Le process entre</p>
-        <p class="detail">Webhook, planification ou appel : le workflow démarre. On décode l'entrée, on vérifie sa légitimité — signature, token — et on va chercher le contenu complet. Entrées validées, credentials jamais exposés.</p>
+        <p class="detail">Une facture fournisseur arrive, en PDF ou scannée. On vérifie d'abord qu'elle vient bien de qui elle prétend. Vos accès ne sont jamais exposés.</p>
       </div>
 
       <div class="cue" aria-hidden="true"><span>défiler</span><span class="arrow">↓</span></div>
