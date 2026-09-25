@@ -244,6 +244,15 @@
   line-height: 1.04;
   letter-spacing: -.02em;
 }
+/* La ligne secondaire de l'outro reprend, sans rien inventer, la
+   typographie du texte courant de la section : la couleur atténuée et
+   l'interligne du chapô et des cartes, à leur taille. */
+.s-method .outro .outro-sub{
+  margin-top: 10px;
+  color: var(--fg-muted);
+  line-height: 1.55;
+  font-size: 15.5px;
+}
 .s-method .outro .arrow{
   display: block;
   color: var(--accent-cyan);
