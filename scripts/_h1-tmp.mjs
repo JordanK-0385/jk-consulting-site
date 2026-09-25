@@ -12,11 +12,11 @@ for(const [w,h] of [[1920,1080],[1600,900],[1440,900],[1280,800],[1024,768],[820
   await p.goto(`http://127.0.0.1:${srv.address().port}/`,{waitUntil:'networkidle'});
   await p.evaluate(()=>document.fonts.ready); await p.waitForTimeout(300);
   const d=await p.evaluate(()=>{
-    const t=document.querySelector('#landing-title'), st=getComputedStyle(t);
+    const t=document.querySelector('#contact-title'), st=getComputedStyle(t);
     const r=t.getBoundingClientRect();
     const lh=parseFloat(st.lineHeight)||parseFloat(st.fontSize)*1.1;
-    const hero=document.querySelector('#landing .hero').getBoundingClientRect();
-    const cue=document.querySelector('#landing .cue').getBoundingClientRect();
+    const hero=document.querySelector('#contact .inner').getBoundingClientRect();
+    const cue=document.querySelector('#contact .cta-row').getBoundingClientRect();
     return {fs:st.fontSize, lh:+lh.toFixed(1), lignes:Math.round(r.height/lh),
       w:+r.width.toFixed(1), h:+r.height.toFixed(1),
       partEcran:+(r.width/innerWidth*100).toFixed(0),
