@@ -1,0 +1,240 @@
+/* ============================================================
+   SECTION 5 — TÉMOIGNAGES · preuve sociale · fond CLAIR
+   Seule section sans prototype : construite pour l'assemblage.
+
+   SPECS §3.5 et §6 : contenu réel uniquement, jamais inventé. Tant que les
+   vrais témoignages ne sont pas fournis, la section porte un bandeau
+   d'alerte visible et les cartes sont explicitement des emplacements
+   réservés — pas de faux nom, pas de fausse citation, pas de fausse photo.
+   ============================================================ */
+
+/* Marges portées par .wrap et non par la section : le raccord en tête doit
+   toucher le bord, sinon le padding intercale du papier entre la section
+   sombre précédente et le dégradé. */
+/* ---- Réglages du survol ----
+   Les valeurs à ajuster à la marge, en un seul endroit. temoignages.js les
+   relit au démarrage : rien à modifier en double. La longueur de la traversée,
+   elle, est un jeton partagé avec la liaison — voir --couture. */
+.s-temoignages{
+  --survol-ombre: .30;   /* opacité de l'ombre portée */
+  --calage: clamp(70px, 12vh, 130px);   /* où le bloc se pose, sous le bord haut */
+  --tenue: 45vh;         /* combien de temps le bloc tient après la traversée */
+
+  /* DEUX CALQUES FIXES, ET RIEN D'AUTRE QUI BOUGE.
+     La section chevauche la précédente d'un écran PLUS la traversée. Ce n'est
+     pas un réglage esthétique, c'est ce qui rend l'échange possible :
+       — un écran, pour que la scène du bureau soit encore entièrement collée ;
+       — plus la traversée, pour qu'elle le reste jusqu'au bout.
+     À l'instant où le bord haut de la section atteint le viewport, la liaison
+     vient d'achever son dézoom et entre dans son palier immobile. Les deux
+     images sont alors à l'écran, complètes, arrêtées. Seuls le robot et sa
+     lame bougent.
+
+     Avec un simple chevauchement d'un écran, la scène du bureau repartait
+     vers le haut dès 6 % de la traversée et laissait du bleu vide derrière
+     elle, pendant que le texte, lui, montait encore.
+
+     Le fond est porté par .papier et non par la section : c'est lui qu'on
+     découpe, et une section au fond papier peindrait par-dessus le bureau
+     avant même que la lame ait commencé. */
+  margin-top: calc(-100vh - var(--couture));
+  background-color: transparent;
+}
+
+/* Le contenu commence à --calage sous le bord de la section — et comme le
+   papier est collé au haut du viewport dès le premier pixel de la traversée,
+   c'est aussi sa position à l'écran, tout de suite et jusqu'au bout. Il n'y a
+   plus d'avance à ménager : rien n'a à monter. */
+.s-temoignages .wrap{
+  padding-top: var(--calage);
+  /* Resserré : l'enchaînement vers la F.A.Q. bâillait. 108px de retrait bas
+     ici et 90 de retrait haut là-bas, plus la hauteur de ligne du titre,
+     faisaient 260px de blanc entre la dernière carte et « F.A.Q ». */
+  padding-bottom: clamp(40px, 6vh, 72px);
+}
+
+/* LE BLOC EST DÉJÀ POSÉ QUAND LE ROBOT ENTRE, et il ne bouge plus.
+   Collé à --calage, il s'y accroche dès le premier pixel de la traversée —
+   son bord haut y est déjà — et il y reste pendant tout le passage, puis
+   pendant --tenue. Il ne « se pose » à aucun instant : il est en place avant,
+   simplement caché par le calque du bureau jusqu'à ce que la lame le
+   découvre. */
+.s-temoignages .bloc{
+  position: sticky;
+  top: var(--calage);
+}
+
+/* La course du collage, donc sa durée : la traversée, puis la tenue. Un
+   élément collé ne se décale que de la place qui reste après lui. */
+.s-temoignages .tenue{ height: calc(var(--couture) + var(--tenue)); }
+
+/* LE PAPIER. Découpé par la lame que porte le robot ; le module lui pose un
+   clip-path polygonal à chaque frame. Sans module, il reste entier : un
+   témoignage ne se perd jamais faute de JavaScript.
+
+   La hauteur minimale garantit qu'il couvre encore l'écran à la fin de la
+   traversée, quand son bord haut est remonté d'une course et demie. */
+.s-temoignages .papier{
+  background-color: var(--surface);
+  min-height: 100vh;
+}
+
+.s-temoignages .head{ max-width: 60ch; margin-bottom: clamp(28px, 4vh, 44px); }
+.s-temoignages .eyebrow{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .16em;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+}
+.s-temoignages h2{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 5.5vw, 64px);
+  line-height: .98;
+  letter-spacing: -.03em;
+  max-width: 18ch;          /* posé sur le titre : `ch` suit sa propre police */
+  margin-bottom: 16px;
+}
+.s-temoignages .head .lede{
+  color: var(--fg-muted);
+  font-size: clamp(15px, 1.7vw, 17px);
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+/* ---- Grille de témoignages ---- */
+.s-temoignages .quotes{
+  display: grid;
+  /* DEUX témoignages, deux colonnes — définitivement. `repeat(3, 1fr)`
+     laissait 367px de vide à droite en 1440 et 314px en 1024 : deux cartes
+     serrées à gauche et un trou, dans une grille taillée pour un troisième
+     qui n'existera pas.
+
+     `minmax(0, 1fr)` et non `1fr` : une citation longue pousserait sinon sa
+     colonne au-delà de sa part et les deux cartes cesseraient d'être égales.
+
+     Aucune borne de largeur, aucun centrage : la mesure du site plafonne
+     déjà la grille à 1076px, les cartes ne dépassent donc pas 525px, et
+     elles restent alignées au pixel sur le chapô — comme tout le reste de
+     la page. Borner puis centrer aurait décollé le bloc de 105px du bord
+     gauche du titre pour rien. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 26px);
+}
+
+.s-temoignages .quote{
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: clamp(22px, 2.4vw, 30px);
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: #FFFFFF;
+  /* Aucune animation d'entrée : les cartes sont en place avant que le robot
+     n'arrive, et c'est la lame qui les découvre. Une cascade jouée pendant le
+     passage aurait creusé un vide derrière chaque carte en mouvement. */
+}
+
+.s-temoignages blockquote{ margin: 0; }
+.s-temoignages blockquote p{
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(16px, 1.7vw, 18.5px);
+  line-height: 1.5;
+  color: var(--fg);
+}
+
+.s-temoignages figcaption{
+  /* Plus de rond d'initiales : la légende n'est qu'une pile de deux lignes.
+     Un `flex` y laisserait une gouttière orpheline, alors que le flux normal
+     empile déjà `.who` et `.role` — tous deux en `block`. */
+  margin-top: auto;
+  padding-top: 4px;
+}
+.s-temoignages .who{
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--fg);
+  font-style: normal;
+}
+.s-temoignages .role{
+  display: block;
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+/* ---- Replis ---- */
+/* Plus de palier à 900px : la grille de base est déjà à deux colonnes.
+   Il ne reste que la bascule en colonne unique, quand deux cartes côte à
+   côte deviennent trop étroites pour porter une citation. */
+@media (max-width: 620px){
+  .s-temoignages .quotes{ grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   LE SURVOL — le robot passe au-dessus de la section.
+
+   Ce n'est PAS un rideau. Une première version poussait un voile sombre à
+   bord net devant lui : c'est l'exact contraire du geste, un volet et non un
+   objet qui traverse le champ. Ici le contenu est déjà en place, visible, et
+   le robot passe DEVANT — il le masque de sa masse le temps du passage.
+
+   margin-bottom négatif : la couche n'occupe pas sa place dans le flux, elle
+   se superpose. Sans cela elle pousserait tout le contenu d'un écran vers le
+   bas et il n'y aurait rien à survoler.
+   ============================================================ */
+.s-temoignages .survol{
+  /* FIXE, et non collée à la section. Le robot doit SURGIR sur l'écran du
+     bureau — fond sombre, plateau encore visible — et enjamber la couture. Une
+     couche collée à cette section ne peut rien peindre au-dessus de la
+     précédente : elle ne commence à exister qu'une fois la section arrivée,
+     donc sur du blanc. Fixée au viewport, elle passe par-dessus les deux.
+     Elle est masquée hors de la fenêtre de vol, sinon elle couvrirait la page
+     entière. */
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  /* La silhouette dépasse largement du cadre : sans ça elle allongerait la
+     page et le contrôle de débordement horizontal tomberait. */
+  overflow: hidden;
+  /* MASQUÉE PAR DÉFAUT. C'est le module qui la montre pendant le vol — mais
+     il ne tourne qu'une fois la section observée. Tant qu'il n'a jamais
+     tourné, la couche gardait ses valeurs initiales : le robot, ancré en
+     (0,0) et haut de 130vh, s'étalait par-dessus la liaison. Une couche fixe
+     ne se cache pas toute seule en sortant du champ. */
+  visibility: hidden;
+}
+
+/* GÉANT ET DÉBORDANT. 130vh à l'échelle 1, et l'échelle monte jusqu'à 1.75 :
+   au plus près il fait plus de deux écrans de haut. Il ne tient pas dans le
+   cadre, c'est le propos.
+
+   L'ombre portée est le point qui fait planer l'objet plutôt que de le coller
+   à la page. Elle est décalée, floue, semi-transparente, et son décalage suit
+   la position du robot comme si la lumière venait du haut de l'écran : plus
+   il s'éloigne de cette source, plus l'ombre s'écarte de lui. */
+.s-temoignages .agent-plein{
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 130vh;
+  width: auto;
+  max-width: none;
+  overflow: visible;
+  transform:
+    translate3d(var(--x, 0px), var(--y, 0px), 0)
+    translate(-50%, -50%)
+    rotate(var(--r, 0deg))
+    scale(var(--s, 1));
+  filter: var(--ombre, none);
+  will-change: transform;
+}
+
+@media (max-width: 560px){
+  .s-temoignages .agent-plein{ height: 105vh; }
+}

@@ -26,15 +26,26 @@ Garder deux variantes des accents selon le fond, sinon illisible :
 
 | Rôle | Sur fond SOMBRE (néon vif) | Sur fond CLAIR (assombri) |
 |---|---|---|
-| Cyan | `#7FE3FF` | `#1E9FD6` |
-| Bleu | `#4FA8F0` | `#3B7BE0` |
-| Vert (agent live) | `#6EDC96` | `#1FB574` |
-| Indigo | `#6E7BF2` | — |
-| Teal | `#3FD6C8` | — |
+| Cyan | `#7FE3FF` | `#1779A3` |
+| Bleu | `#4FA8F0` | `#3670CC` |
+| Vert (agent live) | `#6EDC96` | `#168152` |
+| Indigo | `#6E7BF2` | — (retombe sur le bleu) |
+| Teal | `#3FD6C8` | — (retombe sur le cyan) |
+
+> **Révision des accents clairs (assemblage).** Les valeurs claires d'origine
+> — `#1E9FD6`, `#3B7BE0`, `#1FB574` — ne passaient pas WCAG AA sur le papier
+> `#F5F7FA` : respectivement **2.8:1**, **3.84:1** et **2.47:1**, pour un seuil
+> de **4.5:1** en texte courant. Le blanc sur pastille `#1E9FD6` tombait à
+> **3.01:1**. Elles ont été assombries au strict minimum nécessaire pour
+> atteindre 4.5:1 (mesures ci-dessus : 4.55 / 4.50 / 4.55). Les teintes
+> d'origine restent disponibles dans le code sous `--deep-cyan`, `--deep-blue`
+> et `--deep-green` pour les **aplats décoratifs**, où le contraste n'est pas
+> en jeu. Les accents néon sur fond sombre sont inchangés — ils sont déjà
+> largement conformes (7.66 à 13.41:1).
 
 Fonds sombres : `#060B18`, `#0B1830`, `#081124` (dégradés radiaux + léger grain de points `rgba(127,227,255,.04)`).
 Fond clair : blanc cassé `#F5F7FA`, encre `#0C1420`, texte secondaire `#5B6B7D`, lignes `#E2E7EE`.
-CTA plein sombre : `#7FE3FF` (texte `#061020`). Texte clair sur sombre : `#EAF1FB` / atténué `#9AB0CC`.
+CTA plein sombre : `#7FE3FF` (texte `#061020`). CTA plein clair : `#1779A3` (texte blanc, 4.88:1). Texte clair sur sombre : `#EAF1FB` / atténué `#9AB0CC`.
 
 **Couleurs de métamorphose du process** (section 3, dans l'ordre) : orange `#F2964E` → bleu → indigo → teal → cyan → vert `#6EDC96`.
 

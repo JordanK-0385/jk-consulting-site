@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK Consulting — chaque service a son agent</title>
+<meta name="description" content="Des agents IA dans chaque pôle de votre entreprise, connectés entre eux et gouvernés : sécurité, conformité et robustesse dès la conception. JK Consulting installe, vous restez maître.">
+<meta name="theme-color" content="#060B18">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+<!-- DOMAINE À RENSEIGNER une fois le site en ligne : og:url et og:image
+     doivent être des URL absolues pour que les aperçus de lien se chargent
+     partout. Remplacer les deux valeurs ci-dessous par
+     https://<domaine>/ et https://<domaine>/assets/og.jpg -->
+<link rel="canonical" href="/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="JK Consulting">
+<meta property="og:url" content="/">
+<meta property="og:title" content="JK Consulting — chaque service a son agent">
+<meta property="og:description" content="Des agents IA dans chaque pôle, connectés entre eux et gouvernés. Le bureau augmenté, installé chez vous.">
+<meta property="og:image" content="assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="JK Consulting — « Chaque service a son agent », quatre agents IA aux couleurs des quatre pôles.">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/transitions.css">
+<link rel="stylesheet" href="assets/css/thread.css">
+<link rel="stylesheet" href="assets/css/s1-landing.css">
+<link rel="stylesheet" href="assets/css/s2-method.css">
+<link rel="stylesheet" href="assets/css/s3-workflow.css">
+<link rel="stylesheet" href="assets/css/s4-liaison.css">
+<link rel="stylesheet" href="assets/css/s5-temoignages.css">
+<link rel="stylesheet" href="assets/css/s6-faq-contact.css">
+
+<script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<!-- Définitions SVG partagées.
+     À l'audit, id="rbg" était déclaré dans trois protos : les IDs SVG étant
+     globaux au document, seul le premier aurait gagné et les robots des
+     sections 3 et 4 auraient perdu leur remplissage. Un seul jeu ici, préfixé,
+     référencé par toutes les scènes. -->
+<svg class="visually-hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="jk-bot-body">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#cfe0f2"/>
+    </radialGradient>
+    <filter id="jk-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+</svg>
+
+<main id="contenu" tabindex="-1">
+
+  <!-- 1 · LANDING — le résultat · SOMBRE -->
+  <section id="landing" class="section section--sticky s-landing on-dark" aria-labelledby="landing-title">
+    <div class="stage">
+
+      <svg class="scene-svg" viewBox="0 0 1200 760" aria-hidden="true" focusable="false">
+        <g class="scene-fit">
+          <g class="scene"></g>
+        </g>
+        <g class="holos"></g>
+      </svg>
+      <div class="vignette"></div>
+
+      <header class="topbar">
+        <div class="brand">JK<i>·</i>CONSULTING</div>
+        <a class="topbar-cta" href="#contact">PARLER DU PROJET</a>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow">IA APPLIQUÉE · GOUVERNÉE</p>
+        <h1 id="landing-title">Chaque service a son agent.<br><span class="grad">Vous gardez la main.</span></h1>
+        <p class="lede">Des agents IA dans chaque pôle, connectés entre eux et encadrés : ce qui est automatisé, ce qui ne l'est pas, et qui valide quoi. Nous l'installons, nous le faisons évoluer au rythme de l'IA, vous pilotez.</p>
+        <div class="cta-row">
+          <a class="cta-solid" href="#contact">Parler du projet</a>
+          <a class="cta-ghost" href="#methode">Comment on fait</a>
+        </div>
+      </div>
+
+      <div class="cue" aria-hidden="true"><span>comment on fait</span><span class="arrow">↓</span></div>
+
+    </div>
+  </section>
+
+  <!-- 2 · COMMENT ON FAIT — la méthode · CLAIR -->
+  <section id="methode" class="section s-method on-light" aria-labelledby="methode-title">
+    <div class="seam seam--to-light" aria-hidden="true"></div>
+
+    <!-- LA CHARNIÈRE. Le titre s'écrit pendant que le bureau se condense et
+         son « ? » se pose sur l'axe du rail, où la bille attend déjà. Le point
+         n'est pas dessiné : c'est elle. Quand elle se détache pour descendre,
+         il ne reste que la boucle — sans qu'aucune opacité n'ait été pilotée.
+
+         Le <circle> ne sert qu'au repli sans mouvement et au cas où le script
+         ne tourne pas : le « ? » y est rendu complet et immobile.
+
+         Le contrôle des croisements n'a besoin d'aucune exemption ici : le
+         « ? » est un SVG, jamais une feuille de texte, et les deux mots du
+         titre restent à plus de 34px de la bille sur les deux viewports. -->
+    <div class="charniere">
+      <p class="titre-charniere" aria-label="Comment on fait ?">
+        <span class="mot">Comment</span><span class="mot">on fait</span><span class="mot q"><svg viewBox="0 -714 578 728" aria-hidden="true" focusable="false"><path class="boucle" d="M209.0 -230.0V-254.0Q209.0 -305.0 229.5 -338.0Q250.0 -371.0 296.0 -393.0L313.0 -401.0Q358.0 -422.0 382.0 -446.0Q406.0 -470.0 406.0 -510.0Q406.0 -539.0 391.5 -559.5Q377.0 -580.0 351.0 -591.0Q325.0 -602.0 290.0 -602.0Q254.0 -602.0 225.5 -590.0Q197.0 -578.0 180.5 -554.0Q164.0 -530.0 164.0 -494.0V-472.0H34.0V-492.0Q34.0 -561.0 68.0 -611.0Q102.0 -661.0 160.0 -687.5Q218.0 -714.0 290.0 -714.0Q361.0 -714.0 416.5 -688.0Q472.0 -662.0 504.0 -616.0Q536.0 -570.0 536.0 -510.0Q536.0 -450.0 514.0 -411.5Q492.0 -373.0 458.5 -349.5Q425.0 -326.0 390.0 -309.0L373.0 -301.0Q355.0 -293.0 348.0 -281.5Q341.0 -270.0 341.0 -248.0V-230.0Z"/><circle class="point" cx="279" cy="-81" r="95"/></svg></span>
+      </p>
+    </div>
+
+    <div class="wrap">
+
+      <!-- Le chapô et la timeline partagent une grille : c'est ce qui permet
+           au texte de rester collé pendant que les étapes défilent à côté.
+           Le chapô n'a plus d'eyebrow : « COMMENT ON FAIT » est maintenant le
+           titre de charnière, en toutes lettres et six fois plus grand. Le
+           répéter 600px plus bas ne disait rien de neuf. -->
+      <div class="parcours">
+
+      <div class="intro">
+        <h2 id="methode-title">Cinq étapes, et la dernière<br><span class="grad">ne s'arrête jamais.</span></h2>
+        <p class="lede">Parce que l'IA avance plus vite que votre entreprise : chaque mois, un nouveau modèle, un nouvel outil. Vous avez un métier à faire tourner. Voici comment on l'installe, et comment on le fait durer.</p>
+      </div>
+
+      <div class="timeline">
+        <div class="rail" aria-hidden="true">
+          <div class="line"></div>
+          <div class="fill"></div>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="node" aria-hidden="true">01</div>
+            <div class="card">
+              <h3>Diagnostic</h3>
+              <p>Un cadrage payant. On repère les trois tâches où l'IA vous fait gagner le plus, on chiffre le gain avec vos chiffres, et vous décidez. Le plan vous reste.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="node" aria-hidden="true">02</div>
+            <div class="card">
+              <h3>Conception</h3>
+              <p>On dessine ensemble ce que l'agent fait, ce qu'il ne fera jamais, et où un humain valide. Vous signez avant qu'une ligne n'existe.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="node" aria-hidden="true">03</div>
+            <div class="card">
+              <h3>Construction</h3>
+              <p>On commence petit, sur un cas simple, dans les outils que vous utilisez déjà. Vous voyez chaque étape.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="node" aria-hidden="true">04</div>
+            <div class="card">
+              <h3>Déploiement</h3>
+              <p>Un pôle après l'autre. Les cas sensibles remontent toujours à un humain.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="node" aria-hidden="true">05</div>
+            <div class="card">
+              <h3>Pilotage</h3>
+              <p>On forme vos équipes à piloter. Puis on reste en veille : on teste ce qui sort, on fait les erreurs à votre place, et on vous fait adopter ce qui compte, sans rupture.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div><!-- /.parcours -->
+
+      <div class="outro">
+        <p class="cap">UN EXEMPLE</p>
+        <h3>Suivons une facture.</h3>
+        <p class="outro-sub">La même mécanique vaut pour un devis, une relance, une demande client.</p>
+        <span class="arrow" aria-hidden="true">↓</span>
+      </div>
+
+    </div>
+    <div class="seam seam--to-dark" aria-hidden="true"></div>
+  </section>
+
+  <!-- 3 · LE WORKFLOW — la métamorphose · SOMBRE -->
+  <section id="workflow" class="section section--sticky s-workflow on-dark" aria-labelledby="workflow-title">
+    <h2 id="workflow-title" class="visually-hidden">Exemple : le parcours d'une facture, étape par étape.</h2>
+
+    <!-- Source de vérité des sept jalons.
+         La scène n'affiche qu'un jalon à la fois : sans cette liste, un
+         lecteur d'écran ne recevait que « Réception » et perdait les six
+         autres — dont toute la couche gouvernance (RGPD/HDS), qui est
+         l'argument de SPECS §1. Le module lit ses textes ici ; modifier un
+         jalon se fait dans ce balisage, pas dans le JavaScript. -->
+    <ol class="steps-source visually-hidden">
+        <li data-tag="entrée">
+          <h3>Réception</h3>
+          <p class="lead">Le process entre</p>
+          <p class="detail">Une facture fournisseur arrive, en PDF ou scannée. On vérifie d'abord qu'elle vient bien de qui elle prétend. Vos accès ne sont jamais exposés.</p>
+        </li>
+        <li data-tag="qualité">
+          <h3>Nettoyage</h3>
+          <p class="lead">Rien de sale n'entre</p>
+          <p class="detail">Doublons, pièces illisibles, hors-sujet : écartés. L'agent ne travaille que sur un document exploitable.</p>
+        </li>
+        <li data-tag="le cœur">
+          <h3>Traitement</h3>
+          <p class="lead">Le cœur intelligent</p>
+          <p class="detail">L'IA lit la facture comme un collaborateur : fournisseur, lignes, montants, échéance. Sur un document sensible, la lecture reste en local.</p>
+        </li>
+        <li data-tag="valeur">
+          <h3>Enrichissement</h3>
+          <p class="lead">On ajoute de la valeur</p>
+          <p class="detail">La somme des lignes doit égaler le total, la facture doit correspondre à une commande. Au moindre écart, elle attend votre feu vert.</p>
+        </li>
+        <li data-tag="sortie">
+          <h3>Écriture</h3>
+          <p class="lead">On écrit le résultat</p>
+          <p class="detail">Elle s'inscrit dans votre compta ou votre base. Tout ou rien : jamais une saisie à moitié faite.</p>
+        </li>
+        <li data-tag="la boucle">
+          <h3>Notification</h3>
+          <p class="lead">La boucle se ferme</p>
+          <p class="detail">La bonne personne est prévenue, l'échéance est posée, la facture est marquée traitée.</p>
+        </li>
+        <li data-tag="l'agent tourne">
+          <h3>En service</h3>
+          <p class="lead">Et ça tourne, sous contrôle</p>
+          <p class="detail">Chaque action est tracée et surveillée. Une anomalie déclenche une alerte, chez vous et chez nous. RGPD, et HDS quand vos données de santé l'exigent. Vous êtes couvert, pas juste automatisé.</p>
+        </li>
+    </ol>
+
+    <div class="stage">
+
+      <svg class="scene-svg" viewBox="0 0 1200 760" aria-hidden="true" focusable="false">
+        <g class="scene-fit">
+          <g class="world"></g>
+          <g class="anchor"></g>
+        </g>
+      </svg>
+      <div class="vignette"></div>
+
+      <div class="hud" aria-hidden="true">
+        <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      </div>
+      <p class="readout" aria-hidden="true">EXEMPLE · UNE FACTURE · <b>0%</b></p>
+
+      <div class="milestone" aria-hidden="true">
+        <p class="step-no">ÉTAPE 01 / 07 · entrée</p>
+        <p class="title">Réception</p>
+      </div>
+
+      <div class="governance" aria-hidden="true">
+        <p class="lead">Le process entre</p>
+        <p class="detail">Une facture fournisseur arrive, en PDF ou scannée. On vérifie d'abord qu'elle vient bien de qui elle prétend. Vos accès ne sont jamais exposés.</p>
+      </div>
+
+      <div class="cue" aria-hidden="true"><span>défiler</span><span class="arrow">↓</span></div>
+
+    </div>
+  </section>
+
+  <!-- 4 · LIAISON — dézoom vers le bureau · SOMBRE -->
+  <section id="liaison" class="section section--sticky s-liaison on-dark" aria-labelledby="liaison-title">
+    <div class="stage">
+
+      <svg class="scene-svg" viewBox="0 0 1200 760" aria-hidden="true" focusable="false">
+        <g class="scene-fit">
+          <g class="scene"></g>
+        </g>
+      </svg>
+      <div class="vignette"></div>
+
+      <div class="hud" aria-hidden="true">
+        <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+      </div>
+
+      <div class="central">
+        <p class="kicker">ET MAINTENANT&nbsp;?</p>
+        <h2 id="liaison-title">Un agent devient <span class="grad">tout un bureau.</span></h2>
+      </div>
+
+      <div class="benefits">
+        <div class="benefit benefit-tl">
+          <h3>Chaque service équipé</h3>
+          <p>Après les factures : les devis, les relances, le suivi client. Un agent par pôle.</p>
+        </div>
+        <div class="benefit benefit-tr">
+          <h3>Ils se parlent</h3>
+          <p>Les agents communiquent entre services : plus de silos, un seul flux.</p>
+        </div>
+        <div class="benefit benefit-bl">
+          <h3>Toujours sous contrôle</h3>
+          <p>Ça tourne en continu, chaque action est journalisée, et un humain reprend la main dès que c'est sensible.</p>
+        </div>
+        <div class="benefit benefit-br">
+          <h3>Vous, plus haut</h3>
+          <p>Le temps gagné repart vers la vente et la relation client.</p>
+        </div>
+      </div>
+
+      <div class="cue" aria-hidden="true"><span>ils nous ont fait confiance</span><span class="arrow">↓</span></div>
+
+      <!-- LA CHUTE. Un seul agent, peint sur une couche fixée au viewport donc
+           au-dessus des deux sections : il descend du nœud « En service »
+           jusqu'à sa dalle sans qu'aucun bord de scène ne le rabote. Les deux
+           agents de scène — celui du workflow, celui du bureau — s'effacent
+           pendant qu'il vole. -->
+      <div class="chute" aria-hidden="true">
+        <svg class="agent-chute" viewBox="-18 -40 36 46" focusable="false">
+          <ellipse cx="0" cy="-14" rx="17" ry="17" fill="rgba(127,227,255,.18)"/>
+          <rect x="-10" y="-15" width="20" height="18" rx="8" fill="url(#jk-bot-body)" stroke="rgba(127,227,255,.85)" stroke-width="1.2"/>
+          <circle cx="0" cy="-1" r="2.8" fill="rgba(127,227,255,.9)"/>
+          <rect x="-12" y="-36" width="24" height="19" rx="10" fill="url(#jk-bot-body)" stroke="rgba(127,227,255,.85)" stroke-width="1.2"/>
+          <rect x="-9" y="-33" width="18" height="12" rx="6" fill="#0C1A2E"/>
+          <g class="eye">
+            <ellipse cx="-4" cy="-27" rx="2" ry="2.7" fill="#7FE7FF"/>
+            <ellipse cx="4" cy="-27" rx="2" ry="2.7" fill="#7FE7FF"/>
+          </g>
+        </svg>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5 · TÉMOIGNAGES · CLAIR · SPECS §3.5 et §6 : témoignages réels,
+       recueillis et validés par les personnes citées. -->
+  <section id="temoignages" class="section s-temoignages on-light" aria-labelledby="temoignages-title">
+
+    <!-- LE SURVOL. Le robot ne balaie rien : il PASSE. Le contenu de la
+         section est déjà en place derrière lui, il le masque de sa masse le
+         temps de sa traversée puis le libère. Il entre par le coin haut
+         droit, lointain et petit, grossit en venant vers nous et sort par le
+         coin bas gauche en crevant le cadre. Son ombre portée le fait planer
+         au-dessus de la page au lieu d'y être collé. -->
+    <div class="survol" aria-hidden="true">
+      <!-- MÊME MODÈLE que les agents du diorama (liaison.js, robot()) : la
+           géométrie est la leur au facteur 2 près — corps 20x18 rx 8, tête
+           24x19 rx 10, visière 18x12 rx 6, yeux rx 2 / ry 2.7 à ±4, trait 1.2.
+           Un agent devient un bureau, puis survole vers les témoignages : ce
+           doit être le même.
+
+           Seul le contour change de valeur, et suivant la règle du site et non
+           une invention : le diorama trace en cyan néon sur la nuit, ce qui
+           donne 11.89:1 là-bas mais 1.37:1 sur le papier — la silhouette
+           disparaîtrait. C'est le cyan assombri de .on-light qui prend le
+           relais, #1779A3, 4.55:1, celui-là même qui sert au fil conducteur
+           et à tous les accents des sections claires. -->
+      <svg class="agent-plein" viewBox="-25.2 -73.2 50.4 80.4" preserveAspectRatio="xMidYMid meet" focusable="false">
+        <rect x="-20" y="-30" width="40" height="36" rx="16" fill="url(#jk-bot-body)" stroke="#1779A3" stroke-width="2.4"/>
+        <circle cx="0" cy="-2" r="5.6" fill="#7FE3FF" stroke="#1779A3" stroke-width="1.4"/>
+        <rect x="-24" y="-72" width="48" height="38" rx="20" fill="url(#jk-bot-body)" stroke="#1779A3" stroke-width="2.4"/>
+        <rect x="-18" y="-66" width="36" height="24" rx="12" fill="#0C1A2E"/>
+        <g class="eye">
+          <ellipse cx="-8" cy="-54" rx="4" ry="5.4" fill="#7FE7FF"/>
+          <ellipse cx="8" cy="-54" rx="4" ry="5.4" fill="#7FE7FF"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- LE PAPIER, et lui seul, porte la découpe. Pas la section : un
+         clip-path découpe TOUS ses descendants, y compris ceux en position
+         fixe — le robot du survol se serait fait raboter par sa propre
+         révélation. -->
+    <div class="papier">
+    <div class="wrap">
+
+    <!-- LE BLOC SE POSE ET S'ARRÊTE. Il monte avec la page pendant toute la
+         traversée, puis se cale et tient — à l'instant précis où le robot
+         sort du cadre. -->
+    <div class="bloc">
+
+      <div class="head">
+        <p class="eyebrow">LA PREUVE</p>
+        <h2 id="temoignages-title">Ils nous ont fait confiance.</h2>
+        <p class="lede">Deux clients, leurs mots, sans retouche.</p>
+      </div>
+
+      <div class="quotes">
+        <figure class="quote">
+          <blockquote><p>Le vrai bon point, c'est que je n'ai pas eu à changer ma façon de travailler : tout s'intègre à ce que j'utilisais déjà. On a démarré sur des cas simples, ce qui m'a permis de prendre le pli, avant d'aller vers des traitements plus complexes. Et les cas sensibles restent toujours signalés pour qu'on les reprenne à la main — pour une marque comme la nôtre, c'est exactement ce qu'il fallait.</p></blockquote>
+          <figcaption>
+            <cite class="who">Benjamin Amar</cite>
+            <span class="role">CEO — John Dalia</span>
+          </figcaption>
+        </figure>
+        <figure class="quote">
+          <blockquote><p>Ce qu'on a construit avec Jordan a changé de nature en cours de route. Au départ, des automatisations utiles ; aujourd'hui, une vraie colonne vertébrale de pilotage. Sur le commercial, on est passés du reporting subi au suivi actif de nos équipes. Sur le suivi des inscrits, du rattrapage au fil de l'eau à une relance priorisée et outillée. Et la prochaine étape va plus loin encore : rendre ce pilotage plus autonome et prédictif, pour que l'équipe passe moins de temps à constater et plus de temps à agir.</p></blockquote>
+          <figcaption>
+            <cite class="who">Jérémy Attias</cite>
+            <span class="role">Chief Product &amp; Marketing Officer — 26 Academy</span>
+          </figcaption>
+        </figure>
+      </div>
+
+    </div>
+
+    <!-- LA TENUE. Un élément collé ne se décale que de la place qui reste
+         après lui : sans ce vide le bloc remplissait exactement son parent et
+         n'avait aucune course, donc aucun arrêt. Cette hauteur est la durée de
+         l'arrêt, et elle est absorbée par le collage — l'écart jusqu'à la
+         F.A.Q. n'en dépend pas. -->
+    <div class="tenue" aria-hidden="true"></div>
+
+    </div>
+    </div>
+  </section>
+
+  <!-- 6 · FAQ · CLAIR
+       Les réponses reprennent celles du prototype. SPECS §6 : à ajuster à
+       la réalité de JK (délais, facturation exacte) avant mise en ligne. -->
+  <section id="faq" class="section s-faq on-light" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="grid">
+
+        <div class="head">
+          <h2 id="faq-title">F.A<span class="dot">.</span>Q</h2>
+          <p>Des réponses claires, pour avancer en confiance.</p>
+        </div>
+
+        <div class="list">
+          <details class="faq-item" name="faq" open>
+            <summary>
+              <span class="num">01</span>
+              <span class="q">Faut-il que je code ou que je comprenne la technique&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Non. Vous décrivez votre besoin, nous construisons. Vous validez un plan clair avant qu'une seule ligne n'existe, et je forme vos équipes pour que vous pilotiez sans dépendre de moi.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">02</span>
+              <span class="q">Mon éditeur de logiciel refuse l'accès à son outil. Est-ce bloquant&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Pas forcément. Nous travaillons souvent sur ce qui sort de votre logiciel (exports, factures, documents, mails) plutôt qu'à l'intérieur. Nous le vérifions ensemble au cadrage, et si la meilleure option est d'attendre une évolution de votre éditeur, nous vous le dirons.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">03</span>
+              <span class="q">Mes équipes utilisent déjà ChatGPT. Pourquoi aller plus loin&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Chacun l'utilise dans son coin, sans méthode commune ni protection des données. Et les outils changent tous les mois. Nous en faisons un outil d'entreprise, et nous le faisons évoluer pour vous.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">04</span>
+              <span class="q">Est-ce que mes données sont en sécurité&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">C'est le point de départ, pas une option. Moindre privilège sur chaque accès, secrets isolés, contenu externe traité comme donnée jamais comme instruction, journalisation et — pour la santé — hébergement conforme (HDS) ou maintien dans votre logiciel métier certifié. Et quand un sujet dépasse notre périmètre, on vous le dit, et on vous oriente vers le bon expert.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">05</span>
+              <span class="q">Que se passe-t-il si un agent se trompe&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">Rien d'irréversible : validation humaine sur les actions sensibles, garde-fous, retry et rollback. On surveille en continu (logs, alertes) et on corrige. Vous gardez la main.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">06</span>
+              <span class="q">Est-ce adapté à mon secteur réglementé&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">C'est justement là que la différence se joue : conformité RGPD, secret professionnel, données de santé. On cadre le périmètre, on signale ce qui relève de votre responsabilité, et on oriente vers l'expert (avocat, DPO) quand il le faut.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">07</span>
+              <span class="q">Combien de temps avant de voir un résultat&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">On commence petit, là où ça coince, pour un premier agent utile rapidement. Puis on itère et on déploie service par service, à votre rythme.</p>
+          </details>
+          <details class="faq-item" name="faq">
+            <summary>
+              <span class="num">08</span>
+              <span class="q">Comment se passe la facturation&nbsp;?</span>
+              <span class="pip" aria-hidden="true"></span>
+            </summary>
+            <p class="answer">En trois temps : un cadrage payant, où nous chiffrons avec vous ce que l'automatisation vous rapporte réellement (temps, argent récupéré, erreurs évitées) ; un forfait de construction calculé sur cette valeur, pour être rentabilisé en quelques mois sur la base de vos propres chiffres ; puis, si vous le souhaitez, un accompagnement mensuel pour maintenir et faire évoluer vos outils. Le prix s'ancre sur la valeur créée, pas sur des heures.</p>
+          </details>
+        </div>
+
+        <div class="aside">
+          <p>Une question qui n'est pas là&nbsp;? On en parle directement.</p>
+          <a href="mailto:jordan.koskas@gmail.com" data-cta-destination="mailto:jordan.koskas@gmail.com">ÉCRIRE À JK</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- « PRÊT À… » · retour au SOMBRE avant le CTA -->
+  <section id="contact" class="section s-contact on-dark" aria-labelledby="contact-title">
+    <div class="seam seam--to-dark" aria-hidden="true"></div>
+    <div class="ready">
+      <div class="ripples" aria-hidden="true">
+        <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+        <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+      </div>
+      <div class="inner">
+        <p class="kicker">LE VRAI SUJET</p>
+        <h2 id="contact-title">On commence par <span class="grad">votre quotidien.</span></h2>
+        <p class="lede">Le vrai sujet n'est pas d'avoir le meilleur outil aujourd'hui, c'est de l'avoir encore demain. Apportez un exemple concret (une facture, un export, un mail type) et nous vous donnerons un avis honnête, y compris si la réponse est « pas maintenant ».</p>
+        <div class="cta-row">
+          <a class="cta-solid" href="mailto:jordan.koskas@gmail.com" data-cta-destination="mailto:jordan.koskas@gmail.com">Parler du projet</a>
+          <a class="cta-ghost" href="mailto:jordan.koskas@gmail.com" data-cta-destination="mailto:jordan.koskas@gmail.com">Écrire à Jordan</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+/* ============================================================
+   LE FIL CONDUCTEUR — habillage du token partagé.
+   Sa position, sa taille et sa couleur sont pilotées par
+   assets/js/core/thread.js via des propriétés personnalisées.
+   ============================================================ */
+
+.thread-token{
+  --token-r: 8px;
+  --token-color: 127, 227, 255;
+  --token-tail: 0px;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* Au-dessus des scènes et des vignettes de section, sous le lien
+     d'évitement. Les sections étant en `isolation: isolate`, leurs propres
+     empilements ne peuvent pas passer devant. */
+  z-index: 40;
+  pointer-events: none;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* La traîne part du point et remonte : c'est le chemin déjà parcouru. */
+.thread-tail{
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--token-r) * 0.6);
+  transform: translateX(-50%);
+  width: 2px;
+  height: var(--token-tail);
+  background: linear-gradient(180deg, transparent, rgba(var(--token-color), .55));
+}
+
+.thread-dot{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--token-r) * 2);
+  height: calc(var(--token-r) * 2);
+  margin-left: calc(var(--token-r) * -1);
+  margin-top: calc(var(--token-r) * -1);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 28%, rgb(var(--token-color)) 72%);
+  box-shadow:
+    0 0 calc(var(--token-r) * 2) calc(var(--token-r) * 0.6) rgba(var(--token-color), .8),
+    0 0 0 1px rgba(10, 25, 40, .25);
+  animation: thread-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes thread-pulse{
+  0%, 100%{ box-shadow: 0 0 calc(var(--token-r) * 2)   calc(var(--token-r) * 0.6) rgba(var(--token-color), .75),
+                        0 0 0 1px rgba(10, 25, 40, .25) }
+  50%     { box-shadow: 0 0 calc(var(--token-r) * 2.8) calc(var(--token-r) * 1)   rgba(var(--token-color), .95),
+                        0 0 0 1px rgba(10, 25, 40, .25) }
+}

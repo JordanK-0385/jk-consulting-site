@@ -1,0 +1,176 @@
+/* ============================================================
+   TOKENS — source de vérité de la charte (cf. SPECS.md §2)
+   Rien d'autre dans le projet ne définit une couleur en dur.
+   ============================================================ */
+
+:root{
+  /* ---- Typographie ---- */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---- Surfaces sombres ---- */
+  --bg-deep:  #060B18;
+  --bg-mid:   #081124;
+  --bg-high:  #0B1830;
+
+  /* ---- Surface claire ---- */
+  --paper:      #F5F7FA;
+  --ink:        #0C1420;
+  --ink-muted:  #5B6B7D;
+  --rule:       #E2E7EE;
+
+  /* ---- Texte sur sombre ---- */
+  --on-dark-fg:       #EAF1FB;
+  --on-dark-fg-muted: #9AB0CC;
+
+  /* ---- Accents : jeu SOMBRE (néon vif) ---- */
+  --neon-cyan:   #7FE3FF;
+  --neon-blue:   #4FA8F0;
+  --neon-green:  #6EDC96;
+  --neon-indigo: #6E7BF2;
+  --neon-teal:   #3FD6C8;
+
+  /* ---- Accents : jeu CLAIR (assombri, contraste sur papier) ---- */
+  --deep-cyan:  #1E9FD6;
+  --deep-blue:  #3B7BE0;
+  --deep-green: #1FB574;
+
+  /* ---- Métamorphose du process (section 3, dans l'ordre) ---- */
+  --morph-1: #F2964E;  /* orange — brut */
+  --morph-2: #4FA8F0;  /* bleu */
+  --morph-3: #6E7BF2;  /* indigo */
+  --morph-4: #3FD6C8;  /* teal */
+  --morph-5: #7FE3FF;  /* cyan */
+  --morph-6: #6EDC96;  /* vert — agent en service */
+
+  /* ---- Grain de points sur les fonds sombres ---- */
+  --grain: rgba(127, 227, 255, .04);
+
+  /* ---- Rythme ---- */
+  --gutter:    clamp(20px, 5vw, 52px);
+  --measure:   1180px;
+  --radius-pill: 999px;
+
+  /* ---- Hauteurs de scroll (arbitrage A : desktop = protos à l'identique) ---- */
+  /* La landing dépasse les 220vh du proto : la condensation du bureau en
+     étincelle a besoin de place pour respirer. À 220vh, le héros s'effaçant
+     à 55% du parcours, il ne restait que ~430px de course pour ramasser tout
+     le bureau en un point.
+
+     Ramenée de 280 à 210vh, puis reportée à 310. La coupe était juste à
+     l'époque : la fin de section ne montrait plus rien — 0,7 écran à 0 % de
+     mouvement sur un cadre uniforme à 54 %, un écran noir avec un point. Ce
+     qui a changé depuis, c'est que cette queue n'est plus vide : la charnière
+     l'occupe. Le titre s'y écrit de 0,40 à 0,87 de la course et la bille y
+     naît de 0,87 à 0,97 — il ne reste plus un tiers inerte à rogner.
+
+     Toutes les fenêtres du landing étant des fractions de la progression
+     (CONDENSE, DERIVE, EXTINCTION, NAISSANCE dans landing.js, ECRITURE dans
+     core/interrogation.js), cette seule valeur les étire ensemble sans en
+     toucher une. Vérifié : le rapport écriture/course reste à 0,54 de 210 à
+     360vh, et l'écriture du titre passe de 0,59 à 1,14 écran de défilement en
+     1440x900, de 0,44 à 0,94 en 390x844. L'entrée était trop rapide pour se
+     voir ; elle dure maintenant un écran.
+
+     Conséquence assumée : l'étirement est uniforme, donc l'ouverture avant la
+     condensation passe elle aussi de 0,46 à 0,86 écran. C'est le temps de
+     lecture du hero, qui s'efface sur 0,55 de la course. */
+  --h-landing:  310vh;
+  /* LE REPOS DE LA CHARNIÈRE : défilement pendant lequel le landing, achevé,
+     reste collé — « Comment on fait ? » complet, la bille en guise de point.
+     Sans lui, le « ? » entier n'était visible que sur ~95px de défilement en
+     1440x900 : le décrochage passait inaperçu. Ajouté à la hauteur du landing
+     (s1-landing.css) et passé en palier à stickyProgress, comme --couture pour
+     la liaison. La fin de ce repos porte le décrochage (charniere.js). */
+  --repos-charniere: 60vh;
+  /* 500vh et non 700 : sept jalons posés à intervalles égaux, c'était un
+     écran plein PAR JALON. Le mécanisme — on lit le canvas en défilant
+     latéralement — est compris au deuxième, et les cinq écrans du tronçon
+     horizontal sont la même composition. Mesuré : 6,9 % de mouvement moyen,
+     le plus bas de la page, et une densité d'encre plate à 14-16 % du cadre
+     du premier au dernier. À 500vh on tient 0,67 écran par jalon — encore un
+     tiers plus lent que le repli mobile, qui en fait 0,5 et qui est validé.
+     L'accostage garde chaque paragraphe à l'arrêt le temps d'être lu. */
+  --h-workflow: 500vh;
+  --h-liaison:  460vh;
+
+  /* LA COUTURE BUREAU -> TÉMOIGNAGES : longueur de la traversée du robot.
+     Elle sert aux DEUX sections et doit donc vivre ici. La liaison s'en sert
+     pour tenir sa scène immobile pendant tout le passage ; les témoignages
+     s'en servent pour chevaucher la liaison d'un écran plus cette longueur —
+     ce qui place les deux calques à l'écran, complets et fixes, avant que la
+     lame ne commence. */
+  --couture: 170vh;
+}
+
+/* Arbitrage A : sur mobile uniquement, on raccourcit le défilement.
+   Le récit reste entier, le pouce souffre moins. Desktop inchangé. */
+@media (max-width: 720px){
+  :root{
+    /* 270 et non 310 : le repli garde son abattement, comme pour les deux
+       autres sections. La même fraction d'écriture y donne 0,94 écran. */
+    --h-landing:  270vh;
+    --repos-charniere: 45vh;
+    --h-workflow: 400vh;
+    --h-liaison:  300vh;
+  }
+}
+
+/* ============================================================
+   LES DEUX CONTEXTES
+   Toute section porte .on-dark ou .on-light. Les composants
+   n'utilisent QUE --accent-* / --fg / --surface : ils s'adaptent
+   au fond sans connaître leur contexte.
+   ============================================================ */
+
+.on-dark{
+  --surface:   var(--bg-deep);
+  --fg:        var(--on-dark-fg);
+  --fg-muted:  var(--on-dark-fg-muted);
+  --hairline:  rgba(127, 227, 255, .18);
+
+  --accent-cyan:   var(--neon-cyan);
+  --accent-blue:   var(--neon-blue);
+  --accent-green:  var(--neon-green);
+  --accent-indigo: var(--neon-indigo);
+  --accent-teal:   var(--neon-teal);
+
+  /* CTA plein : cyan néon, texte encre (SPECS §2) */
+  --cta-bg: var(--neon-cyan);
+  --cta-fg: #061020;
+
+  color: var(--fg);
+  background-color: var(--surface);
+}
+
+.on-light{
+  --surface:   var(--paper);
+  --fg:        var(--ink);
+  --fg-muted:  var(--ink-muted);
+  --hairline:  var(--rule);
+
+  /* Les valeurs « assombries » de SPECS §2 ne passent pas WCAG AA sur papier :
+     face à #F5F7FA, #1E9FD6 donne 2.8:1 et #1FB574 donne 2.47:1, pour un
+     seuil de 4.5:1 en texte courant (3.0:1 pour un composant graphique).
+     Le blanc sur pastille #1E9FD6 tombait à 3.01:1.
+     Le contexte clair utilise donc des variantes assombries au strict
+     minimum nécessaire. Les teintes SPECS restent disponibles en --deep-*
+     pour les aplats décoratifs, où le contraste n'est pas en jeu. */
+  --accent-cyan:  #1779A3;  /* 4.55:1 — SPECS : #1E9FD6 */
+  --accent-blue:  #3670CC;  /* 4.50:1 — SPECS : #3B7BE0 */
+  --accent-green: #168152;  /* 4.55:1 — SPECS : #1FB574 */
+  /* indigo/teal n'ont pas de variante claire (SPECS §2) : on retombe
+     sur le bleu/cyan plutôt que d'inventer une couleur. */
+  --accent-indigo: var(--accent-blue);
+  --accent-teal:   var(--accent-cyan);
+
+  --cta-bg: var(--accent-cyan);
+  --cta-fg: #FFFFFF;          /* 4.88:1 sur --accent-cyan */
+
+  color: var(--fg);
+  background-color: var(--surface);
+}
+
+/* Sans mouvement, rien ne se joue pendant le repos : il est supprimé. */
+.reduced-motion{ --repos-charniere: 0vh; }

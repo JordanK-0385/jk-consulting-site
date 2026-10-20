@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JK — la passerelle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.intro{height:70vh;display:grid;place-items:center;text-align:center;background:#F5F7FA;color:#5B6B7D;font-family:'JetBrains Mono';font-size:12px;letter-spacing:.14em}
+.intro .a{color:#1779A3;font-size:16px;animation:bob 1.8s ease-in-out infinite;margin-top:8px}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+.scroll{height:340vh;position:relative}
+.viewport{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:#060B18}
+
+/* le MONDE : bloc clair (haut) + bloc sombre (bas), qui défile */
+.world{position:absolute;left:0;top:0;width:100%;will-change:transform}
+.block{position:absolute;left:0;width:100%}
+.light{background:#F5F7FA}
+.dark{background:radial-gradient(80% 60% at 50% 40%,rgba(79,168,240,.12),transparent 60%),#0B1830}
+/* couture douce en haut du bloc sombre */
+.seam{position:absolute;left:0;width:100%;height:26vh;background:linear-gradient(180deg,#F5F7FA 0%,#0B1830 100%)}
+
+/* le rail continu (couleur qui glisse clair->néon) */
+.rail{position:absolute;left:50%;top:0;width:2px;transform:translateX(-50%);
+  background:linear-gradient(180deg,#1779A3 0%,#1779A3 46%,#3FD6C8 52%,#7FE3FF 60%,#7FE3FF 100%)}
+
+/* noeuds dans le monde */
+.node{position:absolute;left:50%;transform:translate(-50%,-50%);text-align:center}
+.n-mark{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;margin:0 auto;
+  font-family:'Space Grotesk';font-weight:600;font-size:15px;transition:.3s}
+.node.light-n .n-mark{background:#fff;border:2px solid #1779A3;color:#1779A3}
+.node.hub .ring{width:70px;height:70px;border-radius:50%;border:2px solid #1779A3;margin:0 auto;transition:.3s}
+.node.hub.dock .ring{box-shadow:0 0 0 6px rgba(23,121,163,.12);transform:scale(1.08)}
+.node .lab{margin-top:14px;font-family:'Space Grotesk';font-weight:600;color:#0C1420}
+.node.hub .lab{font-size:clamp(24px,4vw,40px);letter-spacing:-.01em}
+.node.hub .k{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.14em;color:#1779A3;margin-bottom:10px}
+.node.light-n .lab{font-size:20px;color:#3670CC}
+.node.light-n .sub{font-family:'Inter';font-weight:400;font-size:13px;color:#5B6B7D;margin-top:4px;max-width:26ch}
+
+/* noeud d'arrivée dans le sombre : n8n-like */
+.wnode{position:absolute;left:50%;transform:translate(-50%,-50%)}
+.wbox{width:180px;padding:14px 16px;border-radius:14px;background:rgba(12,26,46,.95);border:1.6px solid rgba(127,227,255,.6);
+  box-shadow:0 0 14px rgba(127,227,255,.25);transition:.3s}
+.wnode.dock .wbox{box-shadow:0 0 22px rgba(127,227,255,.55)}
+.wbox .s{font-family:'JetBrains Mono';font-size:10px;color:#8fa6c4}
+.wbox .t{font-family:'Space Grotesk';font-weight:600;font-size:16px;color:#EAF1FB;margin-top:2px}
+
+/* overlays fixes (écran) */
+.token{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;pointer-events:none}
+.token .tail{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);width:2px;height:90px;
+  background:linear-gradient(180deg,transparent,rgba(127,227,255,.55))}
+.token .dot{position:relative;width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle,#fff 30%,#7FE3FF 70%);box-shadow:0 0 16px 5px rgba(127,227,255,.8),0 0 0 1px rgba(10,25,40,.25);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 16px 5px rgba(127,227,255,.75)}50%{box-shadow:0 0 22px 8px rgba(127,227,255,.95)}}
+
+.hud{position:absolute;top:28px;left:30px;z-index:30;font-family:'JetBrains Mono';font-size:11.5px;color:#8fa6c4;opacity:0;transition:opacity .4s}
+.hud b{color:#7FE3FF}
+.gov{position:absolute;right:clamp(20px,6vw,80px);top:50%;transform:translateY(-50%);z-index:30;max-width:min(30ch,80vw);opacity:0;transition:opacity .5s}
+.gov .h{font-family:'Space Grotesk';font-weight:600;font-size:18px;color:#EAF1FB;margin-bottom:10px}
+.gov p{margin:0;color:#a9bcd6;font-size:14px;line-height:1.6}
+
+.label-l{position:absolute;left:clamp(20px,6vw,80px);top:50%;transform:translateY(-50%);z-index:30;opacity:0;transition:opacity .5s}
+.label-l .k{font-family:'JetBrains Mono';font-size:12px;letter-spacing:.14em;color:#1779A3;margin-bottom:10px}
+.label-l h2{font-family:'Space Grotesk';font-weight:700;font-size:clamp(26px,4vw,44px);letter-spacing:-.02em;margin:0;color:#0C1420}
+
+.cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:30;font-family:'JetBrains Mono';font-size:11px;letter-spacing:.1em;color:#8fa6c4;opacity:.6}
+.outro{height:60vh;display:grid;place-items:center;background:#0B1830;color:#8fa6c4;font-family:'JetBrains Mono';font-size:12px}
+@media (prefers-reduced-motion:reduce){.token .dot,.intro .a{animation:none}}
+</style>
+</head>
+<body>
+<div class="intro"><div>la méthode se termine…<div class="a">↓</div></div></div>
+
+<div class="scroll" id="scroll">
+  <div class="viewport">
+    <div class="world" id="world">
+      <!-- fonds -->
+      <div class="block light" id="lightBlock"></div>
+      <div class="block dark" id="darkBlock"></div>
+      <div class="seam" id="seamEl"></div>
+      <!-- rail continu -->
+      <div class="rail" id="rail"></div>
+      <!-- noeuds -->
+      <div class="node light-n" id="n05"><div class="n-mark">05</div><div class="lab">Autonomie</div><div class="sub">On vous forme à piloter.</div></div>
+      <div class="node hub" id="hub"><div class="k">ET CONCRÈTEMENT ?</div><div class="lab">Voyons un agent s'installer.</div><div class="ring" style="margin-top:18px"></div></div>
+      <div class="wnode" id="recept"><div class="wbox"><div class="s">trigger</div><div class="t">Réception</div></div></div>
+    </div>
+
+    <!-- overlays fixes -->
+    <div class="token" id="token"><div class="tail"></div><div class="dot"></div></div>
+    <div class="hud" id="hud">PROCESS · <b>0%</b></div>
+    <div class="label-l" id="labelL"><div class="k">ÉTAPE 06 · le workflow</div><h2>Le process entre.</h2></div>
+    <div class="gov" id="gov"><div class="h">Le process entre</div><p>On le décode, on vérifie sa légitimité — signature, token — et on va chercher le contenu complet. Entrées validées.</p></div>
+    <div class="cue">continuez</div>
+  </div>
+</div>
+
+<div class="outro"><div>… et le workflow continue.</div></div>
+
+<script>
+const vh=()=>innerHeight, seg=(p,a,b)=>Math.max(0,Math.min(1,(p-a)/(b-a)));
+const world=document.getElementById('world');
+const lightBlock=document.getElementById('lightBlock'),darkBlock=document.getElementById('darkBlock'),seamEl=document.getElementById('seamEl'),rail=document.getElementById('rail');
+const n05=document.getElementById('n05'),hub=document.getElementById('hub'),recept=document.getElementById('recept');
+const token=document.getElementById('token'),dot=token.querySelector('.dot'),hud=document.getElementById('hud'),gov=document.getElementById('gov'),labelL=document.getElementById('labelL');
+const hudB=hud.querySelector('b');
+
+// positions (en fractions de vh dans le monde)
+const Y={ n05:0.30, hub:0.75, seam:1.10, recept:1.50 };
+let WORLDH;
+function layout(){
+  const H=vh(); WORLDH=2.2*H;
+  world.style.height=WORLDH+'px';
+  lightBlock.style.top='0'; lightBlock.style.height=(Y.seam*H)+'px';
+  darkBlock.style.top=(Y.seam*H)+'px'; darkBlock.style.height=(WORLDH-Y.seam*H)+'px';
+  seamEl.style.top=(Y.seam*H-13* (H/100)*1)+'px'; seamEl.style.top=((Y.seam-0.13)*H)+'px';
+  rail.style.height=WORLDH+'px';
+  n05.style.top=(Y.n05*H)+'px';
+  hub.style.top=(Y.hub*H)+'px';
+  recept.style.top=(Y.recept*H)+'px';
+}
+addEventListener('resize',layout); layout();
+
+function loop(){
+  const sc=document.getElementById('scroll'),rect=sc.getBoundingClientRect(),H=vh();
+  let p=Math.max(0,Math.min(1,(-rect.top)/(sc.offsetHeight-H)));
+  // le monde défile ; le token reste au centre (50%) — le décor bascule autour de lui
+  const pan=p*(WORLDH-H);
+  world.style.transform=`translateY(${-pan}px)`;
+
+  const center=0.5*H;
+  // docking : un noeud pulse quand il passe au centre (là où est le token)
+  const hubY=Y.hub*H-pan, recY=Y.recept*H-pan;
+  hub.classList.toggle('dock', Math.abs(hubY-center)<70);
+  recept.classList.toggle('dock', Math.abs(recY-center)<70);
+
+  // le token se réchauffe (assombri -> néon) en franchissant la couture (~p=0.5)
+  const warm=seg(p,0.42,0.6);
+  dot.style.filter=`hue-rotate(0deg)`; // le cœur reste blanc/cyan, glow constant
+
+  // overlays contextuels
+  labelL.style.opacity=seg(p,0.06,0.18)*(1-seg(p,0.30,0.42)); // label méthode -> disparait avant la couture
+  hud.style.opacity=seg(p,0.5,0.62);                          // HUD apparait côté sombre
+  hudB.textContent=Math.round(seg(p,0.5,1)*100)+'%';
+  gov.style.opacity=seg(p,0.74,0.86);                         // réassurance quand Réception dock
+
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

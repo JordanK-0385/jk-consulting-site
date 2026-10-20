@@ -1,0 +1,267 @@
+/* ============================================================
+   SECTION 1 — LANDING · le résultat · fond SOMBRE
+   Port de prototypes/1-landing.html.
+   Tout est scopé sous .s-landing : à l'audit, .a/.ctas/.eyebrow/.cue
+   entraient en collision avec la FAQ et la section méthode.
+   ============================================================ */
+
+.s-landing{ --scroll-height: calc(var(--h-landing) + var(--repos-charniere)); }
+
+.s-landing > .stage{
+  background:
+    radial-gradient(90% 70% at 50% -6%, rgba(79,168,240,.22), transparent 55%),
+    radial-gradient(120% 120% at 50% 20%, #0C1A34 0%, #08122456 40%, var(--bg-deep) 100%);
+}
+
+.s-landing .scene-svg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.s-landing .vignette{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 11;
+  background: radial-gradient(130% 110% at 50% 42%, transparent 58%, rgba(2,5,14,.6) 100%);
+}
+
+/* ---- Bandeau de tête ---- */
+.s-landing .topbar{
+  position: absolute;
+  top: 26px; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-inline: var(--gutter);
+}
+.s-landing .brand{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .02em;
+}
+.s-landing .brand i{ color: var(--accent-cyan); font-style: normal; }
+
+.s-landing .topbar-cta{
+  /* Cible tactile d'au moins 44px de haut : la version d'origine tombait
+     à 35px sur mobile, sous le seuil recommandé. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .06em;
+  color: var(--cta-fg);
+  background: var(--cta-bg);
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ---- Bloc héros ---- */
+.s-landing .hero{
+  position: absolute;
+  left: var(--gutter);
+  bottom: clamp(40px, 9vh, 96px);
+  z-index: 20;
+  /* Le proto posait min(58ch, 90vw) ici. L'unité `ch` se calcule sur la
+     police du bloc — 16px héritée du body — et non sur celle du titre :
+     la colonne tombait à 580px pour un h1 de 104px, si bien que
+     « Chaque service a » se coupait en deux alors que le <br> du markup
+     n'en attend qu'une ligne. Largeur explicite, dimensionnée pour le titre. */
+  max-width: min(90vw, 900px);
+  will-change: transform, opacity;
+}
+.s-landing .eyebrow{
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .16em;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+}
+.s-landing .hero h1{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(40px, 8.5vw, 104px);
+  line-height: .94;
+  letter-spacing: -.03em;
+}
+.s-landing .hero h1 .grad{
+  background: linear-gradient(90deg, var(--neon-cyan), #6E8BF2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.s-landing .hero .lede{
+  margin: 20px 0 24px;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.7vw, 17px);
+  line-height: 1.5;
+  color: #a9bcd6;
+}
+
+.s-landing .cta-row{ display: flex; gap: 13px; flex-wrap: wrap; }
+.s-landing .cta-row a{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  padding: 14px 26px;
+  border-radius: var(--radius-pill);
+  transition: transform .2s;
+}
+.s-landing .cta-solid{ background: var(--cta-bg); color: var(--cta-fg); }
+.s-landing .cta-ghost{ border: 1px solid rgba(127,227,255,.4); color: var(--fg); }
+.s-landing .cta-row a:hover{ transform: translateY(-2px); }
+
+/* ---- Invite au défilement ---- */
+.s-landing .cue{
+  position: absolute;
+  left: 50%; bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: #8fa6c4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.s-landing .cue .arrow{
+  color: var(--accent-cyan);
+  animation: landing-bob 1.8s ease-in-out infinite;
+}
+
+/* ---- Vie ambiante (SPECS §2 : ça vit même à l'arrêt) ---- */
+.s-landing .bot-a{ animation: landing-float 3.4s ease-in-out infinite; }
+.s-landing .bot-b{ animation: landing-float 3.8s ease-in-out infinite .5s; }
+.s-landing .bot-c{ animation: landing-float 3.1s ease-in-out infinite 1s; }
+.s-landing .bot-d{ animation: landing-float 4.1s ease-in-out infinite .3s; }
+.s-landing .eye{ animation: landing-blink 4.6s ease-in-out infinite; }
+.s-landing .holo{ animation: landing-hfloat 5s ease-in-out infinite; }
+.s-landing .pulse{ animation: landing-pulse 3s ease-in-out infinite; }
+
+@keyframes landing-bob   { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(5px) } }
+@keyframes landing-float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-5px) } }
+@keyframes landing-hfloat{ 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-7px) } }
+@keyframes landing-blink { 0%,92%,100%{ opacity: 1 } 95%{ opacity: .15 } }
+@keyframes landing-pulse { 0%,100%{ opacity: .5 } 50%{ opacity: 1 } }
+
+/* ---- Replis mobiles (SPECS §5 : durcir les protos) ---- */
+@media (max-width: 720px){
+  /* Les panneaux holo sont placés en coordonnées viewBox fixes : hors champ
+     et illisibles sur écran étroit. On les retire plutôt que de les tasser. */
+  .s-landing .holos{ display: none; }
+
+  .s-landing .topbar{ top: 18px; }
+  .s-landing .topbar-cta{ font-size: 11px; padding: 0 14px; }
+
+  /* La scène remonte (cf. landing.js) et le héros s'assoit sur un voile
+     pour rester lisible par-dessus le plateau isométrique. */
+  .s-landing .hero{
+    left: 20px; right: 20px;
+    bottom: 64px;
+    max-width: none;
+  }
+  .s-landing .hero::before{
+    content: '';
+    position: absolute;
+    inset: -28px -20px -40px;
+    z-index: -1;
+    background: linear-gradient(180deg, transparent, rgba(6,11,24,.82) 22%, rgba(6,11,24,.94));
+  }
+  .s-landing .hero .lede{ font-size: 14.5px; margin: 14px 0 20px; }
+  .s-landing .cta-row a{ padding: 12px 20px; font-size: 14px; }
+}
+
+/* ---- La charnière : « Comment on fait ? » ----
+   DÉLIBÉRÉMENT NON SCOPÉ, contrairement au reste de ce fichier. Le bloc
+   VOYAGE : son balisage vit dans la méthode — c'est là qu'il se lit quand le
+   mouvement est réduit — et le script l'embarque sur ce stage quand le
+   mouvement est permis. Un sélecteur ancré sur une section le dépouillerait
+   de ses règles à l'arrivée. Le scope général de ce fichier existe parce que
+   .a/.ctas/.eyebrow/.cue se retrouvaient dans trois protos ; .charniere est
+   unique au projet, la raison ne s'applique pas ici.
+
+   ABSOLU DANS LE STAGE, et non fixe. Tant que le stage est collé, un enfant
+   absolu y a exactement le repère du viewport : la pose du « ? » sur l'ancre
+   ne change pas d'une ligne. Puis le stage se décolle et emporte le titre
+   vers le haut, à la vitesse du défilement — celle du logo, mesurée au pixel.
+   L'overflow:hidden du stage découpe la sortie : pas de masque à ajouter.
+
+   z-index 12 : au-dessus de la scène et de la vignette (11), SOUS le bandeau,
+   le hero et l'indice (20). Le titre ne PEUT donc pas couvrir le logo ni le
+   bouton — ce n'est plus une mesure qui le dit, c'est l'ordre d'empilement. */
+.charniere{
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  opacity: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.02;
+}
+/* Posé par transform depuis le coin haut-gauche : le module calcule le
+   décalage qui amène le centre du point sur l'ancre. */
+.titre-charniere{
+  position: absolute;
+  top: 0; left: 0;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 80px;
+}
+/* L'ÉCRITURE EST UN DÉVOILEMENT DIRECTIONNEL, pas un fondu : chaque mot est
+   découvert de la gauche vers la droite par son propre volet, tous pilotés
+   par la même progression. Valeur de départ 100% : rien n'est écrit tant que
+   le module n'a pas parlé — c'est aussi ce qui rend tout fondu d'entrée
+   inutile. */
+.charniere .mot{
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+.charniere .mot + .mot{ margin-left: .28em; }
+/* Le « ? » : la chasse et la hauteur du glyphe, en em, pour que le bloc se
+   compose exactement comme du texte. */
+.charniere .q{ margin-left: .10em; }
+.charniere .q svg{
+  display: block;
+  width: .578em;
+  height: .728em;
+  overflow: visible;
+}
+.charniere .boucle{ fill: currentColor; }
+/* Le point appartient à la bille. Il n'est dessiné que dans le repli. */
+.charniere .point{ fill: currentColor; opacity: 0; }
+
+@media (max-width: 720px){
+  /* Trois lignes, le « ? » seul sur la dernière. Il se loge dans la gouttière
+     du rail — la colonne des nœuds — et se lit comme un nœud 00. Corps 68px :
+     le point du glyphe y fait 12.9px, la bille au repos 12.8px. */
+  .titre-charniere{ font-size: 68px; white-space: normal; }
+  .charniere .mot{ display: block; }
+  .charniere .mot + .mot{ margin-left: 0; }
+  .charniere .q{ margin-left: 0; }
+}
+
+/* Repli sans mouvement : le script n'embarque pas le titre, il reste donc
+   dans le flux de la méthode — entier, immobile, point compris. */
+.reduced-motion .charniere{
+  position: static;
+  opacity: 1;
+  padding: clamp(60px, 12vh, 140px) var(--gutter) 0;
+}
+.reduced-motion .titre-charniere{ position: static; }
+.reduced-motion .charniere .mot{ clip-path: none; }
+.reduced-motion .charniere .point{ opacity: 1; }
